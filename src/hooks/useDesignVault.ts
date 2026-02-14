@@ -1,0 +1,152 @@
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { DesignVaultAPI } from "../api/client";
+import type { DesignVaultConfig, FloorPlan, Modification } from "../types";
+
+// ── Anonymous ID ─────────────────────────────────────────────
+
+const ANON_ID_KEY = "dv-anonymous-id";
+
+function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
+
+function getOrCreateAnonymousId(): string {
+  if (typeof window === "undefined") return generateId();
+  try {
+    const existing = localStorage.getItem(ANON_ID_KEY);
+    if (existing) return existing;
+    const id = generateId();
+    localStorage.setItem(ANON_ID_KEY, id);
+    return id;
+  } catch {
+    return generateId();
+  }
+}
+
+// ── Context ──────────────────────────────────────────────────
+
+export interface DesignVaultContextValue {
+  config: DesignVaultConfig;
+  api: DesignVaultAPI;
+  anonymousId: string;
+  sessionStartTime: number;
+
+  // Lead capture gate
+  isCaptured: boolean;
+  setCaptured: (captured: boolean) => void;
+
+  // Session tracking (shared across hooks)
+  sessionId: string | null;
+  setSessionId: (id: string | null) => void;
+  modifications: Modification[];
+  addModification: (mod: Modification) => void;
+  plansViewed: string[];
+  addPlanViewed: (planId: string) => void;
+  currentPlan: FloorPlan | null;
+  setCurrentPlan: (plan: FloorPlan | null) => void;
+  stylePref: string | null;
+  setStylePref: (pref: string | null) => void;
+}
+
+export const DesignVaultContext =
+  createContext<DesignVaultContextValue | null>(null);
+
+export function useDesignVaultContext(): DesignVaultContextValue {
+  const ctx = useContext(DesignVaultContext);
+  if (!ctx) {
+    throw new Error(
+      "useDesignVaultContext must be used within a DesignVaultProvider"
+    );
+  }
+  return ctx;
+}
+
+// ── Provider ─────────────────────────────────────────────────
+
+export interface DesignVaultProviderProps {
+  config: DesignVaultConfig;
+  children: React.ReactNode;
+}
+
+export function DesignVaultProvider({
+  config,
+  children,
+}: DesignVaultProviderProps) {
+  const api = useMemo(
+    () => new DesignVaultAPI(config.apiBaseUrl),
+    [config.apiBaseUrl]
+  );
+
+  const [anonymousId] = useState(getOrCreateAnonymousId);
+  const sessionStartRef = useRef(Date.now());
+
+  const [isCaptured, setCaptured] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [modifications, setModifications] = useState<Modification[]>([]);
+  const [plansViewed, setPlansViewed] = useState<string[]>([]);
+  const [currentPlan, setCurrentPlan] = useState<FloorPlan | null>(null);
+  const [stylePref, setStylePref] = useState<string | null>(null);
+
+  const addModification = useCallback((mod: Modification) => {
+    setModifications((prev) => [...prev, mod]);
+  }, []);
+
+  const addPlanViewed = useCallback((planId: string) => {
+    setPlansViewed((prev) =>
+      prev.includes(planId) ? prev : [...prev, planId]
+    );
+  }, []);
+
+  const value = useMemo<DesignVaultContextValue>(
+    () => ({
+      config,
+      api,
+      anonymousId,
+      sessionStartTime: sessionStartRef.current,
+      isCaptured,
+      setCaptured,
+      sessionId,
+      setSessionId,
+      modifications,
+      addModification,
+      plansViewed,
+      addPlanViewed,
+      currentPlan,
+      setCurrentPlan,
+      stylePref,
+      setStylePref,
+    }),
+    [
+      config,
+      api,
+      anonymousId,
+      isCaptured,
+      sessionId,
+      modifications,
+      plansViewed,
+      currentPlan,
+      stylePref,
+      addModification,
+      addPlanViewed,
+    ]
+  );
+
+  return React.createElement(
+    DesignVaultContext.Provider,
+    { value },
+    children
+  );
+}

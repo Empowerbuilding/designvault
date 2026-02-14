@@ -1,0 +1,329 @@
+/* DesignVault – all styles scoped with .dv- prefix */
+
+/* ── Reset / Root ─────────────────────────────────────────── */
+
+.dv-root {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+.dv-root *,
+.dv-root *::before,
+.dv-root *::after {
+  box-sizing: border-box;
+}
+
+/* ── Archive Grid ─────────────────────────────────────────── */
+
+.dv-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.dv-archive-grid.dv-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* ── Plan Card ────────────────────────────────────────────── */
+
+.dv-plan-card {
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+}
+
+.dv-plan-card:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.dv-plan-card__image img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.dv-plan-card__info {
+  padding: 1rem;
+}
+
+.dv-plan-card__name {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.dv-plan-card__specs {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* ── Plan Detail ──────────────────────────────────────────── */
+
+.dv-plan-detail {
+  padding: 2rem;
+}
+
+.dv-plan-detail__close {
+  float: right;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.dv-plan-detail__name {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.dv-plan-detail__description {
+  color: #4b5563;
+}
+
+/* ── AI Tools Panel ───────────────────────────────────────── */
+
+.dv-ai-tools-panel {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+.dv-ai-tools-panel__title {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* ── Lead Capture Modal ───────────────────────────────────── */
+
+.dv-lead-capture-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.dv-lead-capture-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 90%;
+}
+
+.dv-lead-capture-modal__close {
+  float: right;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dv-lead-capture-modal__title {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.dv-lead-capture-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dv-lead-capture-modal__form input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.dv-lead-capture-modal__form button[type="submit"] {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+}
+
+/* ── Category Tiles ───────────────────────────────────────── */
+
+.dv-category-tiles {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.dv-category-tile {
+  flex-shrink: 0;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.dv-category-tile--active {
+  border-color: currentColor;
+  font-weight: 600;
+}
+
+.dv-category-tile__count {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* ── Filter Bar ───────────────────────────────────────────── */
+
+.dv-filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.dv-filter-bar__select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: #fff;
+}
+
+/* ── Featured Row ─────────────────────────────────────────── */
+
+.dv-featured-row {
+  margin: 2rem 0;
+}
+
+.dv-featured-row__title {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.dv-featured-row__scroll {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.dv-featured-row__item {
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* ── Style Swap Buttons ───────────────────────────────────── */
+
+.dv-style-swap-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.dv-style-swap-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.2s;
+}
+
+.dv-style-swap-btn:hover {
+  background: #f3f4f6;
+}
+
+/* ── Floor Plan Editor ────────────────────────────────────── */
+
+.dv-floor-plan-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dv-floor-plan-editor__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.dv-floor-plan-editor__input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.dv-floor-plan-editor__submit {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+  align-self: flex-start;
+}
+
+/* ── Similar Plans ────────────────────────────────────────── */
+
+.dv-similar-plans {
+  margin-top: 2rem;
+}
+
+.dv-similar-plans__title {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.dv-similar-plans__row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+}
+
+.dv-similar-plans__item {
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* ── Favorite Button ──────────────────────────────────────── */
+
+.dv-favorite-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dv-favorite-btn--sm { font-size: 1rem; }
+.dv-favorite-btn--md { font-size: 1.25rem; }
+.dv-favorite-btn--lg { font-size: 1.5rem; }
