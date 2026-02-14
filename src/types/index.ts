@@ -68,7 +68,7 @@ export interface DesignSession {
 // ── Modification ─────────────────────────────────────────────
 
 export interface Modification {
-  type: "style_swap" | "floor_plan_edit";
+  type: "style_swap" | "floor_plan_edit" | "wishlist_item";
   prompt: string | null;
   stylePreset: string | null;
   resultUrl: string;
@@ -231,8 +231,10 @@ export interface StyleSwapButtonsProps {
 export interface FloorPlanEditorProps {
   planId: string;
   currentFloorPlanUrl: string | null;
-  onEdit: (prompt: string) => Promise<void>;
-  onEnhance: (prompt: string) => Promise<string | null>;
+  wishlistItems: string[];
+  onWishlistAdd: (text: string) => void;
+  onWishlistRemove: (index: number) => void;
+  onPreviewAI: () => Promise<void>;
   isProcessing: boolean;
 }
 

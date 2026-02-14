@@ -36,6 +36,11 @@ function summarizeMod(mod: Modification): string {
       .replace(/\b\w/g, (c) => c.toUpperCase());
     return `Style swap to ${label}`;
   }
+  if (mod.type === "wishlist_item" && mod.prompt) {
+    return mod.prompt.length > 50
+      ? `Wishlist: ${mod.prompt.slice(0, 47)}\u2026`
+      : `Wishlist: ${mod.prompt}`;
+  }
   if (mod.type === "floor_plan_edit" && mod.prompt) {
     return mod.prompt.length > 50
       ? mod.prompt.slice(0, 50) + "\u2026"

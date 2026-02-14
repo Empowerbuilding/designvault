@@ -1,93 +1,107 @@
 import React, { useState } from "react";
-import { Sparkles, Send, Loader2 } from "lucide-react";
+import { Plus, Sparkles, Check, X, Loader2 } from "lucide-react";
 import type { FloorPlanEditorProps } from "../types";
 
 export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
   currentFloorPlanUrl,
-  onEdit,
-  onEnhance,
+  wishlistItems,
+  onWishlistAdd,
+  onWishlistRemove,
+  onPreviewAI,
   isProcessing,
 }) => {
-  const [prompt, setPrompt] = useState("");
-  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [input, setInput] = useState("");
 
-  const handleEnhance = async () => {
-    if (!prompt.trim() || isEnhancing) return;
-    setIsEnhancing(true);
-    const enhanced = await onEnhance(prompt);
-    if (enhanced) setPrompt(enhanced);
-    setIsEnhancing(false);
-  };
-
-  const handleSubmit = async () => {
-    if (!prompt.trim() || isProcessing) return;
-    await onEdit(prompt);
-    setPrompt("");
+  const handleAdd = () => {
+    const text = input.trim();
+    if (!text) return;
+    onWishlistAdd(text);
+    setInput("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      handleAdd();
     }
   };
 
   return (
-    <div className="dv-floor-plan-editor">
-      <h4 className="dv-floor-plan-editor__label">Floor Plan Editor</h4>
+    <div className="dv-wishlist">
+      <h4 className="dv-wishlist__label">Design Wishlist</h4>
 
-      {/* Preview */}
+      {/* Floor plan preview */}
       {currentFloorPlanUrl && (
-        <div className="dv-floor-plan-editor__preview">
+        <div className="dv-wishlist__preview">
           <img
             src={currentFloorPlanUrl}
             alt="Current floor plan"
-            className="dv-floor-plan-editor__preview-img"
+            className="dv-wishlist__preview-img"
           />
         </div>
       )}
 
       {/* Input area */}
-      <div className="dv-floor-plan-editor__input-wrap">
+      <div className="dv-wishlist__input-wrap">
         <textarea
-          className="dv-floor-plan-editor__input"
-          placeholder='Try: "Add a 4th bedroom" or "Make the kitchen bigger"'
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          className="dv-wishlist__input"
+          placeholder="What would you change? E.g. 'Add a 4th bedroom', 'Bigger garage', 'Open concept kitchen'..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isProcessing}
-          rows={3}
+          rows={2}
         />
+        <button
+          className="dv-wishlist__add-btn"
+          onClick={handleAdd}
+          disabled={!input.trim() || isProcessing}
+        >
+          <Plus size={14} />
+          Add to Wishlist
+        </button>
+      </div>
 
-        <div className="dv-floor-plan-editor__actions">
+      {/* Wishlist items */}
+      {wishlistItems.length > 0 && (
+        <div className="dv-wishlist__items">
+          {wishlistItems.map((item, i) => (
+            <div key={i} className="dv-wishlist__item">
+              <Check size={12} className="dv-wishlist__item-check" />
+              <span className="dv-wishlist__item-text">{item}</span>
+              <button
+                className="dv-wishlist__item-remove"
+                onClick={() => onWishlistRemove(i)}
+                aria-label="Remove"
+                disabled={isProcessing}
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Preview AI button */}
+      {wishlistItems.length > 0 && (
+        <div className="dv-wishlist__ai-section">
           <button
-            className="dv-floor-plan-editor__enhance"
-            onClick={handleEnhance}
-            disabled={!prompt.trim() || isEnhancing || isProcessing}
-            title="Enhance your prompt with AI"
+            className="dv-wishlist__ai-btn"
+            onClick={onPreviewAI}
+            disabled={isProcessing}
           >
-            {isEnhancing ? (
-              <Loader2 size={14} className="dv-floor-plan-editor__spinner" />
+            {isProcessing ? (
+              <Loader2 size={14} className="dv-wishlist__spinner" />
             ) : (
               <Sparkles size={14} />
             )}
-            Enhance
+            {isProcessing ? "Generating..." : "Preview AI Suggestion"}
           </button>
-
-          <button
-            className="dv-floor-plan-editor__submit"
-            onClick={handleSubmit}
-            disabled={!prompt.trim() || isProcessing}
-          >
-            {isProcessing ? (
-              <Loader2 size={14} className="dv-floor-plan-editor__spinner" />
-            ) : (
-              <Send size={14} />
-            )}
-            Apply Edit
-          </button>
+          <p className="dv-wishlist__ai-disclaimer">
+            Results are AI-generated and may not be exact
+          </p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

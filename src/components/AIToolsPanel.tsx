@@ -16,23 +16,31 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
   const {
     handleStyleSwap,
     handleFloorPlanEdit,
-    handleEnhancePrompt,
     isProcessing,
     needsCapture,
     error: aiError,
   } = useAIInteractions();
 
-  const { modifications, isCaptured } = useDesignVaultContext();
+  const { modifications, isCaptured, addModification } =
+    useDesignVaultContext();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [activePreset, setActivePreset] = useState<string | null>(
     plan.style ?? null
   );
+  const [wishlistItems, setWishlistItems] = useState<string[]>([]);
+
+  // Reset wishlist when plan changes
+  useEffect(() => {
+    setWishlistItems([]);
+  }, [plan.id]);
 
   // Sync processing state up to PlanDetail
   useEffect(() => {
     onProcessingChange(isProcessing);
   }, [isProcessing, onProcessingChange]);
+
+  // ── Style Swap ──────────────────────────────────────────────
 
   const onSwap = useCallback(
     async (presetId: string) => {
@@ -55,43 +63,64 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
     [needsCapture, handleStyleSwap, plan.id, plan.image_url, onResult]
   );
 
-  const onEdit = useCallback(
-    async (prompt: string) => {
-      if (needsCapture) {
-        setModalOpen(true);
-        return;
-      }
+  // ── Wishlist ────────────────────────────────────────────────
 
-      const result = await handleFloorPlanEdit(
-        plan.id,
-        prompt,
-        plan.floor_plan_url ?? undefined
-      );
+  const onWishlistAdd = useCallback(
+    (text: string) => {
+      setWishlistItems((prev) => [...prev, text]);
 
-      if (result?.success && result.resultUrl) {
-        onResult({
-          newUrl: result.resultUrl,
-          originalUrl: plan.floor_plan_url ?? plan.image_url,
-          type: "floor_plan_edit",
-        });
-      }
+      // Record as a modification so it's included in lead data
+      addModification({
+        type: "wishlist_item",
+        prompt: text,
+        stylePreset: null,
+        resultUrl: "",
+        originalUrl: "",
+        timestamp: new Date().toISOString(),
+      });
     },
-    [
-      needsCapture,
-      handleFloorPlanEdit,
+    [addModification]
+  );
+
+  const onWishlistRemove = useCallback((index: number) => {
+    setWishlistItems((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const onPreviewAI = useCallback(async () => {
+    if (needsCapture) {
+      setModalOpen(true);
+      return;
+    }
+
+    // Concatenate all wishlist items into one prompt
+    const prompt =
+      "Make these changes: " +
+      wishlistItems.map((item, i) => `${i + 1}) ${item}`).join(" ");
+
+    const result = await handleFloorPlanEdit(
       plan.id,
-      plan.floor_plan_url,
-      plan.image_url,
-      onResult,
-    ]
-  );
+      prompt,
+      plan.floor_plan_url ?? undefined
+    );
 
-  const onEnhance = useCallback(
-    async (prompt: string) => {
-      return handleEnhancePrompt(prompt, plan.image_url);
-    },
-    [handleEnhancePrompt, plan.image_url]
-  );
+    if (result?.success && result.resultUrl) {
+      onResult({
+        newUrl: result.resultUrl,
+        originalUrl: plan.floor_plan_url ?? plan.image_url,
+        type: "floor_plan_edit",
+      });
+    }
+  }, [
+    needsCapture,
+    wishlistItems,
+    handleFloorPlanEdit,
+    plan.id,
+    plan.floor_plan_url,
+    plan.image_url,
+    onResult,
+  ]);
+
+  // ── Modal ───────────────────────────────────────────────────
 
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
@@ -121,14 +150,16 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
         </>
       )}
 
-      {/* Floor Plan Editor */}
+      {/* Design Wishlist (was Floor Plan Editor) */}
       {config.enableFloorPlanEdit !== false && (
         <>
           <FloorPlanEditor
             planId={plan.id}
             currentFloorPlanUrl={plan.floor_plan_url}
-            onEdit={onEdit}
-            onEnhance={onEnhance}
+            wishlistItems={wishlistItems}
+            onWishlistAdd={onWishlistAdd}
+            onWishlistRemove={onWishlistRemove}
+            onPreviewAI={onPreviewAI}
             isProcessing={isProcessing}
           />
           <div className="dv-ai-tools__divider" />

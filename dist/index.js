@@ -813,80 +813,89 @@ var StyleSwapButtons = ({
 };
 var FloorPlanEditor = ({
   currentFloorPlanUrl,
-  onEdit,
-  onEnhance,
+  wishlistItems,
+  onWishlistAdd,
+  onWishlistRemove,
+  onPreviewAI,
   isProcessing
 }) => {
-  const [prompt, setPrompt] = React.useState("");
-  const [isEnhancing, setIsEnhancing] = React.useState(false);
-  const handleEnhance = async () => {
-    if (!prompt.trim() || isEnhancing) return;
-    setIsEnhancing(true);
-    const enhanced = await onEnhance(prompt);
-    if (enhanced) setPrompt(enhanced);
-    setIsEnhancing(false);
-  };
-  const handleSubmit = async () => {
-    if (!prompt.trim() || isProcessing) return;
-    await onEdit(prompt);
-    setPrompt("");
+  const [input, setInput] = React.useState("");
+  const handleAdd = () => {
+    const text = input.trim();
+    if (!text) return;
+    onWishlistAdd(text);
+    setInput("");
   };
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      handleAdd();
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-floor-plan-editor", children: [
-    /* @__PURE__ */ jsxRuntime.jsx("h4", { className: "dv-floor-plan-editor__label", children: "Floor Plan Editor" }),
-    currentFloorPlanUrl && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-floor-plan-editor__preview", children: /* @__PURE__ */ jsxRuntime.jsx(
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("h4", { className: "dv-wishlist__label", children: "Design Wishlist" }),
+    currentFloorPlanUrl && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-wishlist__preview", children: /* @__PURE__ */ jsxRuntime.jsx(
       "img",
       {
         src: currentFloorPlanUrl,
         alt: "Current floor plan",
-        className: "dv-floor-plan-editor__preview-img"
+        className: "dv-wishlist__preview-img"
       }
     ) }),
-    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-floor-plan-editor__input-wrap", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__input-wrap", children: [
       /* @__PURE__ */ jsxRuntime.jsx(
         "textarea",
         {
-          className: "dv-floor-plan-editor__input",
-          placeholder: 'Try: "Add a 4th bedroom" or "Make the kitchen bigger"',
-          value: prompt,
-          onChange: (e) => setPrompt(e.target.value),
+          className: "dv-wishlist__input",
+          placeholder: "What would you change? E.g. 'Add a 4th bedroom', 'Bigger garage', 'Open concept kitchen'...",
+          value: input,
+          onChange: (e) => setInput(e.target.value),
           onKeyDown: handleKeyDown,
           disabled: isProcessing,
-          rows: 3
+          rows: 2
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-floor-plan-editor__actions", children: [
-        /* @__PURE__ */ jsxRuntime.jsxs(
-          "button",
-          {
-            className: "dv-floor-plan-editor__enhance",
-            onClick: handleEnhance,
-            disabled: !prompt.trim() || isEnhancing || isProcessing,
-            title: "Enhance your prompt with AI",
-            children: [
-              isEnhancing ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Loader2, { size: 14, className: "dv-floor-plan-editor__spinner" }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 14 }),
-              "Enhance"
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntime.jsxs(
-          "button",
-          {
-            className: "dv-floor-plan-editor__submit",
-            onClick: handleSubmit,
-            disabled: !prompt.trim() || isProcessing,
-            children: [
-              isProcessing ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Loader2, { size: 14, className: "dv-floor-plan-editor__spinner" }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Send, { size: 14 }),
-              "Apply Edit"
-            ]
-          }
-        )
-      ] })
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "button",
+        {
+          className: "dv-wishlist__add-btn",
+          onClick: handleAdd,
+          disabled: !input.trim() || isProcessing,
+          children: [
+            /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Plus, { size: 14 }),
+            "Add to Wishlist"
+          ]
+        }
+      )
+    ] }),
+    wishlistItems.length > 0 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-wishlist__items", children: wishlistItems.map((item, i) => /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__item", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Check, { size: 12, className: "dv-wishlist__item-check" }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-wishlist__item-text", children: item }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "button",
+        {
+          className: "dv-wishlist__item-remove",
+          onClick: () => onWishlistRemove(i),
+          "aria-label": "Remove",
+          disabled: isProcessing,
+          children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 12 })
+        }
+      )
+    ] }, i)) }),
+    wishlistItems.length > 0 && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__ai-section", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "button",
+        {
+          className: "dv-wishlist__ai-btn",
+          onClick: onPreviewAI,
+          disabled: isProcessing,
+          children: [
+            isProcessing ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Loader2, { size: 14, className: "dv-wishlist__spinner" }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 14 }),
+            isProcessing ? "Generating..." : "Preview AI Suggestion"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-wishlist__ai-disclaimer", children: "Results are AI-generated and may not be exact" })
     ] })
   ] });
 };
@@ -1144,6 +1153,9 @@ function summarizeMod(mod) {
   if (mod.type === "style_swap" && mod.stylePreset) {
     const label = mod.stylePreset.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     return `Style swap to ${label}`;
+  }
+  if (mod.type === "wishlist_item" && mod.prompt) {
+    return mod.prompt.length > 50 ? `Wishlist: ${mod.prompt.slice(0, 47)}\u2026` : `Wishlist: ${mod.prompt}`;
   }
   if (mod.type === "floor_plan_edit" && mod.prompt) {
     return mod.prompt.length > 50 ? mod.prompt.slice(0, 50) + "\u2026" : mod.prompt;
@@ -1561,16 +1573,19 @@ var AIToolsPanel = ({
   const {
     handleStyleSwap,
     handleFloorPlanEdit,
-    handleEnhancePrompt,
     isProcessing,
     needsCapture,
     error: aiError
   } = useAIInteractions();
-  const { modifications, isCaptured } = useDesignVaultContext();
+  const { modifications, isCaptured, addModification } = useDesignVaultContext();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [activePreset, setActivePreset] = React.useState(
     plan.style ?? null
   );
+  const [wishlistItems, setWishlistItems] = React.useState([]);
+  React.useEffect(() => {
+    setWishlistItems([]);
+  }, [plan.id]);
   React.useEffect(() => {
     onProcessingChange(isProcessing);
   }, [isProcessing, onProcessingChange]);
@@ -1592,40 +1607,50 @@ var AIToolsPanel = ({
     },
     [needsCapture, handleStyleSwap, plan.id, plan.image_url, onResult]
   );
-  const onEdit = React.useCallback(
-    async (prompt) => {
-      if (needsCapture) {
-        setModalOpen(true);
-        return;
-      }
-      const result = await handleFloorPlanEdit(
-        plan.id,
-        prompt,
-        plan.floor_plan_url ?? void 0
-      );
-      if (result?.success && result.resultUrl) {
-        onResult({
-          newUrl: result.resultUrl,
-          originalUrl: plan.floor_plan_url ?? plan.image_url,
-          type: "floor_plan_edit"
-        });
-      }
+  const onWishlistAdd = React.useCallback(
+    (text) => {
+      setWishlistItems((prev) => [...prev, text]);
+      addModification({
+        type: "wishlist_item",
+        prompt: text,
+        stylePreset: null,
+        resultUrl: "",
+        originalUrl: "",
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
     },
-    [
-      needsCapture,
-      handleFloorPlanEdit,
+    [addModification]
+  );
+  const onWishlistRemove = React.useCallback((index) => {
+    setWishlistItems((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+  const onPreviewAI = React.useCallback(async () => {
+    if (needsCapture) {
+      setModalOpen(true);
+      return;
+    }
+    const prompt = "Make these changes: " + wishlistItems.map((item, i) => `${i + 1}) ${item}`).join(" ");
+    const result = await handleFloorPlanEdit(
       plan.id,
-      plan.floor_plan_url,
-      plan.image_url,
-      onResult
-    ]
-  );
-  const onEnhance = React.useCallback(
-    async (prompt) => {
-      return handleEnhancePrompt(prompt, plan.image_url);
-    },
-    [handleEnhancePrompt, plan.image_url]
-  );
+      prompt,
+      plan.floor_plan_url ?? void 0
+    );
+    if (result?.success && result.resultUrl) {
+      onResult({
+        newUrl: result.resultUrl,
+        originalUrl: plan.floor_plan_url ?? plan.image_url,
+        type: "floor_plan_edit"
+      });
+    }
+  }, [
+    needsCapture,
+    wishlistItems,
+    handleFloorPlanEdit,
+    plan.id,
+    plan.floor_plan_url,
+    plan.image_url,
+    onResult
+  ]);
   const openModal = React.useCallback(() => setModalOpen(true), []);
   const closeModal = React.useCallback(() => setModalOpen(false), []);
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools", children: [
@@ -1653,8 +1678,10 @@ var AIToolsPanel = ({
         {
           planId: plan.id,
           currentFloorPlanUrl: plan.floor_plan_url,
-          onEdit,
-          onEnhance,
+          wishlistItems,
+          onWishlistAdd,
+          onWishlistRemove,
+          onPreviewAI,
           isProcessing
         }
       ),
