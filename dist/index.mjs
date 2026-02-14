@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState, useRef, useCallback, useEffect } from 'react';
-import { Filter, X, Heart, Star, Home, Bath, Square, Layers, ArrowRight, ChevronLeft, ChevronRight, Loader2, Sparkles, Send, CheckCircle, Save, Check, Mountain, Crown, TreePine, Ruler, Warehouse } from 'lucide-react';
+import { Filter, X, Heart, Star, Sparkles, Home, Bath, Square, ArrowRight, ChevronLeft, ChevronRight, Layers, Loader2, Send, CheckCircle, Save, Check, Mountain, Crown, TreePine, Minimize2, Warehouse } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 
@@ -313,60 +313,29 @@ function usePlans(initialFilters) {
   };
 }
 var CATEGORIES = [
-  {
-    slug: "barndominium",
-    label: "Modern Barndo",
-    description: "Steel-frame living",
-    icon: /* @__PURE__ */ jsx(Home, { size: 24 })
-  },
-  {
-    slug: "ranch",
-    label: "Rustic Ranch",
-    description: "Single-story comfort",
-    icon: /* @__PURE__ */ jsx(Mountain, { size: 24 })
-  },
-  {
-    slug: "estate",
-    label: "Luxury Estate",
-    description: "Premium design",
-    icon: /* @__PURE__ */ jsx(Crown, { size: 24 })
-  },
-  {
-    slug: "cabin",
-    label: "Hill Country",
-    description: "Texas charm",
-    icon: /* @__PURE__ */ jsx(TreePine, { size: 24 })
-  },
-  {
-    slug: "starter",
-    label: "Compact / Starter",
-    description: "Smart & efficient",
-    icon: /* @__PURE__ */ jsx(Ruler, { size: 24 })
-  },
-  {
-    slug: "shop_house",
-    label: "Shop + Living",
-    description: "Work & live",
-    icon: /* @__PURE__ */ jsx(Warehouse, { size: 24 })
-  }
+  { slug: "barndominium", label: "Modern Barndo", icon: /* @__PURE__ */ jsx(Home, { size: 22 }) },
+  { slug: "ranch", label: "Rustic Ranch", icon: /* @__PURE__ */ jsx(Mountain, { size: 22 }) },
+  { slug: "estate", label: "Luxury Estate", icon: /* @__PURE__ */ jsx(Crown, { size: 22 }) },
+  { slug: "cabin", label: "Hill Country", icon: /* @__PURE__ */ jsx(TreePine, { size: 22 }) },
+  { slug: "starter", label: "Compact / Starter", icon: /* @__PURE__ */ jsx(Minimize2, { size: 22 }) },
+  { slug: "shop_house", label: "Shop + Living", icon: /* @__PURE__ */ jsx(Warehouse, { size: 22 }) }
 ];
 var CategoryTiles = ({
   activeCategory,
   onSelect
 }) => {
-  return /* @__PURE__ */ jsx("div", { className: "dv-category-tiles", children: /* @__PURE__ */ jsx("div", { className: "dv-category-tiles__scroll", children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxs(
+  return /* @__PURE__ */ jsx("div", { className: "dv-category-tiles", children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxs(
     "button",
     {
       className: `dv-category-tile ${activeCategory === cat.slug ? "dv-category-tile--active" : ""}`,
       onClick: () => onSelect(activeCategory === cat.slug ? null : cat.slug),
       children: [
         /* @__PURE__ */ jsx("span", { className: "dv-category-tile__icon", children: cat.icon }),
-        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__name", children: cat.label }),
-        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__desc", children: cat.description })
+        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__label", children: cat.label })
       ]
     },
     cat.slug
-  )) }) });
+  )) });
 };
 var AREA_RANGES = [
   { label: "Under 1,000 sqft", min: 0, max: 999 },
@@ -509,12 +478,10 @@ var FavoriteButton = ({
     }
   );
 };
-function isNewPlan(createdAt) {
-  const created = new Date(createdAt);
-  const thirtyDaysAgo = /* @__PURE__ */ new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  return created > thirtyDaysAgo;
-}
+var cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+};
 var PlanCard = ({
   plan,
   onSelect,
@@ -522,18 +489,16 @@ var PlanCard = ({
   isFavorite = false
 }) => {
   const [imageIndex, setImageIndex] = useState(0);
-  const isPopular = plan.click_count >= 50;
-  const isNew = isNewPlan(plan.created_at);
+  const isPopular = (plan.vote_count ?? 0) > 3;
+  const isNew = plan.is_new === true;
   const allImages = [plan.image_url, ...plan.interior_urls ?? []];
   const hasMultipleImages = allImages.length > 1;
   return /* @__PURE__ */ jsxs(
     motion.div,
     {
       className: "dv-plan-card",
-      initial: { opacity: 0, y: 20 },
-      whileInView: { opacity: 1, y: 0 },
+      variants: cardVariants,
       viewport: { once: true, margin: "-50px" },
-      transition: { duration: 0.4 },
       children: [
         /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__image", onClick: () => onSelect(plan), children: [
           /* @__PURE__ */ jsx(
@@ -545,13 +510,27 @@ var PlanCard = ({
               loading: "lazy"
             }
           ),
-          /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__badges", children: [
+          /* @__PURE__ */ jsx("div", { className: "dv-plan-card__image-gradient" }),
+          (isPopular || isNew) && /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__badges", children: [
             isPopular && /* @__PURE__ */ jsxs("span", { className: "dv-plan-card__badge dv-plan-card__badge--popular", children: [
-              /* @__PURE__ */ jsx(Star, { size: 12 }),
-              "Popular"
+              /* @__PURE__ */ jsx(Star, { size: 10 }),
+              " POPULAR"
             ] }),
-            isNew && /* @__PURE__ */ jsx("span", { className: "dv-plan-card__badge dv-plan-card__badge--new", children: "New" })
+            isNew && /* @__PURE__ */ jsx("span", { className: "dv-plan-card__badge dv-plan-card__badge--new", children: "NEW" })
           ] }),
+          /* @__PURE__ */ jsxs("span", { className: "dv-plan-card__ai-badge", children: [
+            /* @__PURE__ */ jsx(Sparkles, { size: 10 }),
+            " AI Customizable"
+          ] }),
+          onFavorite && /* @__PURE__ */ jsx("div", { className: "dv-plan-card__favorite", children: /* @__PURE__ */ jsx(
+            FavoriteButton,
+            {
+              planId: plan.id,
+              isFavorite,
+              onToggle: onFavorite,
+              size: "sm"
+            }
+          ) }),
           hasMultipleImages && /* @__PURE__ */ jsx("div", { className: "dv-plan-card__dots", children: allImages.map((_, i) => /* @__PURE__ */ jsx(
             "button",
             {
@@ -587,20 +566,9 @@ var PlanCard = ({
             ] })
           ] }),
           plan.tags && plan.tags.length > 0 && /* @__PURE__ */ jsx("div", { className: "dv-plan-card__tags", children: plan.tags.slice(0, 3).map((tag) => /* @__PURE__ */ jsx("span", { className: "dv-plan-card__tag", children: tag }, tag)) }),
-          /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__actions", children: [
-            /* @__PURE__ */ jsxs("button", { className: "dv-plan-card__cta", onClick: () => onSelect(plan), children: [
-              /* @__PURE__ */ jsx(Layers, { size: 14 }),
-              "Customize"
-            ] }),
-            onFavorite && /* @__PURE__ */ jsx(
-              FavoriteButton,
-              {
-                planId: plan.id,
-                isFavorite,
-                onToggle: onFavorite,
-                size: "sm"
-              }
-            )
+          /* @__PURE__ */ jsxs("button", { className: "dv-plan-card__cta", onClick: () => onSelect(plan), children: [
+            /* @__PURE__ */ jsx(Sparkles, { size: 14 }),
+            "Customize"
           ] })
         ] })
       ]
@@ -2010,24 +1978,33 @@ var PlanDetail = ({
               ] })
             ] }),
             /* @__PURE__ */ jsxs("div", { className: "dv-detail-body", children: [
-              /* @__PURE__ */ jsxs("div", { className: "dv-detail-body__left", children: [
-                thumbnails.length > 1 && /* @__PURE__ */ jsx("div", { className: "dv-detail-thumbs", children: thumbnails.map((thumb) => /* @__PURE__ */ jsxs(
-                  "button",
-                  {
-                    className: `dv-detail-thumbs__item ${heroUrl === thumb.url && !hasAiResult ? "dv-detail-thumbs__item--active" : ""}`,
-                    onClick: () => {
-                      setHeroUrl(thumb.url);
-                      setOriginalUrl(thumb.url);
-                      setHasAiResult(false);
-                      setShowOriginal(false);
-                    },
-                    children: [
-                      /* @__PURE__ */ jsx("img", { src: thumb.url, alt: thumb.label }),
-                      /* @__PURE__ */ jsx("span", { className: "dv-detail-thumbs__label", children: thumb.label })
-                    ]
+              thumbnails.length > 1 && /* @__PURE__ */ jsx("div", { className: "dv-detail-body__thumbs", children: /* @__PURE__ */ jsx("div", { className: "dv-detail-thumbs", children: thumbnails.map((thumb) => /* @__PURE__ */ jsxs(
+                "button",
+                {
+                  className: `dv-detail-thumbs__item ${heroUrl === thumb.url && !hasAiResult ? "dv-detail-thumbs__item--active" : ""}`,
+                  onClick: () => {
+                    setHeroUrl(thumb.url);
+                    setOriginalUrl(thumb.url);
+                    setHasAiResult(false);
+                    setShowOriginal(false);
                   },
-                  thumb.url
-                )) }),
+                  children: [
+                    /* @__PURE__ */ jsx("img", { src: thumb.url, alt: thumb.label }),
+                    /* @__PURE__ */ jsx("span", { className: "dv-detail-thumbs__label", children: thumb.label })
+                  ]
+                },
+                thumb.url
+              )) }) }),
+              /* @__PURE__ */ jsx("div", { className: "dv-detail-body__sidebar", children: /* @__PURE__ */ jsx(
+                AIToolsPanel,
+                {
+                  plan,
+                  config,
+                  onResult: handleResult,
+                  onProcessingChange: setIsProcessing
+                }
+              ) }),
+              /* @__PURE__ */ jsxs("div", { className: "dv-detail-body__main", children: [
                 plan.description && /* @__PURE__ */ jsx("p", { className: "dv-detail-description", children: plan.description }),
                 plan.features.length > 0 && /* @__PURE__ */ jsxs("div", { className: "dv-detail-features", children: [
                   /* @__PURE__ */ jsx("h3", { className: "dv-detail-features__title", children: "Features" }),
@@ -2042,23 +2019,14 @@ var PlanDetail = ({
                     },
                     feature
                   )) })
-                ] }),
-                config.enableSimilarPlans !== false && allPlans && allPlans.length > 1 && /* @__PURE__ */ jsx(
-                  SimilarPlans,
-                  {
-                    currentPlan: plan,
-                    allPlans,
-                    onPlanSelect: handlePlanSelect
-                  }
-                )
+                ] })
               ] }),
-              /* @__PURE__ */ jsx("div", { className: "dv-detail-body__right", children: /* @__PURE__ */ jsx(
-                AIToolsPanel,
+              config.enableSimilarPlans !== false && allPlans && allPlans.length > 1 && /* @__PURE__ */ jsx("div", { className: "dv-detail-body__similar", children: /* @__PURE__ */ jsx(
+                SimilarPlans,
                 {
-                  plan,
-                  config,
-                  onResult: handleResult,
-                  onProcessingChange: setIsProcessing
+                  currentPlan: plan,
+                  allPlans,
+                  onPlanSelect: handlePlanSelect
                 }
               ) })
             ] })
@@ -2127,11 +2095,16 @@ function DesignVaultInner({ config }) {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs("header", { className: "dv-hero", children: [
       /* @__PURE__ */ jsxs("div", { className: "dv-hero__badge", children: [
-        /* @__PURE__ */ jsx(Sparkles, { size: 14 }),
+        /* @__PURE__ */ jsx(Sparkles, { size: 13 }),
         "AI-Powered Design"
       ] }),
       /* @__PURE__ */ jsx("h1", { className: "dv-hero__title", children: "Design Your Dream Home" }),
-      /* @__PURE__ */ jsx("p", { className: "dv-hero__subtitle", children: "Browse. Customize. Build." })
+      /* @__PURE__ */ jsx("p", { className: "dv-hero__subtitle", children: "Browse. Customize. Build." }),
+      /* @__PURE__ */ jsxs("p", { className: "dv-hero__desc", children: [
+        "Explore ",
+        plans.length > 0 ? `${plans.length}+` : "",
+        " custom floor plans and use AI to make them yours"
+      ] })
     ] }),
     /* @__PURE__ */ jsx("main", { className: "dv-container", children: /* @__PURE__ */ jsx(ArchiveGrid, { onPlanSelect: handlePlanSelect }) }),
     detailPlan && /* @__PURE__ */ jsx(

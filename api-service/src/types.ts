@@ -1,26 +1,23 @@
 export interface FloorPlan {
   id: string;
-  builder_slug: string;
   title: string;
-  slug: string;
+  description: string | null;
+  beds: number;
+  baths: number;
+  area: number;
+  image_url: string;
+  features: string[];
+  display_order: number;
+  vote_count: number;
   style: string | null;
   category: string | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  sqft: number | null;
-  stories: number | null;
-  garages: number | null;
-  description: string | null;
-  features: string[];
-  tags: string[];
   price_tier: string | null;
-  image_url: string;
-  floor_plan_url: string | null;
-  interior_urls: string[];
-  click_count: number;
   is_featured: boolean;
   is_new: boolean;
-  display_order: number;
+  floor_plan_url: string | null;
+  interior_urls: string[];
+  tags: string[];
+  click_count: number;
   created_at: string;
 }
 

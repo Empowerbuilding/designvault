@@ -34,6 +34,8 @@ export interface FloorPlan {
   price_tier: PriceTier | null;
   tags: string[] | null;
   featured: boolean;
+  is_new: boolean;
+  vote_count: number;
   click_count: number;
   display_order: number;
   created_at: string;

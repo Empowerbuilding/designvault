@@ -11,6 +11,54 @@ const router = Router();
 const MAX_FREE = 1;
 const HARD_LIMIT = MAX_FREE + 3;
 
+// ── n8n response extractors ─────────────────────────────────
+
+const IMAGE_URL_KEYS = [
+  "enhancedImage",
+  "image",
+  "output",
+  "url",
+  "result",
+  "resultUrl",
+  "generatedImage",
+  "generatedFloorPlan",
+  "editedFloorPlan",
+  "imageUrl",
+] as const;
+
+const PROMPT_KEYS = [
+  "enhancedPrompt",
+  "prompt",
+  "result",
+  "output",
+  "text",
+  "enhanced",
+] as const;
+
+function extractImageUrl(data: Record<string, unknown>): string | null {
+  for (const key of IMAGE_URL_KEYS) {
+    const val = data[key];
+    if (typeof val === "string" && val.length > 0) {
+      log("N8N_EXTRACT_IMAGE", { key, url: val });
+      return val;
+    }
+  }
+  log("N8N_EXTRACT_IMAGE_FAIL", { keys: Object.keys(data) });
+  return null;
+}
+
+function extractPrompt(data: Record<string, unknown>): string | null {
+  for (const key of PROMPT_KEYS) {
+    const val = data[key];
+    if (typeof val === "string" && val.length > 0) {
+      log("N8N_EXTRACT_PROMPT", { key });
+      return val;
+    }
+  }
+  log("N8N_EXTRACT_PROMPT_FAIL", { keys: Object.keys(data) });
+  return null;
+}
+
 // ── Helpers ─────────────────────────────────────────────────
 
 async function getSession(sessionId: string) {
@@ -147,7 +195,7 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
     const prompt = stylePresets[preset];
     log("STYLE_SWAP_START", { planId, preset, planTitle: plan.title });
 
-    const result = await callN8nWebhook<{ resultUrl: string }>(
+    const n8nResult = await callN8nWebhook<Record<string, unknown>>(
       "78eb9ad8-765f-4a20-8823-96a2e49d5f73",
       {
         imageUrl: plan.image_url,
@@ -157,28 +205,35 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
       }
     );
 
+    const resultUrl = extractImageUrl(n8nResult);
+    if (!resultUrl) {
+      log("STYLE_SWAP_NO_URL", { planId, preset, responseKeys: Object.keys(n8nResult) });
+      res.status(502).json({ error: "No image URL in n8n response" });
+      return;
+    }
+
     // Save to cache
     await getSupabase().from("design_cache").insert({
       plan_id: planId,
       action_type: "style_swap",
       action_params: preset,
       cache_key: cacheKey,
-      result_url: result.resultUrl,
+      result_url: resultUrl,
     });
 
     // Update session
     const updated = await incrementSession(sessionId, {
       type: "style_swap",
       preset,
-      result_url: result.resultUrl,
+      result_url: resultUrl,
       timestamp: new Date().toISOString(),
     });
 
-    log("STYLE_SWAP_DONE", { planId, preset, resultUrl: result.resultUrl });
+    log("STYLE_SWAP_DONE", { planId, preset, resultUrl });
 
     res.json({
       success: true,
-      resultUrl: result.resultUrl,
+      resultUrl,
       cached: false,
       remainingFree: remainingFree(
         (updated?.interaction_count ?? count + 1),
@@ -246,7 +301,7 @@ router.post(
 
       log("FLOOR_PLAN_EDIT_START", { planId, prompt });
 
-      const result = await callN8nWebhook<{ resultUrl: string }>(
+      const n8nResult = await callN8nWebhook<Record<string, unknown>>(
         "floor-plan-edit",
         {
           currentFloorPlanUrl: floorPlanUrl,
@@ -254,19 +309,26 @@ router.post(
         }
       );
 
+      const resultUrl = extractImageUrl(n8nResult);
+      if (!resultUrl) {
+        log("FLOOR_PLAN_EDIT_NO_URL", { planId, responseKeys: Object.keys(n8nResult) });
+        res.status(502).json({ error: "No image URL in n8n response" });
+        return;
+      }
+
       // Update session
       const updated = await incrementSession(sessionId, {
         type: "floor_plan_edit",
         prompt,
-        result_url: result.resultUrl,
+        result_url: resultUrl,
         timestamp: new Date().toISOString(),
       });
 
-      log("FLOOR_PLAN_EDIT_DONE", { planId, resultUrl: result.resultUrl });
+      log("FLOOR_PLAN_EDIT_DONE", { planId, resultUrl });
 
       res.json({
         success: true,
-        resultUrl: result.resultUrl,
+        resultUrl,
         cached: false,
         remainingFree: remainingFree(
           (updated?.interaction_count ?? count + 1),
@@ -293,17 +355,24 @@ router.post("/enhance-prompt", async (req: Request, res: Response) => {
 
     log("ENHANCE_PROMPT_START", { prompt });
 
-    const result = await callN8nWebhook<{ enhancedPrompt: string }>(
+    const n8nResult = await callN8nWebhook<Record<string, unknown>>(
       "enhance-prompt",
       { prompt, imageUrl }
     );
 
+    const enhancedPrompt = extractPrompt(n8nResult);
+    if (!enhancedPrompt) {
+      log("ENHANCE_PROMPT_NO_TEXT", { responseKeys: Object.keys(n8nResult) });
+      res.status(502).json({ error: "No prompt in n8n response" });
+      return;
+    }
+
     log("ENHANCE_PROMPT_DONE", {
       original: prompt,
-      enhanced: result.enhancedPrompt,
+      enhanced: enhancedPrompt,
     });
 
-    res.json({ enhancedPrompt: result.enhancedPrompt });
+    res.json({ enhancedPrompt });
   } catch (err) {
     log("ENHANCE_PROMPT_ERROR", { error: String(err) });
     res.status(500).json({ error: "Prompt enhancement failed" });

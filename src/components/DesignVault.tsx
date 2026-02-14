@@ -98,11 +98,15 @@ function DesignVaultInner({ config }: { config: DesignVaultConfig }) {
       {/* Hero */}
       <header className="dv-hero">
         <div className="dv-hero__badge">
-          <Sparkles size={14} />
+          <Sparkles size={13} />
           AI-Powered Design
         </div>
         <h1 className="dv-hero__title">Design Your Dream Home</h1>
         <p className="dv-hero__subtitle">Browse. Customize. Build.</p>
+        <p className="dv-hero__desc">
+          Explore {plans.length > 0 ? `${plans.length}+` : ""} custom floor
+          plans and use AI to make them yours
+        </p>
       </header>
 
       {/* Archive grid */}

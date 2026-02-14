@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { getSupabase } from "../lib/supabase.js";
+import { log } from "../lib/logger.js";
 
 const router = Router();
 
@@ -16,15 +17,16 @@ router.get("/", async (req: Request, res: Response) => {
 
     if (style) query = query.eq("style", style);
     if (category) query = query.eq("category", category);
-    if (beds) query = query.eq("bedrooms", Number(beds));
-    if (baths) query = query.eq("bathrooms", Number(baths));
-    if (minArea) query = query.gte("sqft", Number(minArea));
-    if (maxArea) query = query.lte("sqft", Number(maxArea));
+    if (beds) query = query.eq("beds", Number(beds));
+    if (baths) query = query.eq("baths", Number(baths));
+    if (minArea) query = query.gte("area", Number(minArea));
+    if (maxArea) query = query.lte("area", Number(maxArea));
     if (featured === "true") query = query.eq("is_featured", true);
 
     const { data, error } = await query;
 
     if (error) {
+      log("PLANS_QUERY_ERROR", { message: error.message, code: error.code, details: error.details });
       res.status(500).json({ error: error.message });
       return;
     }
@@ -32,6 +34,7 @@ router.get("/", async (req: Request, res: Response) => {
     res.set("Cache-Control", "public, max-age=300");
     res.json(data);
   } catch (err) {
+    log("PLANS_FETCH_ERROR", { error: String(err), stack: (err as Error).stack });
     res.status(500).json({ error: "Failed to fetch plans" });
   }
 });

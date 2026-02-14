@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, Bath, Square, Layers, Star } from "lucide-react";
+import { Home, Bath, Square, Sparkles, Star } from "lucide-react";
 import { FavoriteButton } from "./FavoriteButton";
 import type { PlanCardProps } from "../types";
 
-function isNewPlan(createdAt: string): boolean {
-  const created = new Date(createdAt);
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  return created > thirtyDaysAgo;
-}
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
 
 export const PlanCard: React.FC<PlanCardProps> = ({
   plan,
@@ -18,8 +16,8 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   isFavorite = false,
 }) => {
   const [imageIndex, setImageIndex] = useState(0);
-  const isPopular = plan.click_count >= 50;
-  const isNew = isNewPlan(plan.created_at);
+  const isPopular = (plan.vote_count ?? 0) > 3;
+  const isNew = plan.is_new === true;
 
   const allImages = [plan.image_url, ...(plan.interior_urls ?? [])];
   const hasMultipleImages = allImages.length > 1;
@@ -27,10 +25,8 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   return (
     <motion.div
       className="dv-plan-card"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      variants={cardVariants}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4 }}
     >
       {/* Image area */}
       <div className="dv-plan-card__image" onClick={() => onSelect(plan)}>
@@ -40,21 +36,40 @@ export const PlanCard: React.FC<PlanCardProps> = ({
           className="dv-plan-card__img"
           loading="lazy"
         />
+        <div className="dv-plan-card__image-gradient" />
 
-        {/* Badges */}
-        <div className="dv-plan-card__badges">
-          {isPopular && (
-            <span className="dv-plan-card__badge dv-plan-card__badge--popular">
-              <Star size={12} />
-              Popular
-            </span>
-          )}
-          {isNew && (
-            <span className="dv-plan-card__badge dv-plan-card__badge--new">
-              New
-            </span>
-          )}
-        </div>
+        {/* Badges — top left */}
+        {(isPopular || isNew) && (
+          <div className="dv-plan-card__badges">
+            {isPopular && (
+              <span className="dv-plan-card__badge dv-plan-card__badge--popular">
+                <Star size={10} /> POPULAR
+              </span>
+            )}
+            {isNew && (
+              <span className="dv-plan-card__badge dv-plan-card__badge--new">
+                NEW
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* AI badge — top right */}
+        <span className="dv-plan-card__ai-badge">
+          <Sparkles size={10} /> AI Customizable
+        </span>
+
+        {/* Favorite button — on image, below AI badge */}
+        {onFavorite && (
+          <div className="dv-plan-card__favorite">
+            <FavoriteButton
+              planId={plan.id}
+              isFavorite={isFavorite}
+              onToggle={onFavorite}
+              size="sm"
+            />
+          </div>
+        )}
 
         {/* Carousel dots */}
         {hasMultipleImages && (
@@ -106,21 +121,11 @@ export const PlanCard: React.FC<PlanCardProps> = ({
           </div>
         )}
 
-        {/* Actions */}
-        <div className="dv-plan-card__actions">
-          <button className="dv-plan-card__cta" onClick={() => onSelect(plan)}>
-            <Layers size={14} />
-            Customize
-          </button>
-          {onFavorite && (
-            <FavoriteButton
-              planId={plan.id}
-              isFavorite={isFavorite}
-              onToggle={onFavorite}
-              size="sm"
-            />
-          )}
-        </div>
+        {/* Full-width CTA */}
+        <button className="dv-plan-card__cta" onClick={() => onSelect(plan)}>
+          <Sparkles size={14} />
+          Customize
+        </button>
       </div>
     </motion.div>
   );

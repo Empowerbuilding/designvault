@@ -190,12 +190,11 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
               )}
             </div>
 
-            {/* Body: two-column layout */}
+            {/* Body: grid layout */}
             <div className="dv-detail-body">
-              {/* Left column */}
-              <div className="dv-detail-body__left">
-                {/* Thumbnails */}
-                {thumbnails.length > 1 && (
+              {/* Thumbnails — left column on desktop, first on mobile */}
+              {thumbnails.length > 1 && (
+                <div className="dv-detail-body__thumbs">
                   <div className="dv-detail-thumbs">
                     {thumbnails.map((thumb) => (
                       <button
@@ -219,14 +218,25 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
                       </button>
                     ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Description */}
+              {/* AI Tools — right sidebar on desktop, after thumbs on mobile */}
+              <div className="dv-detail-body__sidebar">
+                <AIToolsPanel
+                  plan={plan}
+                  config={config}
+                  onResult={handleResult}
+                  onProcessingChange={setIsProcessing}
+                />
+              </div>
+
+              {/* Main content — left column */}
+              <div className="dv-detail-body__main">
                 {plan.description && (
                   <p className="dv-detail-description">{plan.description}</p>
                 )}
 
-                {/* Features grid */}
                 {plan.features.length > 0 && (
                   <div className="dv-detail-features">
                     <h3 className="dv-detail-features__title">Features</h3>
@@ -243,28 +253,20 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
                     </div>
                   </div>
                 )}
+              </div>
 
-                {/* Similar plans */}
-                {config.enableSimilarPlans !== false &&
-                  allPlans &&
-                  allPlans.length > 1 && (
+              {/* Similar Plans — bottom of left column on desktop, very bottom on mobile */}
+              {config.enableSimilarPlans !== false &&
+                allPlans &&
+                allPlans.length > 1 && (
+                  <div className="dv-detail-body__similar">
                     <SimilarPlans
                       currentPlan={plan}
                       allPlans={allPlans}
                       onPlanSelect={handlePlanSelect}
                     />
-                  )}
-              </div>
-
-              {/* Right column: AI Tools */}
-              <div className="dv-detail-body__right">
-                <AIToolsPanel
-                  plan={plan}
-                  config={config}
-                  onResult={handleResult}
-                  onProcessingChange={setIsProcessing}
-                />
-              </div>
+                  </div>
+                )}
             </div>
           </motion.div>
         </motion.div>

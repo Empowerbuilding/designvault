@@ -39,12 +39,12 @@ router.post("/", async (req: Request, res: Response) => {
     // Get plan details for metadata
     const { data: plan } = await getSupabase()
       .from("website_floor_plans")
-      .select("id, title, bedrooms, bathrooms, sqft, style")
+      .select("id, title, beds, baths, area, style")
       .eq("id", session.plan_id)
       .single();
 
     const planSpecs = plan
-      ? `${plan.bedrooms ?? "?"}bd/${plan.bathrooms ?? "?"}ba/${plan.sqft ?? "?"}sqft`
+      ? `${plan.beds ?? "?"}bd/${plan.baths ?? "?"}ba/${plan.area ?? "?"}sqft`
       : "";
 
     // Build lead payload

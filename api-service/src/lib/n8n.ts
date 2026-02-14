@@ -26,8 +26,12 @@ export async function callN8nWebhook<T = unknown>(
     throw new Error(`n8n webhook failed: ${res.status} ${res.statusText}`);
   }
 
-  const data = (await res.json()) as T;
-  log("N8N_OK", { url, elapsed });
+  const raw = await res.json();
+  console.log("N8N_RAW_RESPONSE:", JSON.stringify(raw));
+
+  // n8n often returns an array — unwrap to first element
+  const data = (Array.isArray(raw) ? raw[0] : raw) as T;
+  log("N8N_OK", { url, elapsed, isArray: Array.isArray(raw) });
 
   return data;
 }
