@@ -1,14 +1,14 @@
 export const stylePresets: Record<string, string> = {
   modern:
-    "modern contemporary style, clean lines, large windows, flat or low-slope roof, metal and glass facade, minimalist landscaping",
+    "clean modern finishes, smooth stucco or metal panel exterior, matte black window frames, flat or low-slope metal roof, minimalist landscaping, concrete walkways, matte black fixtures",
   rustic:
-    "rustic Texas Hill Country style, natural stone exterior, cedar beams, warm earth tones, native landscaping, metal roof",
+    "natural limestone and cedar exterior, heavy timber beam accents, weathered wood siding, bronze standing seam metal roof, native stone accents, oil-rubbed bronze fixtures, native wildflower landscaping",
   hill_country:
-    "Texas Hill Country limestone and timber style, stone columns, standing seam metal roof, native Texas landscaping, warm ambient lighting",
+    "Texas limestone walls, cedar beam details, natural stone columns, standing seam metal roof, warm earth tones, native Texas landscaping with live oaks and sage",
   traditional:
-    "traditional American home style, brick or stone exterior, pitched roof, symmetrical design, manicured landscaping, classic columns",
+    "brick or natural stone exterior, architectural shingle roof, classic trim details, symmetrical window placement, manicured landscaping, copper accents",
   farmhouse:
-    "modern farmhouse style, white exterior with dark accents, board and batten siding, wraparound porch, barn-inspired details, gable roof",
+    "white board and batten siding, black window frames, black metal roof, simple porch columns, barn-inspired details, mixed white and natural wood tones",
   contemporary:
-    "contemporary architectural style, mixed materials, dramatic rooflines, floor-to-ceiling windows, geometric forms, architectural lighting",
+    "mixed material exterior with stone, wood, and metal panels, large glass sections, dark window frames, architectural concrete accents, sculptural landscaping",
 };

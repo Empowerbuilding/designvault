@@ -15,14 +15,15 @@ const HARD_LIMIT = MAX_FREE + 3;
 
 const IMAGE_URL_KEYS = [
   "enhancedImage",
+  "editedFloorPlan",
+  "generatedFloorPlan",
+  "floorPlan",
   "image",
   "output",
   "url",
   "result",
   "resultUrl",
   "generatedImage",
-  "generatedFloorPlan",
-  "editedFloorPlan",
   "imageUrl",
 ] as const;
 
@@ -192,14 +193,15 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
     }
 
     // Call n8n webhook
-    const prompt = stylePresets[preset];
+    const presetPrompt = stylePresets[preset];
+    const prompt = `Restyle this exact same home, keeping the identical structure, shape, roofline, windows, and layout. Only change the exterior materials, finishes, and landscaping to match this style: ${presetPrompt}. Keep the same camera angle, perspective, and composition. Photorealistic architectural photography.`;
     log("STYLE_SWAP_START", { planId, preset, planTitle: plan.title });
 
     const n8nResult = await callN8nWebhook<Record<string, unknown>>(
       "78eb9ad8-765f-4a20-8823-96a2e49d5f73",
       {
         imageUrl: plan.image_url,
-        prompt: `Render this home in ${prompt}`,
+        prompt,
         planId,
         preset,
       }
@@ -297,9 +299,18 @@ router.post(
           .single();
 
         floorPlanUrl = plan?.floor_plan_url;
+        log("FLOOR_PLAN_LOOKUP", { planId, floor_plan_url: floorPlanUrl ?? null });
       }
 
-      log("FLOOR_PLAN_EDIT_START", { planId, prompt });
+      if (!floorPlanUrl) {
+        log("FLOOR_PLAN_EDIT_NO_SOURCE", { planId });
+        res.status(400).json({
+          error: "This plan does not have a floor plan image yet. Cannot edit.",
+        });
+        return;
+      }
+
+      log("FLOOR_PLAN_EDIT_START", { planId, prompt, floorPlanUrl });
 
       const n8nResult = await callN8nWebhook<Record<string, unknown>>(
         "floor-plan-edit",
@@ -308,6 +319,8 @@ router.post(
           editPrompt: prompt,
         }
       );
+
+      log("FLOOR_PLAN_EDIT_N8N_RESPONSE", { planId, responseKeys: Object.keys(n8nResult) });
 
       const resultUrl = extractImageUrl(n8nResult);
       if (!resultUrl) {
