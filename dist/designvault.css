@@ -81,7 +81,8 @@
 
 .dv-hero {
   text-align: center;
-  padding: 60px 1.5rem 32px;
+  padding: 60px 1.5rem 40px;
+  overflow: visible;
 }
 
 .dv-hero__badge {
@@ -110,8 +111,9 @@
 .dv-hero__title {
   font-size: clamp(2rem, 5vw, 3.25rem);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 12px;
+  padding-bottom: 4px;
   background: linear-gradient(180deg, #ffffff 30%, #d0d0d0 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -624,7 +626,7 @@
 .dv-detail-panel {
   position: relative;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   max-height: 92vh;
   background: var(--dv-bg);
   border: 1px solid var(--dv-border);
@@ -660,7 +662,7 @@
 /* Detail — hero image */
 .dv-detail-hero {
   position: relative;
-  height: 400px;
+  height: 600px;
   overflow: hidden;
   background: #1a1a1a;
 }
@@ -775,8 +777,8 @@
 /* Detail — body layout */
 .dv-detail-body {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 24px;
+  grid-template-columns: 1fr 360px;
+  gap: 20px 24px;
   padding: 24px;
 }
 
@@ -814,7 +816,7 @@
 
 .dv-detail-thumbs__item {
   flex-shrink: 0;
-  width: 80px;
+  width: 120px;
   overflow: hidden;
   border-radius: 8px;
   border: 2px solid transparent;
@@ -831,16 +833,17 @@
 
 .dv-detail-thumbs__item img {
   width: 100%;
-  height: 56px;
+  height: 84px;
   object-fit: cover;
 }
 
 .dv-detail-thumbs__label {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 500;
   text-align: center;
-  color: var(--dv-text-muted);
-  padding: 3px 0;
+  color: var(--dv-text-dim);
+  padding: 4px 0;
   background: var(--dv-card);
 }
 
@@ -854,7 +857,7 @@
 
 /* Detail — features grid */
 .dv-detail-features {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .dv-detail-features__title {
@@ -1769,34 +1772,147 @@
 /* ── 22b. Responsive — Detail mobile (max 768px) ─────────────── */
 
 @media (max-width: 768px) {
+  .dv-detail-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .dv-detail-panel {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  .dv-detail-hero {
+    width: 100%;
+    height: 350px;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .dv-detail-hero__img {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    object-fit: cover;
+  }
+
   .dv-detail-body {
     grid-template-columns: 1fr;
+    padding: 16px;
   }
 
   .dv-detail-body__thumbs {
     grid-column: 1;
     order: 1;
+    min-width: 0;
   }
 
   .dv-detail-body__sidebar {
     grid-column: 1;
     grid-row: auto;
     order: 2;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .dv-detail-body__main {
     grid-column: 1;
     order: 3;
+    min-width: 0;
   }
 
   .dv-detail-body__similar {
     grid-column: 1;
     order: 4;
+    min-width: 0;
   }
 
   .dv-ai-tools {
     position: static;
     max-height: none;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dv-ai-tools__save-btn {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dv-ai-tools__callout {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dv-wishlist {
+    max-width: 100%;
+  }
+
+  .dv-wishlist__input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dv-wishlist__add-btn {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dv-wishlist__ai-btn {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dv-wishlist__preview {
+    max-width: 100%;
+  }
+
+  .dv-wishlist__preview-img {
+    max-width: 100%;
+  }
+
+  .dv-style-swap {
+    max-width: 100%;
+  }
+
+  .dv-style-swap__grid {
+    max-width: 100%;
+  }
+
+  .dv-style-swap__btn {
+    min-width: 0;
+  }
+
+  .dv-detail-thumbs {
+    max-width: 100%;
+  }
+
+  .dv-detail-thumbs__item {
+    width: 100px;
+  }
+
+  .dv-similar-plans {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .dv-similar-plans__grid {
+    max-width: 100%;
+  }
+
+  .dv-similar-plans__card {
+    width: 140px;
+    min-width: 0;
+  }
+
+  .dv-plan-card__image {
+    height: 280px;
   }
 
   .dv-detail-features__grid {
@@ -1822,10 +1938,6 @@
   .dv-plan-grid {
     grid-template-columns: 1fr;
     gap: 16px;
-  }
-
-  .dv-plan-card__image {
-    height: 200px;
   }
 
   .dv-category-tiles {
@@ -1864,7 +1976,7 @@
   }
 
   .dv-detail-hero {
-    height: 280px;
+    height: 350px;
   }
 
   .dv-detail-hero__title {
