@@ -1,4 +1,7 @@
-// ── Components ───────────────────────────────────────────────
+// ── Default Export ───────────────────────────────────────────
+export { DesignVault as default } from "./components/DesignVault";
+
+// ── Components ──────────────────────────────────────────────
 export { DesignVault } from "./components/DesignVault";
 export { ArchiveGrid } from "./components/ArchiveGrid";
 export { PlanCard } from "./components/PlanCard";
@@ -13,7 +16,7 @@ export { FloorPlanEditor } from "./components/FloorPlanEditor";
 export { SimilarPlans } from "./components/SimilarPlans";
 export { FavoriteButton } from "./components/FavoriteButton";
 
-// ── Hooks ────────────────────────────────────────────────────
+// ── Hooks ───────────────────────────────────────────────────
 export {
   DesignVaultProvider,
   useDesignVaultContext,
@@ -25,10 +28,10 @@ export { useSession } from "./hooks/useSession";
 export { useLeadCapture } from "./hooks/useLeadCapture";
 export { useFavorites } from "./hooks/useFavorites";
 
-// ── API Client ───────────────────────────────────────────────
+// ── API Client ──────────────────────────────────────────────
 export { DesignVaultAPI } from "./api/client";
 
-// ── Types ────────────────────────────────────────────────────
+// ── Types ───────────────────────────────────────────────────
 export type {
   FloorPlan,
   FloorPlanStyle,
@@ -63,6 +66,17 @@ export type {
 
 export { DEFAULT_STYLE_PRESETS } from "./types";
 
-// ── Utilities ────────────────────────────────────────────────
+// ── Utilities ───────────────────────────────────────────────
 export { ClientCache } from "./utils/cache";
-export { trackPageView, trackEvent, fireMetaPixelEvent } from "./utils/tracking";
+export {
+  trackPageView,
+  trackPlanView,
+  trackAIInteraction,
+  trackLeadCapture,
+  trackEvent,
+  fireMetaPixelEvent,
+  generateAnonymousId,
+  getSessionDuration,
+  trackAILatency,
+  getLatencyLog,
+} from "./utils/tracking";

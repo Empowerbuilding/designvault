@@ -106,60 +106,89 @@ interface DesignVaultProps {
     className?: string;
 }
 interface ArchiveGridProps {
-    plans: FloorPlan[];
-    loading?: boolean;
     onPlanSelect: (plan: FloorPlan) => void;
 }
 interface PlanCardProps {
     plan: FloorPlan;
     onSelect: (plan: FloorPlan) => void;
+    onFavorite?: (planId: string) => void;
+    isFavorite?: boolean;
 }
 interface PlanDetailProps {
     plan: FloorPlan;
+    isOpen: boolean;
     onClose: () => void;
+    config: DesignVaultConfig;
+    allPlans?: FloorPlan[];
+    onPlanSwitch?: (plan: FloorPlan) => void;
 }
 interface AIToolsPanelProps {
     plan: FloorPlan;
+    config: DesignVaultConfig;
+    onResult: (result: {
+        newUrl: string;
+        originalUrl: string;
+        type: "style_swap" | "floor_plan_edit";
+    }) => void;
+    onProcessingChange: (isProcessing: boolean) => void;
 }
 interface LeadCaptureModalProps {
-    open: boolean;
+    isOpen: boolean;
     onClose: () => void;
-    planId?: string;
-    planTitle?: string;
+    onSubmit?: () => void;
+    isSubmitting?: boolean;
+    plan: FloorPlan;
+    modifications: Modification[];
+    config: DesignVaultConfig;
 }
 interface CategoryTilesProps {
-    categories: {
-        slug: string;
-        label: string;
-        count: number;
-    }[];
-    activeCategory: string | null;
-    onSelect: (category: string | null) => void;
+    activeCategory: FloorPlanCategory | null;
+    onSelect: (category: FloorPlanCategory | null) => void;
 }
 interface FilterBarProps {
     filters: PlanFilters;
-    onChange: (filters: PlanFilters) => void;
+    setFilters: (filters: PlanFilters) => void;
+    clearFilters: () => void;
+    uniqueBedrooms: number[];
+    uniqueBathrooms: number[];
+    areaRange: {
+        min: number;
+        max: number;
+    };
+    uniqueStyles: FloorPlanStyle[];
+    totalCount: number;
+    filteredCount: number;
 }
 interface FeaturedRowProps {
+    title: string;
     plans: FloorPlan[];
     onPlanSelect: (plan: FloorPlan) => void;
+    onFavorite: (planId: string) => void;
+    isFavorite: (planId: string) => boolean;
 }
 interface StyleSwapButtonsProps {
     planId: string;
-    imageUrl: string;
-    onSwap: (preset: StylePreset) => void;
+    currentStyle: string | null;
+    onSwap: (presetId: string) => Promise<void>;
+    isProcessing: boolean;
+    activePreset: string | null;
 }
 interface FloorPlanEditorProps {
     planId: string;
-    imageUrl: string;
+    currentFloorPlanUrl: string | null;
+    onEdit: (prompt: string) => Promise<void>;
+    onEnhance: (prompt: string) => Promise<string | null>;
+    isProcessing: boolean;
 }
 interface SimilarPlansProps {
     currentPlan: FloorPlan;
-    plans: FloorPlan[];
+    allPlans: FloorPlan[];
     onPlanSelect: (plan: FloorPlan) => void;
 }
 interface FavoriteButtonProps {
     planId: string;
+    isFavorite: boolean;
+    onToggle: (planId: string) => void;
     size?: "sm" | "md" | "lg";
 }
 
@@ -301,14 +330,46 @@ declare class ClientCache {
     private store;
     private ttl;
     constructor(ttlMs?: number);
-    get<T>(key: string): T | null;
-    set<T>(key: string, data: T): void;
+    /** Build a cache key from plan + action */
+    static key(planId: string, actionType: string, params: string): string;
+    /** Returns cached URL if present and less than TTL old, else null */
+    get(key: string): string | null;
+    /** Store an AI result URL */
+    set(key: string, url: string): void;
+    /** Remove a specific entry */
     invalidate(key: string): void;
+    /** Clear all entries */
     clear(): void;
+    /** Number of entries currently stored */
+    get size(): number;
 }
 
-declare function trackPageView(_builderSlug: string, _anonymousId: string, _trackingEndpoint?: string): void;
-declare function trackEvent(_event: string, _properties: Record<string, unknown>, _trackingEndpoint?: string): void;
-declare function fireMetaPixelEvent(_pixelId: string, _eventName: string, _params?: Record<string, unknown>): void;
+type FbqMethod = "track" | "trackCustom" | "init";
+interface Fbq {
+    (method: FbqMethod, event: string, params?: Record<string, unknown>): void;
+}
+declare global {
+    interface Window {
+        fbq?: Fbq;
+        dataLayer?: Record<string, unknown>[];
+    }
+}
+declare function trackPageView(pixelId: string, anonymousId?: string, trackingEndpoint?: string): void;
+declare function trackPlanView(pixelId: string, plan: FloorPlan): void;
+declare function trackAIInteraction(pixelId: string, type: "style_swap" | "floor_plan_edit", planId: string): void;
+declare function trackLeadCapture(pixelId: string, plan: FloorPlan, value?: number): void;
+/** @deprecated Use trackPageView/trackLeadCapture/trackAIInteraction instead */
+declare function fireMetaPixelEvent(pixelId: string, eventName: string, params?: Record<string, unknown>): void;
+declare function generateAnonymousId(): string;
+declare function getSessionDuration(startTime: number): number;
+declare function trackEvent(endpoint: string, eventData: Record<string, unknown>): void;
+interface LatencyEntry {
+    type: "style_swap" | "floor_plan_edit" | "enhance_prompt";
+    durationMs: number;
+    timestamp: string;
+}
+declare function trackAILatency(type: LatencyEntry["type"], startTime: number, endTime: number): void;
+/** Returns the collected latency entries (for debugging / analytics) */
+declare function getLatencyLog(): readonly LatencyEntry[];
 
-export { type AIInteractionResult, AIToolsPanel, type AIToolsPanelProps, ArchiveGrid, type ArchiveGridProps, CategoryTiles, type CategoryTilesProps, ClientCache, DEFAULT_STYLE_PRESETS, type DesignSession, DesignVault, DesignVaultAPI, type DesignVaultConfig, DesignVaultContext, type DesignVaultContextValue, type DesignVaultProps, DesignVaultProvider, type DesignVaultProviderProps, FavoriteButton, type FavoriteButtonProps, FeaturedRow, type FeaturedRowProps, FilterBar, type FilterBarProps, type FloorPlan, type FloorPlanCategory, FloorPlanEditor, type FloorPlanEditorProps, type FloorPlanStyle, type LeadCaptureData, LeadCaptureModal, type LeadCaptureModalProps, type Modification, PlanCard, type PlanCardProps, PlanDetail, type PlanDetailProps, type PlanFilters, type PriceTier, SimilarPlans, type SimilarPlansProps, type StylePreset, StyleSwapButtons, type StyleSwapButtonsProps, fireMetaPixelEvent, trackEvent, trackPageView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
+export { type AIInteractionResult, AIToolsPanel, type AIToolsPanelProps, ArchiveGrid, type ArchiveGridProps, CategoryTiles, type CategoryTilesProps, ClientCache, DEFAULT_STYLE_PRESETS, type DesignSession, DesignVault, DesignVaultAPI, type DesignVaultConfig, DesignVaultContext, type DesignVaultContextValue, type DesignVaultProps, DesignVaultProvider, type DesignVaultProviderProps, FavoriteButton, type FavoriteButtonProps, FeaturedRow, type FeaturedRowProps, FilterBar, type FilterBarProps, type FloorPlan, type FloorPlanCategory, FloorPlanEditor, type FloorPlanEditorProps, type FloorPlanStyle, type LeadCaptureData, LeadCaptureModal, type LeadCaptureModalProps, type Modification, PlanCard, type PlanCardProps, PlanDetail, type PlanDetailProps, type PlanFilters, type PriceTier, SimilarPlans, type SimilarPlansProps, type StylePreset, StyleSwapButtons, type StyleSwapButtonsProps, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };

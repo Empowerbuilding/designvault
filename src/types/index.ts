@@ -153,66 +153,96 @@ export interface DesignVaultProps {
 }
 
 export interface ArchiveGridProps {
-  plans: FloorPlan[];
-  loading?: boolean;
   onPlanSelect: (plan: FloorPlan) => void;
 }
 
 export interface PlanCardProps {
   plan: FloorPlan;
   onSelect: (plan: FloorPlan) => void;
+  onFavorite?: (planId: string) => void;
+  isFavorite?: boolean;
 }
 
 export interface PlanDetailProps {
   plan: FloorPlan;
+  isOpen: boolean;
   onClose: () => void;
+  config: DesignVaultConfig;
+  allPlans?: FloorPlan[];
+  onPlanSwitch?: (plan: FloorPlan) => void;
 }
 
 export interface AIToolsPanelProps {
   plan: FloorPlan;
+  config: DesignVaultConfig;
+  onResult: (result: {
+    newUrl: string;
+    originalUrl: string;
+    type: "style_swap" | "floor_plan_edit";
+  }) => void;
+  onProcessingChange: (isProcessing: boolean) => void;
 }
 
 export interface LeadCaptureModalProps {
-  open: boolean;
+  isOpen: boolean;
   onClose: () => void;
-  planId?: string;
-  planTitle?: string;
+  onSubmit?: () => void;
+  isSubmitting?: boolean;
+  plan: FloorPlan;
+  modifications: Modification[];
+  config: DesignVaultConfig;
 }
 
 export interface CategoryTilesProps {
-  categories: { slug: string; label: string; count: number }[];
-  activeCategory: string | null;
-  onSelect: (category: string | null) => void;
+  activeCategory: FloorPlanCategory | null;
+  onSelect: (category: FloorPlanCategory | null) => void;
 }
 
 export interface FilterBarProps {
   filters: PlanFilters;
-  onChange: (filters: PlanFilters) => void;
+  setFilters: (filters: PlanFilters) => void;
+  clearFilters: () => void;
+  uniqueBedrooms: number[];
+  uniqueBathrooms: number[];
+  areaRange: { min: number; max: number };
+  uniqueStyles: FloorPlanStyle[];
+  totalCount: number;
+  filteredCount: number;
 }
 
 export interface FeaturedRowProps {
+  title: string;
   plans: FloorPlan[];
   onPlanSelect: (plan: FloorPlan) => void;
+  onFavorite: (planId: string) => void;
+  isFavorite: (planId: string) => boolean;
 }
 
 export interface StyleSwapButtonsProps {
   planId: string;
-  imageUrl: string;
-  onSwap: (preset: StylePreset) => void;
+  currentStyle: string | null;
+  onSwap: (presetId: string) => Promise<void>;
+  isProcessing: boolean;
+  activePreset: string | null;
 }
 
 export interface FloorPlanEditorProps {
   planId: string;
-  imageUrl: string;
+  currentFloorPlanUrl: string | null;
+  onEdit: (prompt: string) => Promise<void>;
+  onEnhance: (prompt: string) => Promise<string | null>;
+  isProcessing: boolean;
 }
 
 export interface SimilarPlansProps {
   currentPlan: FloorPlan;
-  plans: FloorPlan[];
+  allPlans: FloorPlan[];
   onPlanSelect: (plan: FloorPlan) => void;
 }
 
 export interface FavoriteButtonProps {
   planId: string;
+  isFavorite: boolean;
+  onToggle: (planId: string) => void;
   size?: "sm" | "md" | "lg";
 }

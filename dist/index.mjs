@@ -1,220 +1,7 @@
-import { jsx, jsxs } from 'react/jsx-runtime';
 import React, { createContext, useContext, useMemo, useState, useRef, useCallback, useEffect } from 'react';
-
-var DesignVault = ({ config, className }) => {
-  return /* @__PURE__ */ jsx("div", { className: `dv-root ${className ?? ""}`, children: /* @__PURE__ */ jsxs("p", { children: [
-    "DesignVault: ",
-    config.builderSlug
-  ] }) });
-};
-var ArchiveGrid = ({
-  plans,
-  loading,
-  onPlanSelect
-}) => {
-  if (loading) {
-    return /* @__PURE__ */ jsx("div", { className: "dv-archive-grid dv-loading", children: "Loading..." });
-  }
-  return /* @__PURE__ */ jsx("div", { className: "dv-archive-grid", children: plans.map((plan) => /* @__PURE__ */ jsx("div", { onClick: () => onPlanSelect(plan), children: plan.title }, plan.id)) });
-};
-var PlanCard = ({ plan, onSelect }) => {
-  return /* @__PURE__ */ jsxs("div", { className: "dv-plan-card", onClick: () => onSelect(plan), children: [
-    /* @__PURE__ */ jsx("div", { className: "dv-plan-card__image", children: /* @__PURE__ */ jsx("img", { src: plan.image_url, alt: plan.title }) }),
-    /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__info", children: [
-      /* @__PURE__ */ jsx("h3", { className: "dv-plan-card__name", children: plan.title }),
-      /* @__PURE__ */ jsxs("p", { className: "dv-plan-card__specs", children: [
-        plan.beds,
-        " bed \xB7 ",
-        plan.baths,
-        " bath \xB7",
-        " ",
-        plan.area.toLocaleString(),
-        " sqft"
-      ] })
-    ] })
-  ] });
-};
-var PlanDetail = ({ plan, onClose }) => {
-  return /* @__PURE__ */ jsxs("div", { className: "dv-plan-detail", children: [
-    /* @__PURE__ */ jsx("button", { className: "dv-plan-detail__close", onClick: onClose, children: "Close" }),
-    /* @__PURE__ */ jsx("h2", { className: "dv-plan-detail__name", children: plan.title }),
-    /* @__PURE__ */ jsx("p", { className: "dv-plan-detail__description", children: plan.description })
-  ] });
-};
-var AIToolsPanel = ({ plan }) => {
-  return /* @__PURE__ */ jsxs("div", { className: "dv-ai-tools-panel", children: [
-    /* @__PURE__ */ jsx("h3", { className: "dv-ai-tools-panel__title", children: "AI Tools" }),
-    /* @__PURE__ */ jsxs("p", { children: [
-      "Customize ",
-      plan.title
-    ] })
-  ] });
-};
-var LeadCaptureModal = ({
-  open,
-  onClose,
-  planId,
-  planTitle
-}) => {
-  if (!open) return null;
-  return /* @__PURE__ */ jsx("div", { className: "dv-lead-capture-overlay", children: /* @__PURE__ */ jsxs("div", { className: "dv-lead-capture-modal", children: [
-    /* @__PURE__ */ jsx("button", { className: "dv-lead-capture-modal__close", onClick: onClose, children: "Close" }),
-    /* @__PURE__ */ jsx("h2", { className: "dv-lead-capture-modal__title", children: "Get Your Custom Plan" }),
-    planTitle && /* @__PURE__ */ jsxs("p", { children: [
-      "Plan: ",
-      planTitle
-    ] }),
-    /* @__PURE__ */ jsxs("form", { className: "dv-lead-capture-modal__form", children: [
-      /* @__PURE__ */ jsx("input", { type: "text", placeholder: "First Name", "data-plan-id": planId }),
-      /* @__PURE__ */ jsx("input", { type: "text", placeholder: "Last Name" }),
-      /* @__PURE__ */ jsx("input", { type: "email", placeholder: "Email" }),
-      /* @__PURE__ */ jsx("input", { type: "tel", placeholder: "Phone" }),
-      /* @__PURE__ */ jsx("button", { type: "submit", children: "Submit" })
-    ] })
-  ] }) });
-};
-var CategoryTiles = ({
-  categories,
-  activeCategory,
-  onSelect
-}) => {
-  return /* @__PURE__ */ jsx("div", { className: "dv-category-tiles", children: categories.map((cat) => /* @__PURE__ */ jsxs(
-    "button",
-    {
-      className: `dv-category-tile ${activeCategory === cat.slug ? "dv-category-tile--active" : ""}`,
-      onClick: () => onSelect(activeCategory === cat.slug ? null : cat.slug),
-      children: [
-        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__name", children: cat.label }),
-        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__count", children: cat.count })
-      ]
-    },
-    cat.slug
-  )) });
-};
-var FilterBar = ({ filters, onChange }) => {
-  return /* @__PURE__ */ jsxs("div", { className: "dv-filter-bar", children: [
-    /* @__PURE__ */ jsx(
-      "select",
-      {
-        className: "dv-filter-bar__select",
-        value: filters.bedrooms ?? "",
-        onChange: (e) => onChange({
-          ...filters,
-          bedrooms: e.target.value ? Number(e.target.value) : null
-        }),
-        children: /* @__PURE__ */ jsx("option", { value: "", children: "Beds" })
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      "select",
-      {
-        className: "dv-filter-bar__select",
-        value: filters.bathrooms ?? "",
-        onChange: (e) => onChange({
-          ...filters,
-          bathrooms: e.target.value ? Number(e.target.value) : null
-        }),
-        children: /* @__PURE__ */ jsx("option", { value: "", children: "Baths" })
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      "select",
-      {
-        className: "dv-filter-bar__select",
-        value: filters.style ?? "",
-        onChange: (e) => onChange({
-          ...filters,
-          style: e.target.value || null
-        }),
-        children: /* @__PURE__ */ jsx("option", { value: "", children: "Style" })
-      }
-    )
-  ] });
-};
-var FeaturedRow = ({
-  plans,
-  onPlanSelect
-}) => {
-  return /* @__PURE__ */ jsxs("div", { className: "dv-featured-row", children: [
-    /* @__PURE__ */ jsx("h2", { className: "dv-featured-row__title", children: "Featured Plans" }),
-    /* @__PURE__ */ jsx("div", { className: "dv-featured-row__scroll", children: plans.map((plan) => /* @__PURE__ */ jsx(
-      "div",
-      {
-        className: "dv-featured-row__item",
-        onClick: () => onPlanSelect(plan),
-        children: plan.title
-      },
-      plan.id
-    )) })
-  ] });
-};
-
-// src/types/index.ts
-var DEFAULT_STYLE_PRESETS = [
-  { id: "modern", label: "Modern", description: "Clean lines, large windows, flat roofs" },
-  { id: "rustic", label: "Rustic", description: "Natural materials, wood beams, stone accents" },
-  { id: "hill_country", label: "Hill Country", description: "Texas limestone, metal roofing, wide porches" },
-  { id: "traditional", label: "Traditional", description: "Classic proportions, symmetrical facades" },
-  { id: "farmhouse", label: "Farmhouse", description: "Board-and-batten siding, wraparound porches" },
-  { id: "contemporary", label: "Contemporary", description: "Mixed materials, asymmetric design, open plans" }
-];
-var StyleSwapButtons = ({
-  planId: _planId,
-  imageUrl: _imageUrl,
-  onSwap
-}) => {
-  return /* @__PURE__ */ jsx("div", { className: "dv-style-swap-buttons", children: DEFAULT_STYLE_PRESETS.map((preset) => /* @__PURE__ */ jsx(
-    "button",
-    {
-      className: "dv-style-swap-btn",
-      onClick: () => onSwap(preset),
-      title: preset.description,
-      children: preset.label
-    },
-    preset.id
-  )) });
-};
-var FloorPlanEditor = ({
-  planId: _planId,
-  imageUrl: _imageUrl
-}) => {
-  return /* @__PURE__ */ jsxs("div", { className: "dv-floor-plan-editor", children: [
-    /* @__PURE__ */ jsx("h3", { className: "dv-floor-plan-editor__title", children: "Edit Floor Plan" }),
-    /* @__PURE__ */ jsx(
-      "textarea",
-      {
-        className: "dv-floor-plan-editor__input",
-        placeholder: "Describe changes to the floor plan..."
-      }
-    ),
-    /* @__PURE__ */ jsx("button", { className: "dv-floor-plan-editor__submit", children: "Apply Changes" })
-  ] });
-};
-var SimilarPlans = ({
-  currentPlan,
-  plans,
-  onPlanSelect
-}) => {
-  const similar = plans.filter((p) => p.id !== currentPlan.id);
-  return /* @__PURE__ */ jsxs("div", { className: "dv-similar-plans", children: [
-    /* @__PURE__ */ jsx("h3", { className: "dv-similar-plans__title", children: "Similar Plans" }),
-    /* @__PURE__ */ jsx("div", { className: "dv-similar-plans__row", children: similar.map((plan) => /* @__PURE__ */ jsx(
-      "div",
-      {
-        className: "dv-similar-plans__item",
-        onClick: () => onPlanSelect(plan),
-        children: plan.title
-      },
-      plan.id
-    )) })
-  ] });
-};
-var FavoriteButton = ({
-  planId: _planId,
-  size = "md"
-}) => {
-  return /* @__PURE__ */ jsx("button", { className: `dv-favorite-btn dv-favorite-btn--${size}`, children: /* @__PURE__ */ jsx("span", { className: "dv-favorite-btn__icon" }) });
-};
+import { Filter, X, Heart, Star, Home, Bath, Square, Layers, ArrowRight, ChevronLeft, ChevronRight, Loader2, Sparkles, Send, CheckCircle, Save, Check, Mountain, Crown, TreePine, Ruler, Warehouse } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 
 // src/api/client.ts
 var DesignVaultAPI = class {
@@ -525,6 +312,1136 @@ function usePlans(initialFilters) {
     uniqueCategories
   };
 }
+var CATEGORIES = [
+  {
+    slug: "barndominium",
+    label: "Modern Barndo",
+    description: "Steel-frame living",
+    icon: /* @__PURE__ */ jsx(Home, { size: 24 })
+  },
+  {
+    slug: "ranch",
+    label: "Rustic Ranch",
+    description: "Single-story comfort",
+    icon: /* @__PURE__ */ jsx(Mountain, { size: 24 })
+  },
+  {
+    slug: "estate",
+    label: "Luxury Estate",
+    description: "Premium design",
+    icon: /* @__PURE__ */ jsx(Crown, { size: 24 })
+  },
+  {
+    slug: "cabin",
+    label: "Hill Country",
+    description: "Texas charm",
+    icon: /* @__PURE__ */ jsx(TreePine, { size: 24 })
+  },
+  {
+    slug: "starter",
+    label: "Compact / Starter",
+    description: "Smart & efficient",
+    icon: /* @__PURE__ */ jsx(Ruler, { size: 24 })
+  },
+  {
+    slug: "shop_house",
+    label: "Shop + Living",
+    description: "Work & live",
+    icon: /* @__PURE__ */ jsx(Warehouse, { size: 24 })
+  }
+];
+var CategoryTiles = ({
+  activeCategory,
+  onSelect
+}) => {
+  return /* @__PURE__ */ jsx("div", { className: "dv-category-tiles", children: /* @__PURE__ */ jsx("div", { className: "dv-category-tiles__scroll", children: CATEGORIES.map((cat) => /* @__PURE__ */ jsxs(
+    "button",
+    {
+      className: `dv-category-tile ${activeCategory === cat.slug ? "dv-category-tile--active" : ""}`,
+      onClick: () => onSelect(activeCategory === cat.slug ? null : cat.slug),
+      children: [
+        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__icon", children: cat.icon }),
+        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__name", children: cat.label }),
+        /* @__PURE__ */ jsx("span", { className: "dv-category-tile__desc", children: cat.description })
+      ]
+    },
+    cat.slug
+  )) }) });
+};
+var AREA_RANGES = [
+  { label: "Under 1,000 sqft", min: 0, max: 999 },
+  { label: "1,000 \u2013 1,500 sqft", min: 1e3, max: 1500 },
+  { label: "1,500 \u2013 2,000 sqft", min: 1500, max: 2e3 },
+  { label: "2,000 \u2013 2,500 sqft", min: 2e3, max: 2500 },
+  { label: "2,500 \u2013 3,000 sqft", min: 2500, max: 3e3 },
+  { label: "3,000+ sqft", min: 3e3, max: 99999 }
+];
+var STYLE_LABELS = {
+  modern: "Modern",
+  traditional: "Traditional",
+  rustic: "Rustic",
+  contemporary: "Contemporary",
+  farmhouse: "Farmhouse",
+  hill_country: "Hill Country"
+};
+function hasActiveFilters(filters) {
+  return filters.bedrooms !== null || filters.bathrooms !== null || filters.minArea !== null || filters.maxArea !== null || filters.style !== null;
+}
+var FilterBar = ({
+  filters,
+  setFilters,
+  clearFilters,
+  uniqueBedrooms,
+  uniqueBathrooms,
+  uniqueStyles,
+  totalCount,
+  filteredCount
+}) => {
+  const active = hasActiveFilters(filters);
+  return /* @__PURE__ */ jsxs("div", { className: "dv-filter-bar", children: [
+    /* @__PURE__ */ jsx("div", { className: "dv-filter-bar__icon", children: /* @__PURE__ */ jsx(Filter, { size: 18 }) }),
+    /* @__PURE__ */ jsxs("div", { className: "dv-filter-bar__selects", children: [
+      /* @__PURE__ */ jsxs(
+        "select",
+        {
+          className: "dv-filter-bar__select",
+          value: filters.bedrooms ?? "",
+          onChange: (e) => setFilters({
+            ...filters,
+            bedrooms: e.target.value ? Number(e.target.value) : null
+          }),
+          children: [
+            /* @__PURE__ */ jsx("option", { value: "", children: "Bedrooms" }),
+            uniqueBedrooms.map((b) => /* @__PURE__ */ jsxs("option", { value: b, children: [
+              b,
+              " Bed",
+              b !== 1 ? "s" : ""
+            ] }, b))
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxs(
+        "select",
+        {
+          className: "dv-filter-bar__select",
+          value: filters.bathrooms ?? "",
+          onChange: (e) => setFilters({
+            ...filters,
+            bathrooms: e.target.value ? Number(e.target.value) : null
+          }),
+          children: [
+            /* @__PURE__ */ jsx("option", { value: "", children: "Bathrooms" }),
+            uniqueBathrooms.map((b) => /* @__PURE__ */ jsxs("option", { value: b, children: [
+              b,
+              " Bath",
+              b !== 1 ? "s" : ""
+            ] }, b))
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxs(
+        "select",
+        {
+          className: "dv-filter-bar__select",
+          value: filters.minArea !== null && filters.maxArea !== null ? `${filters.minArea}-${filters.maxArea}` : "",
+          onChange: (e) => {
+            if (!e.target.value) {
+              setFilters({ ...filters, minArea: null, maxArea: null });
+            } else {
+              const [min, max] = e.target.value.split("-").map(Number);
+              setFilters({ ...filters, minArea: min, maxArea: max });
+            }
+          },
+          children: [
+            /* @__PURE__ */ jsx("option", { value: "", children: "Sqft Range" }),
+            AREA_RANGES.map((r) => /* @__PURE__ */ jsx("option", { value: `${r.min}-${r.max}`, children: r.label }, r.label))
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxs(
+        "select",
+        {
+          className: "dv-filter-bar__select",
+          value: filters.style ?? "",
+          onChange: (e) => setFilters({
+            ...filters,
+            style: e.target.value || null
+          }),
+          children: [
+            /* @__PURE__ */ jsx("option", { value: "", children: "Style" }),
+            uniqueStyles.map((s) => /* @__PURE__ */ jsx("option", { value: s, children: STYLE_LABELS[s] }, s))
+          ]
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxs("div", { className: "dv-filter-bar__meta", children: [
+      /* @__PURE__ */ jsxs("span", { className: "dv-filter-bar__count", children: [
+        "Showing ",
+        filteredCount,
+        " of ",
+        totalCount,
+        " plans"
+      ] }),
+      active && /* @__PURE__ */ jsxs("button", { className: "dv-filter-bar__clear", onClick: clearFilters, children: [
+        /* @__PURE__ */ jsx(X, { size: 14 }),
+        "Clear"
+      ] })
+    ] })
+  ] });
+};
+var FavoriteButton = ({
+  planId,
+  isFavorite,
+  onToggle,
+  size = "md"
+}) => {
+  const iconSize = size === "sm" ? 16 : size === "lg" ? 24 : 20;
+  return /* @__PURE__ */ jsx(
+    "button",
+    {
+      className: `dv-favorite-btn dv-favorite-btn--${size} ${isFavorite ? "dv-favorite-btn--active" : ""}`,
+      onClick: (e) => {
+        e.stopPropagation();
+        onToggle(planId);
+      },
+      "aria-label": isFavorite ? "Remove from favorites" : "Add to favorites",
+      children: /* @__PURE__ */ jsx(Heart, { size: iconSize, fill: isFavorite ? "currentColor" : "none" })
+    }
+  );
+};
+function isNewPlan(createdAt) {
+  const created = new Date(createdAt);
+  const thirtyDaysAgo = /* @__PURE__ */ new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  return created > thirtyDaysAgo;
+}
+var PlanCard = ({
+  plan,
+  onSelect,
+  onFavorite,
+  isFavorite = false
+}) => {
+  const [imageIndex, setImageIndex] = useState(0);
+  const isPopular = plan.click_count >= 50;
+  const isNew = isNewPlan(plan.created_at);
+  const allImages = [plan.image_url, ...plan.interior_urls ?? []];
+  const hasMultipleImages = allImages.length > 1;
+  return /* @__PURE__ */ jsxs(
+    motion.div,
+    {
+      className: "dv-plan-card",
+      initial: { opacity: 0, y: 20 },
+      whileInView: { opacity: 1, y: 0 },
+      viewport: { once: true, margin: "-50px" },
+      transition: { duration: 0.4 },
+      children: [
+        /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__image", onClick: () => onSelect(plan), children: [
+          /* @__PURE__ */ jsx(
+            "img",
+            {
+              src: allImages[imageIndex],
+              alt: plan.title,
+              className: "dv-plan-card__img",
+              loading: "lazy"
+            }
+          ),
+          /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__badges", children: [
+            isPopular && /* @__PURE__ */ jsxs("span", { className: "dv-plan-card__badge dv-plan-card__badge--popular", children: [
+              /* @__PURE__ */ jsx(Star, { size: 12 }),
+              "Popular"
+            ] }),
+            isNew && /* @__PURE__ */ jsx("span", { className: "dv-plan-card__badge dv-plan-card__badge--new", children: "New" })
+          ] }),
+          hasMultipleImages && /* @__PURE__ */ jsx("div", { className: "dv-plan-card__dots", children: allImages.map((_, i) => /* @__PURE__ */ jsx(
+            "button",
+            {
+              className: `dv-plan-card__dot ${i === imageIndex ? "dv-plan-card__dot--active" : ""}`,
+              onClick: (e) => {
+                e.stopPropagation();
+                setImageIndex(i);
+              },
+              "aria-label": `Image ${i + 1}`
+            },
+            i
+          )) })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__content", children: [
+          /* @__PURE__ */ jsx("h3", { className: "dv-plan-card__title", children: plan.title }),
+          /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__specs", children: [
+            /* @__PURE__ */ jsxs("span", { className: "dv-plan-card__spec", children: [
+              /* @__PURE__ */ jsx(Home, { size: 14 }),
+              plan.beds,
+              " Bed",
+              plan.beds !== 1 ? "s" : ""
+            ] }),
+            /* @__PURE__ */ jsxs("span", { className: "dv-plan-card__spec", children: [
+              /* @__PURE__ */ jsx(Bath, { size: 14 }),
+              plan.baths,
+              " Bath",
+              plan.baths !== 1 ? "s" : ""
+            ] }),
+            /* @__PURE__ */ jsxs("span", { className: "dv-plan-card__spec", children: [
+              /* @__PURE__ */ jsx(Square, { size: 14 }),
+              plan.area.toLocaleString(),
+              " sqft"
+            ] })
+          ] }),
+          plan.tags && plan.tags.length > 0 && /* @__PURE__ */ jsx("div", { className: "dv-plan-card__tags", children: plan.tags.slice(0, 3).map((tag) => /* @__PURE__ */ jsx("span", { className: "dv-plan-card__tag", children: tag }, tag)) }),
+          /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__actions", children: [
+            /* @__PURE__ */ jsxs("button", { className: "dv-plan-card__cta", onClick: () => onSelect(plan), children: [
+              /* @__PURE__ */ jsx(Layers, { size: 14 }),
+              "Customize"
+            ] }),
+            onFavorite && /* @__PURE__ */ jsx(
+              FavoriteButton,
+              {
+                planId: plan.id,
+                isFavorite,
+                onToggle: onFavorite,
+                size: "sm"
+              }
+            )
+          ] })
+        ] })
+      ]
+    }
+  );
+};
+var FeaturedRow = ({
+  title,
+  plans,
+  onPlanSelect,
+  onFavorite,
+  isFavorite
+}) => {
+  const scrollRef = useRef(null);
+  const scroll = (direction) => {
+    if (!scrollRef.current) return;
+    const amount = scrollRef.current.clientWidth * 0.8;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth"
+    });
+  };
+  if (plans.length === 0) return null;
+  return /* @__PURE__ */ jsxs("section", { className: "dv-featured-row", children: [
+    /* @__PURE__ */ jsxs("div", { className: "dv-featured-row__header", children: [
+      /* @__PURE__ */ jsx("h2", { className: "dv-featured-row__title", children: title }),
+      /* @__PURE__ */ jsxs("span", { className: "dv-featured-row__view-all", children: [
+        "View all ",
+        /* @__PURE__ */ jsx(ArrowRight, { size: 16 })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxs("div", { className: "dv-featured-row__wrapper", children: [
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          className: "dv-featured-row__arrow dv-featured-row__arrow--left",
+          onClick: () => scroll("left"),
+          "aria-label": "Scroll left",
+          children: /* @__PURE__ */ jsx(ChevronLeft, { size: 20 })
+        }
+      ),
+      /* @__PURE__ */ jsx("div", { className: "dv-featured-row__scroll", ref: scrollRef, children: plans.map((plan) => /* @__PURE__ */ jsx("div", { className: "dv-featured-row__item", children: /* @__PURE__ */ jsx(
+        PlanCard,
+        {
+          plan,
+          onSelect: onPlanSelect,
+          onFavorite,
+          isFavorite: isFavorite(plan.id)
+        }
+      ) }, plan.id)) }),
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          className: "dv-featured-row__arrow dv-featured-row__arrow--right",
+          onClick: () => scroll("right"),
+          "aria-label": "Scroll right",
+          children: /* @__PURE__ */ jsx(ChevronRight, { size: 20 })
+        }
+      )
+    ] })
+  ] });
+};
+var STORAGE_KEY = "dv-favorites";
+function readFavorites() {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+function writeFavorites(ids) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+  } catch {
+  }
+}
+function useFavorites() {
+  const [favorites, setFavorites] = useState(readFavorites);
+  useEffect(() => {
+    writeFavorites(favorites);
+  }, [favorites]);
+  const toggleFavorite = useCallback((planId) => {
+    setFavorites(
+      (prev) => prev.includes(planId) ? prev.filter((id) => id !== planId) : [...prev, planId]
+    );
+  }, []);
+  const isFavorite = useCallback(
+    (planId) => favorites.includes(planId),
+    [favorites]
+  );
+  return {
+    favorites,
+    toggleFavorite,
+    isFavorite,
+    favoritesCount: favorites.length
+  };
+}
+function SkeletonCard() {
+  return /* @__PURE__ */ jsxs("div", { className: "dv-plan-card dv-plan-card--skeleton", children: [
+    /* @__PURE__ */ jsx("div", { className: "dv-plan-card__image dv-skeleton" }),
+    /* @__PURE__ */ jsxs("div", { className: "dv-plan-card__content", children: [
+      /* @__PURE__ */ jsx("div", { className: "dv-skeleton dv-skeleton--text dv-skeleton--title" }),
+      /* @__PURE__ */ jsx("div", { className: "dv-skeleton dv-skeleton--text dv-skeleton--specs" }),
+      /* @__PURE__ */ jsx("div", { className: "dv-skeleton dv-skeleton--text dv-skeleton--tags" })
+    ] })
+  ] });
+}
+var hasAnyFilter = (filters) => filters.category !== null || filters.bedrooms !== null || filters.bathrooms !== null || filters.style !== null || filters.minArea !== null;
+var ArchiveGrid = ({ onPlanSelect }) => {
+  const {
+    plans,
+    filteredPlans,
+    featuredPlans,
+    loading,
+    error,
+    filters,
+    setFilters,
+    clearFilters,
+    uniqueBedrooms,
+    uniqueBathrooms,
+    areaRange,
+    uniqueStyles
+  } = usePlans();
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const handleCategorySelect = (category) => {
+    setFilters({ ...filters, category });
+  };
+  if (error) {
+    return /* @__PURE__ */ jsx("div", { className: "dv-archive-grid dv-archive-grid--error", children: /* @__PURE__ */ jsxs("p", { children: [
+      "Failed to load plans: ",
+      error
+    ] }) });
+  }
+  return /* @__PURE__ */ jsxs("div", { className: "dv-archive-grid", children: [
+    /* @__PURE__ */ jsx(
+      CategoryTiles,
+      {
+        activeCategory: filters.category,
+        onSelect: handleCategorySelect
+      }
+    ),
+    !hasAnyFilter(filters) && featuredPlans.length > 0 && /* @__PURE__ */ jsx(
+      FeaturedRow,
+      {
+        title: "Featured Plans",
+        plans: featuredPlans,
+        onPlanSelect,
+        onFavorite: toggleFavorite,
+        isFavorite
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      FilterBar,
+      {
+        filters,
+        setFilters,
+        clearFilters,
+        uniqueBedrooms,
+        uniqueBathrooms,
+        areaRange,
+        uniqueStyles,
+        totalCount: plans.length,
+        filteredCount: filteredPlans.length
+      }
+    ),
+    loading ? /* @__PURE__ */ jsx("div", { className: "dv-plan-grid", children: Array.from({ length: 6 }).map((_, i) => /* @__PURE__ */ jsx(SkeletonCard, {}, i)) }) : filteredPlans.length === 0 ? /* @__PURE__ */ jsxs("div", { className: "dv-archive-grid__empty", children: [
+      /* @__PURE__ */ jsx(Layers, { size: 48 }),
+      /* @__PURE__ */ jsx("h3", { children: "No plans found" }),
+      /* @__PURE__ */ jsx("p", { children: "Try adjusting your filters or browse all categories." }),
+      /* @__PURE__ */ jsx("button", { className: "dv-btn dv-btn--outline", onClick: clearFilters, children: "Clear Filters" })
+    ] }) : /* @__PURE__ */ jsx(
+      motion.div,
+      {
+        className: "dv-plan-grid",
+        initial: "hidden",
+        animate: "visible",
+        variants: {
+          visible: { transition: { staggerChildren: 0.08 } }
+        },
+        children: filteredPlans.map((plan) => /* @__PURE__ */ jsx(
+          PlanCard,
+          {
+            plan,
+            onSelect: onPlanSelect,
+            onFavorite: toggleFavorite,
+            isFavorite: isFavorite(plan.id)
+          },
+          plan.id
+        ))
+      }
+    )
+  ] });
+};
+
+// src/types/index.ts
+var DEFAULT_STYLE_PRESETS = [
+  { id: "modern", label: "Modern", description: "Clean lines, large windows, flat roofs" },
+  { id: "rustic", label: "Rustic", description: "Natural materials, wood beams, stone accents" },
+  { id: "hill_country", label: "Hill Country", description: "Texas limestone, metal roofing, wide porches" },
+  { id: "traditional", label: "Traditional", description: "Classic proportions, symmetrical facades" },
+  { id: "farmhouse", label: "Farmhouse", description: "Board-and-batten siding, wraparound porches" },
+  { id: "contemporary", label: "Contemporary", description: "Mixed materials, asymmetric design, open plans" }
+];
+var StyleSwapButtons = ({
+  currentStyle,
+  onSwap,
+  isProcessing,
+  activePreset
+}) => {
+  return /* @__PURE__ */ jsxs("div", { className: "dv-style-swap", children: [
+    /* @__PURE__ */ jsx("h4", { className: "dv-style-swap__label", children: "Style Swap" }),
+    /* @__PURE__ */ jsx("div", { className: "dv-style-swap__grid", children: DEFAULT_STYLE_PRESETS.map((preset) => {
+      const isActive = activePreset === preset.id;
+      const isOriginal = currentStyle === preset.id && !activePreset;
+      const isThisProcessing = isProcessing && isActive;
+      return /* @__PURE__ */ jsxs(
+        "button",
+        {
+          className: `dv-style-swap__btn ${isActive || isOriginal ? "dv-style-swap__btn--active" : ""}`,
+          onClick: () => onSwap(preset.id),
+          disabled: isProcessing,
+          title: preset.description,
+          children: [
+            /* @__PURE__ */ jsx("span", { className: "dv-style-swap__btn-label", children: preset.label }),
+            isThisProcessing && /* @__PURE__ */ jsx(Loader2, { size: 14, className: "dv-style-swap__spinner" })
+          ]
+        },
+        preset.id
+      );
+    }) })
+  ] });
+};
+var FloorPlanEditor = ({
+  currentFloorPlanUrl,
+  onEdit,
+  onEnhance,
+  isProcessing
+}) => {
+  const [prompt, setPrompt] = useState("");
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const handleEnhance = async () => {
+    if (!prompt.trim() || isEnhancing) return;
+    setIsEnhancing(true);
+    const enhanced = await onEnhance(prompt);
+    if (enhanced) setPrompt(enhanced);
+    setIsEnhancing(false);
+  };
+  const handleSubmit = async () => {
+    if (!prompt.trim() || isProcessing) return;
+    await onEdit(prompt);
+    setPrompt("");
+  };
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "dv-floor-plan-editor", children: [
+    /* @__PURE__ */ jsx("h4", { className: "dv-floor-plan-editor__label", children: "Floor Plan Editor" }),
+    currentFloorPlanUrl && /* @__PURE__ */ jsx("div", { className: "dv-floor-plan-editor__preview", children: /* @__PURE__ */ jsx(
+      "img",
+      {
+        src: currentFloorPlanUrl,
+        alt: "Current floor plan",
+        className: "dv-floor-plan-editor__preview-img"
+      }
+    ) }),
+    /* @__PURE__ */ jsxs("div", { className: "dv-floor-plan-editor__input-wrap", children: [
+      /* @__PURE__ */ jsx(
+        "textarea",
+        {
+          className: "dv-floor-plan-editor__input",
+          placeholder: 'Try: "Add a 4th bedroom" or "Make the kitchen bigger"',
+          value: prompt,
+          onChange: (e) => setPrompt(e.target.value),
+          onKeyDown: handleKeyDown,
+          disabled: isProcessing,
+          rows: 3
+        }
+      ),
+      /* @__PURE__ */ jsxs("div", { className: "dv-floor-plan-editor__actions", children: [
+        /* @__PURE__ */ jsxs(
+          "button",
+          {
+            className: "dv-floor-plan-editor__enhance",
+            onClick: handleEnhance,
+            disabled: !prompt.trim() || isEnhancing || isProcessing,
+            title: "Enhance your prompt with AI",
+            children: [
+              isEnhancing ? /* @__PURE__ */ jsx(Loader2, { size: 14, className: "dv-floor-plan-editor__spinner" }) : /* @__PURE__ */ jsx(Sparkles, { size: 14 }),
+              "Enhance"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          "button",
+          {
+            className: "dv-floor-plan-editor__submit",
+            onClick: handleSubmit,
+            disabled: !prompt.trim() || isProcessing,
+            children: [
+              isProcessing ? /* @__PURE__ */ jsx(Loader2, { size: 14, className: "dv-floor-plan-editor__spinner" }) : /* @__PURE__ */ jsx(Send, { size: 14 }),
+              "Apply Edit"
+            ]
+          }
+        )
+      ] })
+    ] })
+  ] });
+};
+
+// src/utils/tracking.ts
+function fbq(method, event, params) {
+  if (typeof window === "undefined" || !window.fbq) return;
+  window.fbq(method, event, params);
+}
+function pushDataLayer(event, data) {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer ?? [];
+  window.dataLayer.push({ event, ...data });
+}
+function planData(plan) {
+  return {
+    content_name: plan.title,
+    content_ids: [plan.id],
+    content_type: "floor_plan",
+    content_category: plan.category ?? "uncategorized",
+    style: plan.style ?? "unknown",
+    beds: plan.beds,
+    baths: plan.baths,
+    sqft: plan.area,
+    price_tier: plan.price_tier ?? "standard"
+  };
+}
+function trackPageView(pixelId, anonymousId, trackingEndpoint) {
+  fbq("track", "PageView");
+  pushDataLayer("dv_page_view", {
+    dv_pixel_id: pixelId,
+    dv_anonymous_id: anonymousId
+  });
+  if (trackingEndpoint && anonymousId) {
+    trackEvent(trackingEndpoint, {
+      event: "page_view",
+      anonymousId,
+      builderSlug: pixelId,
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  }
+}
+function trackPlanView(pixelId, plan) {
+  const data = planData(plan);
+  fbq("track", "ViewContent", {
+    ...data,
+    value: 0,
+    currency: "USD"
+  });
+  pushDataLayer("dv_plan_view", {
+    dv_pixel_id: pixelId,
+    ...data
+  });
+}
+function trackAIInteraction(pixelId, type, planId) {
+  fbq("trackCustom", "DesignVaultInteraction", {
+    interaction_type: type,
+    plan_id: planId
+  });
+  pushDataLayer("dv_ai_interaction", {
+    dv_pixel_id: pixelId,
+    interaction_type: type,
+    plan_id: planId
+  });
+}
+function trackLeadCapture(pixelId, plan, value) {
+  const data = planData(plan);
+  fbq("track", "Lead", {
+    ...data,
+    value: value ?? 0,
+    currency: "USD"
+  });
+  pushDataLayer("dv_lead_capture", {
+    dv_pixel_id: pixelId,
+    ...data,
+    value: value ?? 0
+  });
+}
+function fireMetaPixelEvent(pixelId, eventName, params) {
+  fbq("track", eventName, { ...params, pixel_id: pixelId });
+  pushDataLayer(`dv_${eventName.toLowerCase()}`, {
+    dv_pixel_id: pixelId,
+    ...params
+  });
+}
+var ANON_ID_KEY2 = "dv-anonymous-id";
+function generateAnonymousId() {
+  if (typeof window === "undefined") return crypto.randomUUID();
+  try {
+    const existing = localStorage.getItem(ANON_ID_KEY2);
+    if (existing) return existing;
+    const id = crypto.randomUUID();
+    localStorage.setItem(ANON_ID_KEY2, id);
+    return id;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+function getSessionDuration(startTime) {
+  return Math.round((Date.now() - startTime) / 1e3);
+}
+function trackEvent(endpoint, eventData) {
+  if (!endpoint) return;
+  fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...eventData,
+      sentAt: (/* @__PURE__ */ new Date()).toISOString()
+    })
+  }).catch(() => {
+  });
+}
+var latencyLog = [];
+function trackAILatency(type, startTime, endTime) {
+  const entry = {
+    type,
+    durationMs: endTime - startTime,
+    timestamp: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  latencyLog.push(entry);
+  if (latencyLog.length > 50) {
+    latencyLog.shift();
+  }
+  pushDataLayer("dv_ai_latency", {
+    ai_type: entry.type,
+    duration_ms: entry.durationMs
+  });
+}
+function getLatencyLog() {
+  return latencyLog;
+}
+
+// src/hooks/useLeadCapture.ts
+var FAVORITES_KEY = "dv-favorites";
+function readFavoritesFromStorage() {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(FAVORITES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+function useLeadCapture() {
+  const {
+    api,
+    config,
+    anonymousId,
+    sessionStartTime,
+    sessionId,
+    modifications,
+    plansViewed,
+    currentPlan,
+    stylePref,
+    setCaptured
+  } = useDesignVaultContext();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+  const openCapture = useCallback(() => setIsOpen(true), []);
+  const closeCapture = useCallback(() => setIsOpen(false), []);
+  const submitCapture = useCallback(
+    async (formData) => {
+      setIsSubmitting(true);
+      setError(null);
+      const sessionDuration = Math.floor(
+        (Date.now() - sessionStartTime) / 1e3
+      );
+      const data = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        planId: currentPlan?.id ?? "",
+        planTitle: currentPlan?.title ?? "",
+        planSpecs: {
+          beds: currentPlan?.beds ?? 0,
+          baths: currentPlan?.baths ?? 0,
+          area: currentPlan?.area ?? 0
+        },
+        modifications,
+        favorites: readFavoritesFromStorage(),
+        stylePref,
+        sessionDuration,
+        plansViewed: plansViewed.length
+      };
+      try {
+        await api.saveDesign(
+          data,
+          sessionId ?? anonymousId,
+          config.builderSlug
+        );
+        setSubmitted(true);
+        setCaptured(true);
+        setIsOpen(false);
+        if (config.metaPixelId) {
+          fireMetaPixelEvent(config.metaPixelId, "Lead", {
+            content_name: currentPlan?.title,
+            content_ids: [currentPlan?.id],
+            content_category: currentPlan?.category,
+            value: currentPlan?.area
+          });
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [
+      api,
+      config.builderSlug,
+      config.metaPixelId,
+      anonymousId,
+      sessionStartTime,
+      sessionId,
+      modifications,
+      plansViewed.length,
+      currentPlan,
+      stylePref,
+      setCaptured
+    ]
+  );
+  return {
+    isOpen,
+    openCapture,
+    closeCapture,
+    submitCapture,
+    isSubmitting,
+    submitted,
+    error
+  };
+}
+var SKIP_KEY = "dv-lead-skip-count";
+function getSkipCount() {
+  if (typeof window === "undefined") return 0;
+  try {
+    return parseInt(localStorage.getItem(SKIP_KEY) ?? "0", 10) || 0;
+  } catch {
+    return 0;
+  }
+}
+function incrementSkipCount() {
+  const next = getSkipCount() + 1;
+  try {
+    localStorage.setItem(SKIP_KEY, String(next));
+  } catch {
+  }
+  return next;
+}
+function summarizeMod(mod) {
+  if (mod.type === "style_swap" && mod.stylePreset) {
+    const label = mod.stylePreset.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    return `Style swap to ${label}`;
+  }
+  if (mod.type === "floor_plan_edit" && mod.prompt) {
+    return mod.prompt.length > 50 ? mod.prompt.slice(0, 50) + "\u2026" : mod.prompt;
+  }
+  return mod.type === "style_swap" ? "Style customization" : "Floor plan edit";
+}
+var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function validateFields(data) {
+  const errors = {};
+  if (!data.firstName.trim()) errors.firstName = "First name is required";
+  if (!data.lastName.trim()) errors.lastName = "Last name is required";
+  if (!data.email.trim()) {
+    errors.email = "Email is required";
+  } else if (!EMAIL_RE.test(data.email)) {
+    errors.email = "Please enter a valid email address";
+  }
+  const digits = data.phone.replace(/\D/g, "");
+  if (!digits) {
+    errors.phone = "Phone number is required";
+  } else if (digits.length < 10) {
+    errors.phone = "Please enter a valid phone number (10+ digits)";
+  }
+  return errors;
+}
+var LeadCaptureModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  plan,
+  modifications,
+  config
+}) => {
+  const {
+    submitCapture,
+    isSubmitting,
+    submitted,
+    error: hookError
+  } = useLeadCapture();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState(/* @__PURE__ */ new Set());
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [skipCount, setSkipCount] = useState(getSkipCount);
+  useEffect(() => {
+    if (isOpen) {
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPhone("");
+      setErrors({});
+      setTouched(/* @__PURE__ */ new Set());
+      setShowSuccess(false);
+      setSkipCount(getSkipCount());
+    }
+  }, [isOpen]);
+  useEffect(() => {
+    if (submitted && isOpen && !showSuccess) {
+      setShowSuccess(true);
+      onSubmit?.();
+      const timer = setTimeout(onClose, 2e3);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, isOpen, showSuccess, onSubmit, onClose]);
+  const handleBlur = useCallback(
+    (field) => {
+      setTouched((prev) => {
+        const next = new Set(prev);
+        next.add(field);
+        return next;
+      });
+      setErrors(validateFields({ firstName, lastName, email, phone }));
+    },
+    [firstName, lastName, email, phone]
+  );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const data = { firstName, lastName, email, phone };
+    const fieldErrors = validateFields(data);
+    setErrors(fieldErrors);
+    setTouched(/* @__PURE__ */ new Set(["firstName", "lastName", "email", "phone"]));
+    if (Object.keys(fieldErrors).length > 0) return;
+    await submitCapture({
+      ...data,
+      phone: phone.replace(/\D/g, "")
+    });
+  };
+  const handleSkip = useCallback(() => {
+    incrementSkipCount();
+    setSkipCount((c) => c + 1);
+    onClose();
+  }, [onClose]);
+  const handleBackdropClick = useCallback(() => {
+    if (!isSubmitting) onClose();
+  }, [isSubmitting, onClose]);
+  const canSkip = skipCount < 2;
+  const builderName = config.builderSlug.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const fieldError = (field) => touched.has(field) && errors[field] ? errors[field] : null;
+  return /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsx(
+    motion.div,
+    {
+      className: "dv-lead-overlay",
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: { duration: 0.2 },
+      onClick: handleBackdropClick,
+      children: /* @__PURE__ */ jsxs(
+        motion.div,
+        {
+          className: "dv-lead-modal",
+          initial: { scale: 0.95, opacity: 0 },
+          animate: { scale: 1, opacity: 1 },
+          exit: { scale: 0.95, opacity: 0 },
+          transition: { duration: 0.25, ease: "easeOut" },
+          onClick: (e) => e.stopPropagation(),
+          children: [
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                className: "dv-lead-modal__close",
+                onClick: onClose,
+                "aria-label": "Close",
+                disabled: isSubmitting,
+                children: /* @__PURE__ */ jsx(X, { size: 20 })
+              }
+            ),
+            showSuccess ? (
+              /* ── Success confirmation ── */
+              /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__success", children: [
+                /* @__PURE__ */ jsx(CheckCircle, { size: 48, className: "dv-lead-modal__success-icon" }),
+                /* @__PURE__ */ jsx("h2", { className: "dv-lead-modal__title", children: "Saved!" }),
+                /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__subtitle", children: "Check your email for the full details." })
+              ] })
+            ) : (
+              /* ── Form ── */
+              /* @__PURE__ */ jsxs(Fragment, { children: [
+                /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__header", children: [
+                  /* @__PURE__ */ jsx(Sparkles, { size: 24, className: "dv-lead-modal__header-icon" }),
+                  /* @__PURE__ */ jsx("h2", { className: "dv-lead-modal__title", children: "Save Your Custom Design" }),
+                  /* @__PURE__ */ jsxs("p", { className: "dv-lead-modal__subtitle", children: [
+                    "We\u2019ll send you the full details for",
+                    " ",
+                    /* @__PURE__ */ jsx("strong", { children: plan.title })
+                  ] })
+                ] }),
+                modifications.length > 0 && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__mods", children: [
+                  /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__mods-label", children: "Your customizations:" }),
+                  /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__mods-list", children: modifications.map((mod, i) => /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__mod-tag", children: summarizeMod(mod) }, i)) })
+                ] }),
+                hookError && /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__api-error", children: hookError }),
+                /* @__PURE__ */ jsxs(
+                  "form",
+                  {
+                    className: "dv-lead-modal__form",
+                    onSubmit: handleSubmit,
+                    noValidate: true,
+                    children: [
+                      /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__row", children: [
+                        /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                          /* @__PURE__ */ jsx(
+                            "input",
+                            {
+                              className: `dv-lead-modal__input ${fieldError("firstName") ? "dv-lead-modal__input--error" : ""}`,
+                              type: "text",
+                              placeholder: "First Name",
+                              value: firstName,
+                              onChange: (e) => setFirstName(e.target.value),
+                              onBlur: () => handleBlur("firstName"),
+                              disabled: isSubmitting,
+                              autoComplete: "given-name"
+                            }
+                          ),
+                          fieldError("firstName") && /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("firstName") })
+                        ] }),
+                        /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                          /* @__PURE__ */ jsx(
+                            "input",
+                            {
+                              className: `dv-lead-modal__input ${fieldError("lastName") ? "dv-lead-modal__input--error" : ""}`,
+                              type: "text",
+                              placeholder: "Last Name",
+                              value: lastName,
+                              onChange: (e) => setLastName(e.target.value),
+                              onBlur: () => handleBlur("lastName"),
+                              disabled: isSubmitting,
+                              autoComplete: "family-name"
+                            }
+                          ),
+                          fieldError("lastName") && /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("lastName") })
+                        ] })
+                      ] }),
+                      /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                        /* @__PURE__ */ jsx(
+                          "input",
+                          {
+                            className: `dv-lead-modal__input ${fieldError("email") ? "dv-lead-modal__input--error" : ""}`,
+                            type: "email",
+                            placeholder: "Email",
+                            value: email,
+                            onChange: (e) => setEmail(e.target.value),
+                            onBlur: () => handleBlur("email"),
+                            disabled: isSubmitting,
+                            autoComplete: "email"
+                          }
+                        ),
+                        fieldError("email") && /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("email") })
+                      ] }),
+                      /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                        /* @__PURE__ */ jsx(
+                          "input",
+                          {
+                            className: `dv-lead-modal__input ${fieldError("phone") ? "dv-lead-modal__input--error" : ""}`,
+                            type: "tel",
+                            placeholder: "Phone",
+                            value: phone,
+                            onChange: (e) => setPhone(e.target.value),
+                            onBlur: () => handleBlur("phone"),
+                            disabled: isSubmitting,
+                            autoComplete: "tel"
+                          }
+                        ),
+                        fieldError("phone") && /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("phone") })
+                      ] }),
+                      /* @__PURE__ */ jsxs("p", { className: "dv-lead-modal__privacy", children: [
+                        "Your info will be shared with",
+                        " ",
+                        /* @__PURE__ */ jsx("strong", { children: builderName }),
+                        " to help you build this home."
+                      ] }),
+                      /* @__PURE__ */ jsx(
+                        "button",
+                        {
+                          className: "dv-lead-modal__submit",
+                          type: "submit",
+                          disabled: isSubmitting,
+                          children: isSubmitting ? /* @__PURE__ */ jsxs(Fragment, { children: [
+                            /* @__PURE__ */ jsx(
+                              Loader2,
+                              {
+                                size: 18,
+                                className: "dv-lead-modal__spinner"
+                              }
+                            ),
+                            "Saving..."
+                          ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+                            /* @__PURE__ */ jsx(Send, { size: 16 }),
+                            config.ctaText || "Save My Design"
+                          ] })
+                        }
+                      )
+                    ]
+                  }
+                ),
+                canSkip && /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    className: "dv-lead-modal__skip",
+                    onClick: handleSkip,
+                    disabled: isSubmitting,
+                    type: "button",
+                    children: "Skip for now"
+                  }
+                )
+              ] })
+            )
+          ]
+        }
+      )
+    }
+  ) });
+};
 function useAIInteractions() {
   const {
     api,
@@ -659,6 +1576,194 @@ function useAIInteractions() {
     error
   };
 }
+var AIToolsPanel = ({
+  plan,
+  config,
+  onResult,
+  onProcessingChange
+}) => {
+  const {
+    handleStyleSwap,
+    handleFloorPlanEdit,
+    handleEnhancePrompt,
+    isProcessing,
+    needsCapture,
+    error: aiError
+  } = useAIInteractions();
+  const { modifications, isCaptured } = useDesignVaultContext();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activePreset, setActivePreset] = useState(
+    plan.style ?? null
+  );
+  useEffect(() => {
+    onProcessingChange(isProcessing);
+  }, [isProcessing, onProcessingChange]);
+  const onSwap = useCallback(
+    async (presetId) => {
+      if (needsCapture) {
+        setModalOpen(true);
+        return;
+      }
+      setActivePreset(presetId);
+      const result = await handleStyleSwap(plan.id, presetId);
+      if (result?.success && result.resultUrl) {
+        onResult({
+          newUrl: result.resultUrl,
+          originalUrl: plan.image_url,
+          type: "style_swap"
+        });
+      }
+    },
+    [needsCapture, handleStyleSwap, plan.id, plan.image_url, onResult]
+  );
+  const onEdit = useCallback(
+    async (prompt) => {
+      if (needsCapture) {
+        setModalOpen(true);
+        return;
+      }
+      const result = await handleFloorPlanEdit(
+        plan.id,
+        prompt,
+        plan.floor_plan_url ?? void 0
+      );
+      if (result?.success && result.resultUrl) {
+        onResult({
+          newUrl: result.resultUrl,
+          originalUrl: plan.floor_plan_url ?? plan.image_url,
+          type: "floor_plan_edit"
+        });
+      }
+    },
+    [
+      needsCapture,
+      handleFloorPlanEdit,
+      plan.id,
+      plan.floor_plan_url,
+      plan.image_url,
+      onResult
+    ]
+  );
+  const onEnhance = useCallback(
+    async (prompt) => {
+      return handleEnhancePrompt(prompt, plan.image_url);
+    },
+    [handleEnhancePrompt, plan.image_url]
+  );
+  const openModal = useCallback(() => setModalOpen(true), []);
+  const closeModal = useCallback(() => setModalOpen(false), []);
+  return /* @__PURE__ */ jsxs("div", { className: "dv-ai-tools", children: [
+    /* @__PURE__ */ jsxs("div", { className: "dv-ai-tools__header", children: [
+      /* @__PURE__ */ jsx(Sparkles, { size: 20 }),
+      /* @__PURE__ */ jsx("h3", { className: "dv-ai-tools__title", children: "AI Design Tools" })
+    ] }),
+    aiError && /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__error", children: aiError }),
+    config.enableStyleSwap !== false && /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(
+        StyleSwapButtons,
+        {
+          planId: plan.id,
+          currentStyle: plan.style,
+          onSwap,
+          isProcessing,
+          activePreset
+        }
+      ),
+      /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__divider" })
+    ] }),
+    config.enableFloorPlanEdit !== false && /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(
+        FloorPlanEditor,
+        {
+          planId: plan.id,
+          currentFloorPlanUrl: plan.floor_plan_url,
+          onEdit,
+          onEnhance,
+          isProcessing
+        }
+      ),
+      /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__divider" })
+    ] }),
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        className: "dv-ai-tools__save-btn",
+        onClick: openModal,
+        disabled: isCaptured,
+        children: [
+          /* @__PURE__ */ jsx(Save, { size: 16 }),
+          isCaptured ? "Design Saved" : "Save This Design"
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsx("p", { className: "dv-ai-tools__callout", children: "First customization is free. Save your design to unlock more." }),
+    /* @__PURE__ */ jsx(
+      LeadCaptureModal,
+      {
+        isOpen: modalOpen,
+        onClose: closeModal,
+        plan,
+        modifications,
+        config
+      }
+    )
+  ] });
+};
+function scoreSimilarity(a, b) {
+  let score = 0;
+  if (a.style && a.style === b.style) score += 3;
+  if (a.category && a.category === b.category) score += 3;
+  if (Math.abs(a.beds - b.beds) <= 1) score += 2;
+  if (Math.abs(a.area - b.area) <= 500) score += 2;
+  if (a.price_tier && a.price_tier === b.price_tier) score += 1;
+  return score;
+}
+var SimilarPlans = ({
+  currentPlan,
+  allPlans,
+  onPlanSelect
+}) => {
+  const similar = useMemo(() => {
+    return allPlans.filter((p) => p.id !== currentPlan.id).map((p) => ({ plan: p, score: scoreSimilarity(currentPlan, p) })).sort((a, b) => b.score - a.score).slice(0, 3).filter((s) => s.score > 0).map((s) => s.plan);
+  }, [currentPlan, allPlans]);
+  if (similar.length === 0) return null;
+  return /* @__PURE__ */ jsxs("div", { className: "dv-similar-plans", children: [
+    /* @__PURE__ */ jsx("h3", { className: "dv-similar-plans__title", children: "Similar Plans" }),
+    /* @__PURE__ */ jsx("div", { className: "dv-similar-plans__grid", children: similar.map((plan) => /* @__PURE__ */ jsxs(
+      "button",
+      {
+        className: "dv-similar-plans__card",
+        onClick: () => onPlanSelect(plan),
+        children: [
+          /* @__PURE__ */ jsx(
+            "img",
+            {
+              src: plan.image_url,
+              alt: plan.title,
+              className: "dv-similar-plans__img",
+              loading: "lazy"
+            }
+          ),
+          /* @__PURE__ */ jsxs("div", { className: "dv-similar-plans__info", children: [
+            /* @__PURE__ */ jsx("span", { className: "dv-similar-plans__name", children: plan.title }),
+            /* @__PURE__ */ jsxs("span", { className: "dv-similar-plans__specs", children: [
+              /* @__PURE__ */ jsx(Home, { size: 12 }),
+              " ",
+              plan.beds,
+              /* @__PURE__ */ jsx(Bath, { size: 12 }),
+              " ",
+              plan.baths,
+              /* @__PURE__ */ jsx(Square, { size: 12 }),
+              " ",
+              plan.area.toLocaleString()
+            ] })
+          ] })
+        ]
+      },
+      plan.id
+    )) })
+  ] });
+};
 function useSession() {
   const {
     api,
@@ -731,7 +1836,7 @@ function useSession() {
       addPlanViewed
     ]
   );
-  const getSessionDuration = useCallback(() => {
+  const getSessionDuration2 = useCallback(() => {
     return Math.floor((Date.now() - sessionStartTime) / 1e3);
   }, [sessionStartTime]);
   return {
@@ -739,186 +1844,374 @@ function useSession() {
     addModification,
     setCurrentPlan,
     plansViewed,
-    getSessionDuration
+    getSessionDuration: getSessionDuration2
   };
 }
-
-// src/utils/tracking.ts
-function trackPageView(_builderSlug, _anonymousId, _trackingEndpoint) {
-}
-function trackEvent(_event, _properties, _trackingEndpoint) {
-}
-function fireMetaPixelEvent(_pixelId, _eventName, _params) {
-}
-
-// src/hooks/useLeadCapture.ts
-var FAVORITES_KEY = "dv-favorites";
-function readFavoritesFromStorage() {
-  if (typeof window === "undefined") return [];
-  try {
-    const stored = localStorage.getItem(FAVORITES_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
-function useLeadCapture() {
-  const {
-    api,
-    config,
-    anonymousId,
-    sessionStartTime,
-    sessionId,
-    modifications,
-    plansViewed,
-    currentPlan,
-    stylePref,
-    setCaptured
-  } = useDesignVaultContext();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
-  const openCapture = useCallback(() => setIsOpen(true), []);
-  const closeCapture = useCallback(() => setIsOpen(false), []);
-  const submitCapture = useCallback(
-    async (formData) => {
-      setIsSubmitting(true);
-      setError(null);
-      const sessionDuration = Math.floor(
-        (Date.now() - sessionStartTime) / 1e3
-      );
-      const data = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        planId: currentPlan?.id ?? "",
-        planTitle: currentPlan?.title ?? "",
-        planSpecs: {
-          beds: currentPlan?.beds ?? 0,
-          baths: currentPlan?.baths ?? 0,
-          area: currentPlan?.area ?? 0
-        },
-        modifications,
-        favorites: readFavoritesFromStorage(),
-        stylePref,
-        sessionDuration,
-        plansViewed: plansViewed.length
+var PlanDetail = ({
+  plan,
+  isOpen,
+  onClose,
+  config,
+  allPlans,
+  onPlanSwitch
+}) => {
+  const { setCurrentPlan } = useSession();
+  const [heroUrl, setHeroUrl] = useState(plan.image_url);
+  const [originalUrl, setOriginalUrl] = useState(plan.image_url);
+  const [showOriginal, setShowOriginal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [hasAiResult, setHasAiResult] = useState(false);
+  const thumbnails = useMemo(() => {
+    const thumbs = [
+      { url: plan.image_url, label: "Exterior" }
+    ];
+    if (plan.floor_plan_url) {
+      thumbs.push({ url: plan.floor_plan_url, label: "Floor Plan" });
+    }
+    if (plan.interior_urls) {
+      plan.interior_urls.forEach((url, i) => {
+        thumbs.push({ url, label: `Interior ${i + 1}` });
+      });
+    }
+    return thumbs;
+  }, [plan]);
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentPlan(plan);
+      setHeroUrl(plan.image_url);
+      setOriginalUrl(plan.image_url);
+      setHasAiResult(false);
+      setShowOriginal(false);
+    }
+  }, [isOpen, plan, setCurrentPlan]);
+  useEffect(() => {
+    if (isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
       };
-      try {
-        await api.saveDesign(
-          data,
-          sessionId ?? anonymousId,
-          config.builderSlug
-        );
-        setSubmitted(true);
-        setCaptured(true);
-        setIsOpen(false);
-        if (config.metaPixelId) {
-          fireMetaPixelEvent(config.metaPixelId, "Lead", {
-            content_name: currentPlan?.title,
-            content_ids: [currentPlan?.id],
-            content_category: currentPlan?.category,
-            value: currentPlan?.area
-          });
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setError(msg);
-      } finally {
-        setIsSubmitting(false);
+    }
+  }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isOpen, onClose]);
+  const handleResult = useCallback(
+    (result) => {
+      setHeroUrl(result.newUrl);
+      setOriginalUrl(result.originalUrl);
+      setHasAiResult(true);
+      setShowOriginal(false);
+    },
+    []
+  );
+  const handlePlanSelect = useCallback(
+    (newPlan) => {
+      if (onPlanSwitch) {
+        onPlanSwitch(newPlan);
+      } else {
+        setCurrentPlan(newPlan);
+        setHeroUrl(newPlan.image_url);
+        setOriginalUrl(newPlan.image_url);
+        setHasAiResult(false);
+        setShowOriginal(false);
       }
     },
-    [
-      api,
-      config.builderSlug,
-      config.metaPixelId,
-      anonymousId,
-      sessionStartTime,
-      sessionId,
-      modifications,
-      plansViewed.length,
-      currentPlan,
-      stylePref,
-      setCaptured
-    ]
+    [onPlanSwitch, setCurrentPlan]
   );
+  const displayUrl = showOriginal ? originalUrl : heroUrl;
+  return /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsx(
+    motion.div,
+    {
+      className: "dv-detail-overlay",
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: { duration: 0.3 },
+      onClick: onClose,
+      children: /* @__PURE__ */ jsxs(
+        motion.div,
+        {
+          className: "dv-detail-panel",
+          initial: { y: 40, opacity: 0 },
+          animate: { y: 0, opacity: 1 },
+          exit: { y: 40, opacity: 0 },
+          transition: { duration: 0.35, ease: "easeOut" },
+          onClick: (e) => e.stopPropagation(),
+          children: [
+            /* @__PURE__ */ jsx(
+              "button",
+              {
+                className: "dv-detail-panel__close",
+                onClick: onClose,
+                "aria-label": "Close",
+                children: /* @__PURE__ */ jsx(X, { size: 24 })
+              }
+            ),
+            /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero", children: [
+              /* @__PURE__ */ jsx(
+                "img",
+                {
+                  src: displayUrl,
+                  alt: plan.title,
+                  className: "dv-detail-hero__img"
+                }
+              ),
+              isProcessing && /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero__processing", children: [
+                /* @__PURE__ */ jsx("div", { className: "dv-detail-hero__shimmer" }),
+                /* @__PURE__ */ jsx("span", { className: "dv-detail-hero__processing-text", children: "AI is generating..." })
+              ] }),
+              /* @__PURE__ */ jsx("div", { className: "dv-detail-hero__gradient" }),
+              /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero__info", children: [
+                /* @__PURE__ */ jsx("h1", { className: "dv-detail-hero__title", children: plan.title }),
+                /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero__specs", children: [
+                  /* @__PURE__ */ jsxs("span", { children: [
+                    /* @__PURE__ */ jsx(Home, { size: 16 }),
+                    " ",
+                    plan.beds,
+                    " Beds"
+                  ] }),
+                  /* @__PURE__ */ jsxs("span", { children: [
+                    /* @__PURE__ */ jsx(Bath, { size: 16 }),
+                    " ",
+                    plan.baths,
+                    " Baths"
+                  ] }),
+                  /* @__PURE__ */ jsxs("span", { children: [
+                    /* @__PURE__ */ jsx(Square, { size: 16 }),
+                    " ",
+                    plan.area.toLocaleString(),
+                    " sqft"
+                  ] })
+                ] })
+              ] }),
+              hasAiResult && /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero__compare", children: [
+                /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    className: `dv-detail-hero__compare-btn ${!showOriginal ? "dv-detail-hero__compare-btn--active" : ""}`,
+                    onClick: () => setShowOriginal(false),
+                    children: "AI Generated"
+                  }
+                ),
+                /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    className: `dv-detail-hero__compare-btn ${showOriginal ? "dv-detail-hero__compare-btn--active" : ""}`,
+                    onClick: () => setShowOriginal(true),
+                    children: "Original"
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxs("div", { className: "dv-detail-body", children: [
+              /* @__PURE__ */ jsxs("div", { className: "dv-detail-body__left", children: [
+                thumbnails.length > 1 && /* @__PURE__ */ jsx("div", { className: "dv-detail-thumbs", children: thumbnails.map((thumb) => /* @__PURE__ */ jsxs(
+                  "button",
+                  {
+                    className: `dv-detail-thumbs__item ${heroUrl === thumb.url && !hasAiResult ? "dv-detail-thumbs__item--active" : ""}`,
+                    onClick: () => {
+                      setHeroUrl(thumb.url);
+                      setOriginalUrl(thumb.url);
+                      setHasAiResult(false);
+                      setShowOriginal(false);
+                    },
+                    children: [
+                      /* @__PURE__ */ jsx("img", { src: thumb.url, alt: thumb.label }),
+                      /* @__PURE__ */ jsx("span", { className: "dv-detail-thumbs__label", children: thumb.label })
+                    ]
+                  },
+                  thumb.url
+                )) }),
+                plan.description && /* @__PURE__ */ jsx("p", { className: "dv-detail-description", children: plan.description }),
+                plan.features.length > 0 && /* @__PURE__ */ jsxs("div", { className: "dv-detail-features", children: [
+                  /* @__PURE__ */ jsx("h3", { className: "dv-detail-features__title", children: "Features" }),
+                  /* @__PURE__ */ jsx("div", { className: "dv-detail-features__grid", children: plan.features.map((feature) => /* @__PURE__ */ jsxs(
+                    "div",
+                    {
+                      className: "dv-detail-features__item",
+                      children: [
+                        /* @__PURE__ */ jsx(Check, { size: 16 }),
+                        /* @__PURE__ */ jsx("span", { children: feature })
+                      ]
+                    },
+                    feature
+                  )) })
+                ] }),
+                config.enableSimilarPlans !== false && allPlans && allPlans.length > 1 && /* @__PURE__ */ jsx(
+                  SimilarPlans,
+                  {
+                    currentPlan: plan,
+                    allPlans,
+                    onPlanSelect: handlePlanSelect
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsx("div", { className: "dv-detail-body__right", children: /* @__PURE__ */ jsx(
+                AIToolsPanel,
+                {
+                  plan,
+                  config,
+                  onResult: handleResult,
+                  onProcessingChange: setIsProcessing
+                }
+              ) })
+            ] })
+          ]
+        }
+      )
+    }
+  ) });
+};
+function hexToRgb(hex) {
+  const m = hex.replace("#", "").match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+  if (!m) return null;
+  return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
+}
+function lighten(hex, amount) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+  const out = rgb.map(
+    (c) => Math.min(255, Math.round(c + (255 - c) * amount))
+  );
+  return `#${out.map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+}
+function brandVars(color, colorLight) {
+  const rgb = hexToRgb(color);
   return {
-    isOpen,
-    openCapture,
-    closeCapture,
-    submitCapture,
-    isSubmitting,
-    submitted,
-    error
+    "--dv-brand": color,
+    "--dv-brand-light": colorLight ?? lighten(color, 0.25),
+    "--dv-brand-dim": rgb ? `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.15)` : "rgba(184, 134, 11, 0.15)"
   };
 }
-var STORAGE_KEY = "dv-favorites";
-function readFavorites() {
-  if (typeof window === "undefined") return [];
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
+function DesignVaultInner({ config }) {
+  const { anonymousId } = useDesignVaultContext();
+  const { plans } = usePlans();
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const lastPlanRef = useRef(null);
+  if (selectedPlan) {
+    lastPlanRef.current = selectedPlan;
   }
-}
-function writeFavorites(ids) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-  } catch {
-  }
-}
-function useFavorites() {
-  const [favorites, setFavorites] = useState(readFavorites);
   useEffect(() => {
-    writeFavorites(favorites);
-  }, [favorites]);
-  const toggleFavorite = useCallback((planId) => {
-    setFavorites(
-      (prev) => prev.includes(planId) ? prev.filter((id) => id !== planId) : [...prev, planId]
+    if (config.trackingEndpoint) {
+      trackPageView(config.builderSlug, anonymousId, config.trackingEndpoint);
+    }
+  }, [config.trackingEndpoint, config.builderSlug, anonymousId]);
+  useEffect(() => {
+    if (plans.length === 0 || selectedPlan) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const planParam = params.get("plan");
+    if (!planParam) return;
+    const decoded = decodeURIComponent(planParam);
+    const match = plans.find(
+      (p) => p.title.toLowerCase() === decoded.toLowerCase() || p.id === decoded
     );
+    if (match) setSelectedPlan(match);
+  }, [plans, selectedPlan]);
+  const handlePlanSelect = useCallback((plan) => {
+    setSelectedPlan(plan);
   }, []);
-  const isFavorite = useCallback(
-    (planId) => favorites.includes(planId),
-    [favorites]
-  );
-  return {
-    favorites,
-    toggleFavorite,
-    isFavorite,
-    favoritesCount: favorites.length
-  };
+  const handleDetailClose = useCallback(() => {
+    setSelectedPlan(null);
+  }, []);
+  const handlePlanSwitch = useCallback((plan) => {
+    setSelectedPlan(plan);
+  }, []);
+  const detailPlan = selectedPlan ?? lastPlanRef.current;
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs("header", { className: "dv-hero", children: [
+      /* @__PURE__ */ jsxs("div", { className: "dv-hero__badge", children: [
+        /* @__PURE__ */ jsx(Sparkles, { size: 14 }),
+        "AI-Powered Design"
+      ] }),
+      /* @__PURE__ */ jsx("h1", { className: "dv-hero__title", children: "Design Your Dream Home" }),
+      /* @__PURE__ */ jsx("p", { className: "dv-hero__subtitle", children: "Browse. Customize. Build." })
+    ] }),
+    /* @__PURE__ */ jsx("main", { className: "dv-container", children: /* @__PURE__ */ jsx(ArchiveGrid, { onPlanSelect: handlePlanSelect }) }),
+    detailPlan && /* @__PURE__ */ jsx(
+      PlanDetail,
+      {
+        plan: detailPlan,
+        isOpen: !!selectedPlan,
+        onClose: handleDetailClose,
+        config,
+        allPlans: plans,
+        onPlanSwitch: handlePlanSwitch
+      }
+    ),
+    config.attribution?.show && /* @__PURE__ */ jsxs("footer", { className: "dv-attribution", children: [
+      /* @__PURE__ */ jsx("span", { children: "Designed by " }),
+      /* @__PURE__ */ jsx(
+        "a",
+        {
+          href: config.attribution.url,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          children: config.attribution.text
+        }
+      )
+    ] })
+  ] });
 }
+var DesignVault = ({
+  config,
+  className
+}) => {
+  return /* @__PURE__ */ jsx(DesignVaultProvider, { config, children: /* @__PURE__ */ jsx(
+    "div",
+    {
+      className: `dv-root ${className ?? ""}`,
+      style: brandVars(config.brandColor, config.brandColorLight),
+      children: /* @__PURE__ */ jsx(DesignVaultInner, { config })
+    }
+  ) });
+};
 
 // src/utils/cache.ts
-var DEFAULT_TTL_MS = 5 * 60 * 1e3;
+var ONE_HOUR_MS = 60 * 60 * 1e3;
 var ClientCache = class {
-  constructor(ttlMs = DEFAULT_TTL_MS) {
+  constructor(ttlMs = ONE_HOUR_MS) {
     this.store = /* @__PURE__ */ new Map();
     this.ttl = ttlMs;
   }
+  /** Build a cache key from plan + action */
+  static key(planId, actionType, params) {
+    return `${planId}-${actionType}-${params}`;
+  }
+  /** Returns cached URL if present and less than TTL old, else null */
   get(key) {
     const entry = this.store.get(key);
     if (!entry) return null;
-    if (Date.now() > entry.expiresAt) {
+    if (Date.now() - entry.timestamp > this.ttl) {
       this.store.delete(key);
       return null;
     }
-    return entry.data;
+    return entry.url;
   }
-  set(key, data) {
-    this.store.set(key, { data, expiresAt: Date.now() + this.ttl });
+  /** Store an AI result URL */
+  set(key, url) {
+    this.store.set(key, { url, timestamp: Date.now() });
   }
+  /** Remove a specific entry */
   invalidate(key) {
     this.store.delete(key);
   }
+  /** Clear all entries */
   clear() {
     this.store.clear();
   }
+  /** Number of entries currently stored */
+  get size() {
+    return this.store.size;
+  }
 };
 
-export { AIToolsPanel, ArchiveGrid, CategoryTiles, ClientCache, DEFAULT_STYLE_PRESETS, DesignVault, DesignVaultAPI, DesignVaultContext, DesignVaultProvider, FavoriteButton, FeaturedRow, FilterBar, FloorPlanEditor, LeadCaptureModal, PlanCard, PlanDetail, SimilarPlans, StyleSwapButtons, fireMetaPixelEvent, trackEvent, trackPageView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
+export { AIToolsPanel, ArchiveGrid, CategoryTiles, ClientCache, DEFAULT_STYLE_PRESETS, DesignVault, DesignVaultAPI, DesignVaultContext, DesignVaultProvider, FavoriteButton, FeaturedRow, FilterBar, FloorPlanEditor, LeadCaptureModal, PlanCard, PlanDetail, SimilarPlans, StyleSwapButtons, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
