@@ -28,7 +28,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
 
   return (
     <div className="dv-wishlist">
-      <h4 className="dv-wishlist__label">Design Wishlist</h4>
+      <h4 className="dv-wishlist__label">Floor Plan Wishlist</h4>
 
       {/* Floor plan preview */}
       {currentFloorPlanUrl && (

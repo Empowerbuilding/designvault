@@ -833,7 +833,7 @@ var FloorPlanEditor = ({
     }
   };
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist", children: [
-    /* @__PURE__ */ jsxRuntime.jsx("h4", { className: "dv-wishlist__label", children: "Design Wishlist" }),
+    /* @__PURE__ */ jsxRuntime.jsx("h4", { className: "dv-wishlist__label", children: "Floor Plan Wishlist" }),
     currentFloorPlanUrl && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-wishlist__preview", children: /* @__PURE__ */ jsxRuntime.jsx(
       "img",
       {
@@ -1916,9 +1916,6 @@ var PlanDetail = ({
     const thumbs = [
       { url: plan.image_url, label: "Exterior" }
     ];
-    if (plan.floor_plan_url) {
-      thumbs.push({ url: plan.floor_plan_url, label: "Floor Plan" });
-    }
     if (plan.interior_urls) {
       plan.interior_urls.forEach((url, i) => {
         thumbs.push({ url, label: `Interior ${i + 1}` });

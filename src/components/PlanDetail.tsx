@@ -30,10 +30,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
     const thumbs: { url: string; label: string }[] = [
       { url: plan.image_url, label: "Exterior" },
     ];
-    if (plan.floor_plan_url) {
-      thumbs.push({ url: plan.floor_plan_url, label: "Floor Plan" });
-    }
-    if (plan.interior_urls) {
+if (plan.interior_urls) {
       plan.interior_urls.forEach((url, i) => {
         thumbs.push({ url, label: `Interior ${i + 1}` });
       });
