@@ -7,7 +7,7 @@ import "designvault/styles.css";
 const config: DesignVaultConfig = {
   builderSlug: "barnhaus",
   brandColor: "#B8860B",
-  apiBaseUrl: "", // Vite proxy forwards /api/* to localhost:3001
+  apiBaseUrl: "https://3d.barnhaussteelbuilders.com",
   metaPixelId: "",
   ctaText: "Save My Design",
   enableStyleSwap: true,
