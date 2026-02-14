@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { DesignVault } from "designvault";
 import type { DesignVaultConfig } from "designvault";
-import "designvault/styles.css";
+import "./styles.css";
 
 const config: DesignVaultConfig = {
   builderSlug: "barnhaus",
