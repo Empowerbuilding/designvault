@@ -1797,7 +1797,7 @@ html, body {
   .dv-detail-hero {
     width: 100%;
     height: auto;
-    max-height: 50vh;
+    max-height: 60vh;
     margin: 0;
     padding: 0;
     border-radius: 0;
@@ -1807,7 +1807,7 @@ html, body {
   .dv-detail-hero__img {
     width: 100%;
     height: auto;
-    max-height: 50vh;
+    max-height: 60vh;
     margin: 0;
     padding: 0;
     object-fit: contain;
