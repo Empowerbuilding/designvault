@@ -1790,8 +1790,9 @@ html, body {
     overflow-y: auto;
     width: 100%;
     max-width: 100%;
-    height: 100vh;
-    max-height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: none;
     margin: 0;
     border: none;
     border-radius: 0;
@@ -1914,7 +1915,7 @@ html, body {
 
   .dv-similar-plans {
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .dv-similar-plans__grid {
@@ -1987,8 +1988,9 @@ html, body {
   }
 
   .dv-detail-panel {
-    max-height: 100vh;
-    height: 100vh;
+    max-height: none;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .dv-detail-hero__title {
