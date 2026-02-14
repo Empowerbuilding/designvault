@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Home, Bath, Square, Check } from "lucide-react";
 import { AIToolsPanel } from "./AIToolsPanel";
+import { ImageLightbox } from "./ImageLightbox";
 import { SimilarPlans } from "./SimilarPlans";
 import { useSession } from "../hooks/useSession";
 import type { PlanDetailProps } from "../types";
@@ -21,6 +22,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
   const [showOriginal, setShowOriginal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasAiResult, setHasAiResult] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   // Build thumbnail list
   const thumbnails = useMemo(() => {
@@ -135,6 +137,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
                 src={displayUrl}
                 alt={plan.title}
                 className="dv-detail-hero__img"
+                onClick={() => setLightboxOpen(true)}
               />
 
               {isProcessing && (
@@ -268,6 +271,13 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
                   </div>
                 )}
             </div>
+
+            <ImageLightbox
+              src={displayUrl}
+              alt={plan.title}
+              isOpen={lightboxOpen}
+              onClose={() => setLightboxOpen(false)}
+            />
           </motion.div>
         </motion.div>
       )}

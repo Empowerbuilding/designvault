@@ -1712,6 +1712,52 @@ var AIToolsPanel = ({
     )
   ] });
 };
+var ImageLightbox = ({
+  src,
+  alt,
+  isOpen,
+  onClose
+}) => {
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isOpen, onClose]);
+  return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsxs(
+    framerMotion.motion.div,
+    {
+      className: "dv-lightbox-overlay",
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: { duration: 0.2 },
+      onClick: onClose,
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            className: "dv-lightbox-overlay__close",
+            onClick: onClose,
+            "aria-label": "Close",
+            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 24 })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "img",
+          {
+            className: "dv-lightbox-overlay__img",
+            src,
+            alt,
+            onClick: (e) => e.stopPropagation()
+          }
+        )
+      ]
+    }
+  ) });
+};
 function scoreSimilarity(a, b) {
   let score = 0;
   if (a.style && a.style === b.style) score += 3;
@@ -1864,6 +1910,7 @@ var PlanDetail = ({
   const [showOriginal, setShowOriginal] = React.useState(false);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [hasAiResult, setHasAiResult] = React.useState(false);
+  const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const thumbnails = React.useMemo(() => {
     const thumbs = [
       { url: plan.image_url, label: "Exterior" }
@@ -1962,7 +2009,8 @@ var PlanDetail = ({
                 {
                   src: displayUrl,
                   alt: plan.title,
-                  className: "dv-detail-hero__img"
+                  className: "dv-detail-hero__img",
+                  onClick: () => setLightboxOpen(true)
                 }
               ),
               isProcessing && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero__processing", children: [
@@ -2064,7 +2112,16 @@ var PlanDetail = ({
                   onPlanSelect: handlePlanSelect
                 }
               ) })
-            ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntime.jsx(
+              ImageLightbox,
+              {
+                src: displayUrl,
+                alt: plan.title,
+                isOpen: lightboxOpen,
+                onClose: () => setLightboxOpen(false)
+              }
+            )
           ]
         }
       )
