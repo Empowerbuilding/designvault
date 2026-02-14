@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Home, Bath, Square, Check } from "lucide-react";
 import { AIToolsPanel } from "./AIToolsPanel";
@@ -16,6 +16,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
   onPlanSwitch,
 }) => {
   const { setCurrentPlan } = useSession();
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const [heroUrl, setHeroUrl] = useState(plan.image_url);
   const [originalUrl, setOriginalUrl] = useState(plan.image_url);
@@ -48,6 +49,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
       setOriginalUrl(plan.image_url);
       setHasAiResult(false);
       setShowOriginal(false);
+      panelRef.current?.scrollTo(0, 0);
     }
   }, [isOpen, plan, setCurrentPlan]);
 
@@ -102,6 +104,8 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
   );
 
   const displayUrl = showOriginal ? originalUrl : heroUrl;
+  const isMobile =
+    typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
     <AnimatePresence>
@@ -115,11 +119,12 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
           onClick={onClose}
         >
           <motion.div
+            ref={panelRef}
             className="dv-detail-panel"
-            initial={{ y: 40, opacity: 0 }}
+            initial={{ y: isMobile ? 0 : 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+            exit={{ y: isMobile ? 0 : 40, opacity: 0 }}
+            transition={{ duration: isMobile ? 0.2 : 0.35, ease: "easeOut" }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}

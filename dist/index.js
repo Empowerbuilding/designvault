@@ -1905,6 +1905,7 @@ var PlanDetail = ({
   onPlanSwitch
 }) => {
   const { setCurrentPlan } = useSession();
+  const panelRef = React.useRef(null);
   const [heroUrl, setHeroUrl] = React.useState(plan.image_url);
   const [originalUrl, setOriginalUrl] = React.useState(plan.image_url);
   const [showOriginal, setShowOriginal] = React.useState(false);
@@ -1932,6 +1933,7 @@ var PlanDetail = ({
       setOriginalUrl(plan.image_url);
       setHasAiResult(false);
       setShowOriginal(false);
+      panelRef.current?.scrollTo(0, 0);
     }
   }, [isOpen, plan, setCurrentPlan]);
   React.useEffect(() => {
@@ -1975,6 +1977,7 @@ var PlanDetail = ({
     [onPlanSwitch, setCurrentPlan]
   );
   const displayUrl = showOriginal ? originalUrl : heroUrl;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsx(
     framerMotion.motion.div,
     {
@@ -1987,11 +1990,12 @@ var PlanDetail = ({
       children: /* @__PURE__ */ jsxRuntime.jsxs(
         framerMotion.motion.div,
         {
+          ref: panelRef,
           className: "dv-detail-panel",
-          initial: { y: 40, opacity: 0 },
+          initial: { y: isMobile ? 0 : 40, opacity: 0 },
           animate: { y: 0, opacity: 1 },
-          exit: { y: 40, opacity: 0 },
-          transition: { duration: 0.35, ease: "easeOut" },
+          exit: { y: isMobile ? 0 : 40, opacity: 0 },
+          transition: { duration: isMobile ? 0.2 : 0.35, ease: "easeOut" },
           onClick: (e) => e.stopPropagation(),
           children: [
             /* @__PURE__ */ jsxRuntime.jsx(

@@ -1897,6 +1897,7 @@ var PlanDetail = ({
   onPlanSwitch
 }) => {
   const { setCurrentPlan } = useSession();
+  const panelRef = useRef(null);
   const [heroUrl, setHeroUrl] = useState(plan.image_url);
   const [originalUrl, setOriginalUrl] = useState(plan.image_url);
   const [showOriginal, setShowOriginal] = useState(false);
@@ -1924,6 +1925,7 @@ var PlanDetail = ({
       setOriginalUrl(plan.image_url);
       setHasAiResult(false);
       setShowOriginal(false);
+      panelRef.current?.scrollTo(0, 0);
     }
   }, [isOpen, plan, setCurrentPlan]);
   useEffect(() => {
@@ -1967,6 +1969,7 @@ var PlanDetail = ({
     [onPlanSwitch, setCurrentPlan]
   );
   const displayUrl = showOriginal ? originalUrl : heroUrl;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsx(
     motion.div,
     {
@@ -1979,11 +1982,12 @@ var PlanDetail = ({
       children: /* @__PURE__ */ jsxs(
         motion.div,
         {
+          ref: panelRef,
           className: "dv-detail-panel",
-          initial: { y: 40, opacity: 0 },
+          initial: { y: isMobile ? 0 : 40, opacity: 0 },
           animate: { y: 0, opacity: 1 },
-          exit: { y: 40, opacity: 0 },
-          transition: { duration: 0.35, ease: "easeOut" },
+          exit: { y: isMobile ? 0 : 40, opacity: 0 },
+          transition: { duration: isMobile ? 0.2 : 0.35, ease: "easeOut" },
           onClick: (e) => e.stopPropagation(),
           children: [
             /* @__PURE__ */ jsx(
