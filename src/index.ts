@@ -67,7 +67,6 @@ export type {
 export { DEFAULT_STYLE_PRESETS } from "./types";
 
 // ── Utilities ───────────────────────────────────────────────
-export { ClientCache } from "./utils/cache";
 export {
   trackPageView,
   trackPlanView,

@@ -2231,45 +2231,6 @@ var DesignVault = ({
   ) });
 };
 
-// src/utils/cache.ts
-var ONE_HOUR_MS = 60 * 60 * 1e3;
-var ClientCache = class {
-  constructor(ttlMs = ONE_HOUR_MS) {
-    this.store = /* @__PURE__ */ new Map();
-    this.ttl = ttlMs;
-  }
-  /** Build a cache key from plan + action */
-  static key(planId, actionType, params) {
-    return `${planId}-${actionType}-${params}`;
-  }
-  /** Returns cached URL if present and less than TTL old, else null */
-  get(key) {
-    const entry = this.store.get(key);
-    if (!entry) return null;
-    if (Date.now() - entry.timestamp > this.ttl) {
-      this.store.delete(key);
-      return null;
-    }
-    return entry.url;
-  }
-  /** Store an AI result URL */
-  set(key, url) {
-    this.store.set(key, { url, timestamp: Date.now() });
-  }
-  /** Remove a specific entry */
-  invalidate(key) {
-    this.store.delete(key);
-  }
-  /** Clear all entries */
-  clear() {
-    this.store.clear();
-  }
-  /** Number of entries currently stored */
-  get size() {
-    return this.store.size;
-  }
-};
-
-export { AIToolsPanel, ArchiveGrid, CategoryTiles, ClientCache, DEFAULT_STYLE_PRESETS, DesignVault, DesignVaultAPI, DesignVaultContext, DesignVaultProvider, FavoriteButton, FeaturedRow, FilterBar, FloorPlanEditor, LeadCaptureModal, PlanCard, PlanDetail, SimilarPlans, StyleSwapButtons, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
+export { AIToolsPanel, ArchiveGrid, CategoryTiles, DEFAULT_STYLE_PRESETS, DesignVault, DesignVaultAPI, DesignVaultContext, DesignVaultProvider, FavoriteButton, FeaturedRow, FilterBar, FloorPlanEditor, LeadCaptureModal, PlanCard, PlanDetail, SimilarPlans, StyleSwapButtons, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

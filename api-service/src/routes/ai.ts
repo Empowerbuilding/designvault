@@ -145,40 +145,7 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
       return;
     }
 
-    // Check design_cache (composite unique index: plan_id + action_type + action_params)
     const cacheKey = `${planId}:style:${preset}`;
-    const { data: cached } = await getSupabase()
-      .from("design_cache")
-      .select("result_url")
-      .eq("plan_id", planId)
-      .eq("action_type", "style_swap")
-      .eq("action_params", preset)
-      .single();
-
-    if (cached) {
-      log("CACHE_HIT", { cacheKey });
-
-      // Increment hit counter (fire-and-forget)
-      getSupabase().rpc("increment_cache_hit", { lookup_key: cacheKey });
-
-      const updated = await incrementSession(sessionId, {
-        type: "style_swap",
-        preset,
-        result_url: cached.result_url,
-        timestamp: new Date().toISOString(),
-      });
-
-      res.json({
-        success: true,
-        resultUrl: cached.result_url,
-        cached: true,
-        remainingFree: remainingFree(
-          (updated?.interaction_count ?? count + 1),
-          updated?.is_captured ?? session.is_captured
-        ),
-      });
-      return;
-    }
 
     // Get plan image
     const { data: plan } = await getSupabase()
