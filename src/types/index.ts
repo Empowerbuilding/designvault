@@ -177,6 +177,12 @@ export interface PlanDetailProps {
 export interface AIToolsPanelProps {
   plan: FloorPlan;
   config: DesignVaultConfig;
+  heroUrl: string;
+  floorPlanUrl: string;
+  originalFloorPlanUrl: string;
+  hasFloorPlanResult: boolean;
+  showOriginalFloorPlan: boolean;
+  onToggleFloorPlanOriginal: (show: boolean) => void;
   onResult: (result: {
     newUrl: string;
     originalUrl: string;
@@ -230,7 +236,11 @@ export interface StyleSwapButtonsProps {
 
 export interface FloorPlanEditorProps {
   planId: string;
-  currentFloorPlanUrl: string | null;
+  floorPlanUrl: string;
+  originalFloorPlanUrl: string;
+  hasFloorPlanResult: boolean;
+  showOriginalFloorPlan: boolean;
+  onToggleFloorPlanOriginal: (show: boolean) => void;
   wishlistItems: string[];
   onWishlistAdd: (text: string) => void;
   onWishlistRemove: (index: number) => void;

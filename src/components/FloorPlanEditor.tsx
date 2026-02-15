@@ -3,7 +3,11 @@ import { Plus, Sparkles, Check, X, Loader2 } from "lucide-react";
 import type { FloorPlanEditorProps } from "../types";
 
 export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
-  currentFloorPlanUrl,
+  floorPlanUrl,
+  originalFloorPlanUrl,
+  hasFloorPlanResult,
+  showOriginalFloorPlan,
+  onToggleFloorPlanOriginal,
   wishlistItems,
   onWishlistAdd,
   onWishlistRemove,
@@ -26,20 +30,42 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
     }
   };
 
+  const displayUrl = showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl;
+
   return (
     <div className="dv-wishlist">
-      <h4 className="dv-wishlist__label">Floor Plan Wishlist</h4>
-
-      {/* Floor plan preview */}
-      {currentFloorPlanUrl && (
+      {/* Floor plan image with before/after toggle */}
+      {displayUrl && (
         <div className="dv-wishlist__preview">
           <img
-            src={currentFloorPlanUrl}
-            alt="Current floor plan"
+            src={displayUrl}
+            alt={hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan"}
             className="dv-wishlist__preview-img"
           />
+          {hasFloorPlanResult && (
+            <div className="dv-wishlist__compare">
+              <button
+                className={`dv-wishlist__compare-btn ${
+                  !showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""
+                }`}
+                onClick={() => onToggleFloorPlanOriginal(false)}
+              >
+                AI Generated
+              </button>
+              <button
+                className={`dv-wishlist__compare-btn ${
+                  showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""
+                }`}
+                onClick={() => onToggleFloorPlanOriginal(true)}
+              >
+                Original
+              </button>
+            </div>
+          )}
         </div>
       )}
+
+      <h4 className="dv-wishlist__label">Floor Plan Wishlist</h4>
 
       {/* Input area */}
       <div className="dv-wishlist__input-wrap">

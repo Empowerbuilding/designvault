@@ -25,6 +25,12 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
   const [hasAiResult, setHasAiResult] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
+  // Floor plan AI result state (separate from hero/exterior)
+  const [floorPlanUrl, setFloorPlanUrl] = useState(plan.floor_plan_url ?? "");
+  const [originalFloorPlanUrl, setOriginalFloorPlanUrl] = useState(plan.floor_plan_url ?? "");
+  const [showOriginalFloorPlan, setShowOriginalFloorPlan] = useState(false);
+  const [hasFloorPlanResult, setHasFloorPlanResult] = useState(false);
+
   // Build thumbnail list
   const thumbnails = useMemo(() => {
     const thumbs: { url: string; label: string }[] = [
@@ -46,6 +52,10 @@ if (plan.interior_urls) {
       setOriginalUrl(plan.image_url);
       setHasAiResult(false);
       setShowOriginal(false);
+      setFloorPlanUrl(plan.floor_plan_url ?? "");
+      setOriginalFloorPlanUrl(plan.floor_plan_url ?? "");
+      setHasFloorPlanResult(false);
+      setShowOriginalFloorPlan(false);
       panelRef.current?.scrollTo(0, 0);
     }
   }, [isOpen, plan, setCurrentPlan]);
@@ -77,10 +87,17 @@ if (plan.interior_urls) {
       originalUrl: string;
       type: "style_swap" | "floor_plan_edit";
     }) => {
-      setHeroUrl(result.newUrl);
-      setOriginalUrl(result.originalUrl);
-      setHasAiResult(true);
-      setShowOriginal(false);
+      if (result.type === "floor_plan_edit") {
+        setFloorPlanUrl(result.newUrl);
+        setOriginalFloorPlanUrl(result.originalUrl);
+        setHasFloorPlanResult(true);
+        setShowOriginalFloorPlan(false);
+      } else {
+        setHeroUrl(result.newUrl);
+        setOriginalUrl(result.originalUrl);
+        setHasAiResult(true);
+        setShowOriginal(false);
+      }
     },
     []
   );
@@ -95,6 +112,10 @@ if (plan.interior_urls) {
         setOriginalUrl(newPlan.image_url);
         setHasAiResult(false);
         setShowOriginal(false);
+        setFloorPlanUrl(newPlan.floor_plan_url ?? "");
+        setOriginalFloorPlanUrl(newPlan.floor_plan_url ?? "");
+        setHasFloorPlanResult(false);
+        setShowOriginalFloorPlan(false);
       }
     },
     [onPlanSwitch, setCurrentPlan]
@@ -231,6 +252,12 @@ if (plan.interior_urls) {
                 <AIToolsPanel
                   plan={plan}
                   config={config}
+                  heroUrl={displayUrl}
+                  floorPlanUrl={showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl}
+                  originalFloorPlanUrl={originalFloorPlanUrl}
+                  hasFloorPlanResult={hasFloorPlanResult}
+                  showOriginalFloorPlan={showOriginalFloorPlan}
+                  onToggleFloorPlanOriginal={setShowOriginalFloorPlan}
                   onResult={handleResult}
                   onProcessingChange={setIsProcessing}
                 />

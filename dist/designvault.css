@@ -984,6 +984,41 @@ html, body {
   border: 1px solid rgba(184, 134, 11, 0.15);
 }
 
+/* AI Tools section headers */
+.dv-ai-tools__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dv-ai-tools__section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dv-ai-tools__section-thumb {
+  width: 48px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--dv-border);
+  flex-shrink: 0;
+  background: #1a1a1a;
+}
+
+.dv-ai-tools__section-thumb--empty {
+  background: var(--dv-bg);
+}
+
+.dv-ai-tools__section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dv-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* ── 13. Style Swap ──────────────────────────────────────────── */
 
 .dv-style-swap {
@@ -1081,12 +1116,58 @@ html, body {
   border-radius: var(--dv-radius-sm);
   overflow: hidden;
   border: 1px solid var(--dv-border);
+  position: relative;
 }
 
 .dv-wishlist__preview-img {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* Floor plan before/after toggle */
+.dv-wishlist__compare {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  justify-content: center;
+}
+
+.dv-wishlist__compare-btn {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dv-transition), color var(--dv-transition),
+    border-color var(--dv-transition);
+}
+
+.dv-wishlist__compare-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+
+.dv-wishlist__compare-btn--active {
+  background: var(--dv-brand);
+  border-color: var(--dv-brand);
+  color: #000;
+  font-weight: 600;
+}
+
+.dv-wishlist__compare-btn--active:hover {
+  background: var(--dv-brand-light);
+  border-color: var(--dv-brand-light);
+  color: #000;
 }
 
 /* Input area */

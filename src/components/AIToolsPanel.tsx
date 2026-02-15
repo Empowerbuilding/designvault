@@ -10,6 +10,12 @@ import type { AIToolsPanelProps } from "../types";
 export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
   plan,
   config,
+  heroUrl,
+  floorPlanUrl,
+  originalFloorPlanUrl,
+  hasFloorPlanResult,
+  showOriginalFloorPlan,
+  onToggleFloorPlanOriginal,
   onResult,
   onProcessingChange,
 }) => {
@@ -136,9 +142,17 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       {/* Error message */}
       {aiError && <div className="dv-ai-tools__error">{aiError}</div>}
 
-      {/* Style Swap */}
+      {/* ── CHANGE EXTERIOR STYLE section ── */}
       {config.enableStyleSwap !== false && (
-        <>
+        <div className="dv-ai-tools__section">
+          <div className="dv-ai-tools__section-header">
+            <img
+              src={heroUrl}
+              alt="Exterior preview"
+              className="dv-ai-tools__section-thumb"
+            />
+            <span className="dv-ai-tools__section-label">Change Exterior Style</span>
+          </div>
           <StyleSwapButtons
             planId={plan.id}
             currentStyle={plan.style}
@@ -146,25 +160,43 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
             isProcessing={isProcessing}
             activePreset={activePreset}
           />
-          <div className="dv-ai-tools__divider" />
-        </>
+        </div>
       )}
 
-      {/* Design Wishlist (was Floor Plan Editor) */}
+      <div className="dv-ai-tools__divider" />
+
+      {/* ── CUSTOMIZE FLOOR PLAN section ── */}
       {config.enableFloorPlanEdit !== false && (
-        <>
+        <div className="dv-ai-tools__section">
+          <div className="dv-ai-tools__section-header">
+            {originalFloorPlanUrl ? (
+              <img
+                src={originalFloorPlanUrl}
+                alt="Floor plan preview"
+                className="dv-ai-tools__section-thumb"
+              />
+            ) : (
+              <div className="dv-ai-tools__section-thumb dv-ai-tools__section-thumb--empty" />
+            )}
+            <span className="dv-ai-tools__section-label">Customize Floor Plan</span>
+          </div>
           <FloorPlanEditor
             planId={plan.id}
-            currentFloorPlanUrl={plan.floor_plan_url}
+            floorPlanUrl={floorPlanUrl}
+            originalFloorPlanUrl={originalFloorPlanUrl}
+            hasFloorPlanResult={hasFloorPlanResult}
+            showOriginalFloorPlan={showOriginalFloorPlan}
+            onToggleFloorPlanOriginal={onToggleFloorPlanOriginal}
             wishlistItems={wishlistItems}
             onWishlistAdd={onWishlistAdd}
             onWishlistRemove={onWishlistRemove}
             onPreviewAI={onPreviewAI}
             isProcessing={isProcessing}
           />
-          <div className="dv-ai-tools__divider" />
-        </>
+        </div>
       )}
+
+      <div className="dv-ai-tools__divider" />
 
       {/* Save Design button */}
       <button

@@ -812,7 +812,11 @@ var StyleSwapButtons = ({
   ] });
 };
 var FloorPlanEditor = ({
-  currentFloorPlanUrl,
+  floorPlanUrl,
+  originalFloorPlanUrl,
+  hasFloorPlanResult,
+  showOriginalFloorPlan,
+  onToggleFloorPlanOriginal,
   wishlistItems,
   onWishlistAdd,
   onWishlistRemove,
@@ -832,16 +836,37 @@ var FloorPlanEditor = ({
       handleAdd();
     }
   };
+  const displayUrl = showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist", children: [
+    displayUrl && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__preview", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "img",
+        {
+          src: displayUrl,
+          alt: hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan",
+          className: "dv-wishlist__preview-img"
+        }
+      ),
+      hasFloorPlanResult && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__compare", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            className: `dv-wishlist__compare-btn ${!showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
+            onClick: () => onToggleFloorPlanOriginal(false),
+            children: "AI Generated"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            className: `dv-wishlist__compare-btn ${showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
+            onClick: () => onToggleFloorPlanOriginal(true),
+            children: "Original"
+          }
+        )
+      ] })
+    ] }),
     /* @__PURE__ */ jsxRuntime.jsx("h4", { className: "dv-wishlist__label", children: "Floor Plan Wishlist" }),
-    currentFloorPlanUrl && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-wishlist__preview", children: /* @__PURE__ */ jsxRuntime.jsx(
-      "img",
-      {
-        src: currentFloorPlanUrl,
-        alt: "Current floor plan",
-        className: "dv-wishlist__preview-img"
-      }
-    ) }),
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__input-wrap", children: [
       /* @__PURE__ */ jsxRuntime.jsx(
         "textarea",
@@ -1567,6 +1592,12 @@ function useAIInteractions() {
 var AIToolsPanel = ({
   plan,
   config,
+  heroUrl,
+  floorPlanUrl,
+  originalFloorPlanUrl,
+  hasFloorPlanResult,
+  showOriginalFloorPlan,
+  onToggleFloorPlanOriginal,
   onResult,
   onProcessingChange
 }) => {
@@ -1659,7 +1690,18 @@ var AIToolsPanel = ({
       /* @__PURE__ */ jsxRuntime.jsx("h3", { className: "dv-ai-tools__title", children: "AI Design Tools" })
     ] }),
     aiError && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__error", children: aiError }),
-    config.enableStyleSwap !== false && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+    config.enableStyleSwap !== false && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section-header", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "img",
+          {
+            src: heroUrl,
+            alt: "Exterior preview",
+            className: "dv-ai-tools__section-thumb"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-ai-tools__section-label", children: "Change Exterior Style" })
+      ] }),
       /* @__PURE__ */ jsxRuntime.jsx(
         StyleSwapButtons,
         {
@@ -1669,24 +1711,39 @@ var AIToolsPanel = ({
           isProcessing,
           activePreset
         }
-      ),
-      /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__divider" })
+      )
     ] }),
-    config.enableFloorPlanEdit !== false && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__divider" }),
+    config.enableFloorPlanEdit !== false && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section-header", children: [
+        originalFloorPlanUrl ? /* @__PURE__ */ jsxRuntime.jsx(
+          "img",
+          {
+            src: originalFloorPlanUrl,
+            alt: "Floor plan preview",
+            className: "dv-ai-tools__section-thumb"
+          }
+        ) : /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__section-thumb dv-ai-tools__section-thumb--empty" }),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-ai-tools__section-label", children: "Customize Floor Plan" })
+      ] }),
       /* @__PURE__ */ jsxRuntime.jsx(
         FloorPlanEditor,
         {
           planId: plan.id,
-          currentFloorPlanUrl: plan.floor_plan_url,
+          floorPlanUrl,
+          originalFloorPlanUrl,
+          hasFloorPlanResult,
+          showOriginalFloorPlan,
+          onToggleFloorPlanOriginal,
           wishlistItems,
           onWishlistAdd,
           onWishlistRemove,
           onPreviewAI,
           isProcessing
         }
-      ),
-      /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__divider" })
+      )
     ] }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__divider" }),
     /* @__PURE__ */ jsxRuntime.jsxs(
       "button",
       {
@@ -1912,6 +1969,10 @@ var PlanDetail = ({
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [hasAiResult, setHasAiResult] = React.useState(false);
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
+  const [floorPlanUrl, setFloorPlanUrl] = React.useState(plan.floor_plan_url ?? "");
+  const [originalFloorPlanUrl, setOriginalFloorPlanUrl] = React.useState(plan.floor_plan_url ?? "");
+  const [showOriginalFloorPlan, setShowOriginalFloorPlan] = React.useState(false);
+  const [hasFloorPlanResult, setHasFloorPlanResult] = React.useState(false);
   const thumbnails = React.useMemo(() => {
     const thumbs = [
       { url: plan.image_url, label: "Exterior" }
@@ -1930,6 +1991,10 @@ var PlanDetail = ({
       setOriginalUrl(plan.image_url);
       setHasAiResult(false);
       setShowOriginal(false);
+      setFloorPlanUrl(plan.floor_plan_url ?? "");
+      setOriginalFloorPlanUrl(plan.floor_plan_url ?? "");
+      setHasFloorPlanResult(false);
+      setShowOriginalFloorPlan(false);
       panelRef.current?.scrollTo(0, 0);
     }
   }, [isOpen, plan, setCurrentPlan]);
@@ -1952,10 +2017,17 @@ var PlanDetail = ({
   }, [isOpen, onClose]);
   const handleResult = React.useCallback(
     (result) => {
-      setHeroUrl(result.newUrl);
-      setOriginalUrl(result.originalUrl);
-      setHasAiResult(true);
-      setShowOriginal(false);
+      if (result.type === "floor_plan_edit") {
+        setFloorPlanUrl(result.newUrl);
+        setOriginalFloorPlanUrl(result.originalUrl);
+        setHasFloorPlanResult(true);
+        setShowOriginalFloorPlan(false);
+      } else {
+        setHeroUrl(result.newUrl);
+        setOriginalUrl(result.originalUrl);
+        setHasAiResult(true);
+        setShowOriginal(false);
+      }
     },
     []
   );
@@ -1969,6 +2041,10 @@ var PlanDetail = ({
         setOriginalUrl(newPlan.image_url);
         setHasAiResult(false);
         setShowOriginal(false);
+        setFloorPlanUrl(newPlan.floor_plan_url ?? "");
+        setOriginalFloorPlanUrl(newPlan.floor_plan_url ?? "");
+        setHasFloorPlanResult(false);
+        setShowOriginalFloorPlan(false);
       }
     },
     [onPlanSwitch, setCurrentPlan]
@@ -2084,6 +2160,12 @@ var PlanDetail = ({
                 {
                   plan,
                   config,
+                  heroUrl: displayUrl,
+                  floorPlanUrl: showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl,
+                  originalFloorPlanUrl,
+                  hasFloorPlanResult,
+                  showOriginalFloorPlan,
+                  onToggleFloorPlanOriginal: setShowOriginalFloorPlan,
                   onResult: handleResult,
                   onProcessingChange: setIsProcessing
                 }

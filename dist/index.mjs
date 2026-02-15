@@ -804,7 +804,11 @@ var StyleSwapButtons = ({
   ] });
 };
 var FloorPlanEditor = ({
-  currentFloorPlanUrl,
+  floorPlanUrl,
+  originalFloorPlanUrl,
+  hasFloorPlanResult,
+  showOriginalFloorPlan,
+  onToggleFloorPlanOriginal,
   wishlistItems,
   onWishlistAdd,
   onWishlistRemove,
@@ -824,16 +828,37 @@ var FloorPlanEditor = ({
       handleAdd();
     }
   };
+  const displayUrl = showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl;
   return /* @__PURE__ */ jsxs("div", { className: "dv-wishlist", children: [
+    displayUrl && /* @__PURE__ */ jsxs("div", { className: "dv-wishlist__preview", children: [
+      /* @__PURE__ */ jsx(
+        "img",
+        {
+          src: displayUrl,
+          alt: hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan",
+          className: "dv-wishlist__preview-img"
+        }
+      ),
+      hasFloorPlanResult && /* @__PURE__ */ jsxs("div", { className: "dv-wishlist__compare", children: [
+        /* @__PURE__ */ jsx(
+          "button",
+          {
+            className: `dv-wishlist__compare-btn ${!showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
+            onClick: () => onToggleFloorPlanOriginal(false),
+            children: "AI Generated"
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "button",
+          {
+            className: `dv-wishlist__compare-btn ${showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
+            onClick: () => onToggleFloorPlanOriginal(true),
+            children: "Original"
+          }
+        )
+      ] })
+    ] }),
     /* @__PURE__ */ jsx("h4", { className: "dv-wishlist__label", children: "Floor Plan Wishlist" }),
-    currentFloorPlanUrl && /* @__PURE__ */ jsx("div", { className: "dv-wishlist__preview", children: /* @__PURE__ */ jsx(
-      "img",
-      {
-        src: currentFloorPlanUrl,
-        alt: "Current floor plan",
-        className: "dv-wishlist__preview-img"
-      }
-    ) }),
     /* @__PURE__ */ jsxs("div", { className: "dv-wishlist__input-wrap", children: [
       /* @__PURE__ */ jsx(
         "textarea",
@@ -1559,6 +1584,12 @@ function useAIInteractions() {
 var AIToolsPanel = ({
   plan,
   config,
+  heroUrl,
+  floorPlanUrl,
+  originalFloorPlanUrl,
+  hasFloorPlanResult,
+  showOriginalFloorPlan,
+  onToggleFloorPlanOriginal,
   onResult,
   onProcessingChange
 }) => {
@@ -1651,7 +1682,18 @@ var AIToolsPanel = ({
       /* @__PURE__ */ jsx("h3", { className: "dv-ai-tools__title", children: "AI Design Tools" })
     ] }),
     aiError && /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__error", children: aiError }),
-    config.enableStyleSwap !== false && /* @__PURE__ */ jsxs(Fragment, { children: [
+    config.enableStyleSwap !== false && /* @__PURE__ */ jsxs("div", { className: "dv-ai-tools__section", children: [
+      /* @__PURE__ */ jsxs("div", { className: "dv-ai-tools__section-header", children: [
+        /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: heroUrl,
+            alt: "Exterior preview",
+            className: "dv-ai-tools__section-thumb"
+          }
+        ),
+        /* @__PURE__ */ jsx("span", { className: "dv-ai-tools__section-label", children: "Change Exterior Style" })
+      ] }),
       /* @__PURE__ */ jsx(
         StyleSwapButtons,
         {
@@ -1661,24 +1703,39 @@ var AIToolsPanel = ({
           isProcessing,
           activePreset
         }
-      ),
-      /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__divider" })
+      )
     ] }),
-    config.enableFloorPlanEdit !== false && /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__divider" }),
+    config.enableFloorPlanEdit !== false && /* @__PURE__ */ jsxs("div", { className: "dv-ai-tools__section", children: [
+      /* @__PURE__ */ jsxs("div", { className: "dv-ai-tools__section-header", children: [
+        originalFloorPlanUrl ? /* @__PURE__ */ jsx(
+          "img",
+          {
+            src: originalFloorPlanUrl,
+            alt: "Floor plan preview",
+            className: "dv-ai-tools__section-thumb"
+          }
+        ) : /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__section-thumb dv-ai-tools__section-thumb--empty" }),
+        /* @__PURE__ */ jsx("span", { className: "dv-ai-tools__section-label", children: "Customize Floor Plan" })
+      ] }),
       /* @__PURE__ */ jsx(
         FloorPlanEditor,
         {
           planId: plan.id,
-          currentFloorPlanUrl: plan.floor_plan_url,
+          floorPlanUrl,
+          originalFloorPlanUrl,
+          hasFloorPlanResult,
+          showOriginalFloorPlan,
+          onToggleFloorPlanOriginal,
           wishlistItems,
           onWishlistAdd,
           onWishlistRemove,
           onPreviewAI,
           isProcessing
         }
-      ),
-      /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__divider" })
+      )
     ] }),
+    /* @__PURE__ */ jsx("div", { className: "dv-ai-tools__divider" }),
     /* @__PURE__ */ jsxs(
       "button",
       {
@@ -1904,6 +1961,10 @@ var PlanDetail = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasAiResult, setHasAiResult] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [floorPlanUrl, setFloorPlanUrl] = useState(plan.floor_plan_url ?? "");
+  const [originalFloorPlanUrl, setOriginalFloorPlanUrl] = useState(plan.floor_plan_url ?? "");
+  const [showOriginalFloorPlan, setShowOriginalFloorPlan] = useState(false);
+  const [hasFloorPlanResult, setHasFloorPlanResult] = useState(false);
   const thumbnails = useMemo(() => {
     const thumbs = [
       { url: plan.image_url, label: "Exterior" }
@@ -1922,6 +1983,10 @@ var PlanDetail = ({
       setOriginalUrl(plan.image_url);
       setHasAiResult(false);
       setShowOriginal(false);
+      setFloorPlanUrl(plan.floor_plan_url ?? "");
+      setOriginalFloorPlanUrl(plan.floor_plan_url ?? "");
+      setHasFloorPlanResult(false);
+      setShowOriginalFloorPlan(false);
       panelRef.current?.scrollTo(0, 0);
     }
   }, [isOpen, plan, setCurrentPlan]);
@@ -1944,10 +2009,17 @@ var PlanDetail = ({
   }, [isOpen, onClose]);
   const handleResult = useCallback(
     (result) => {
-      setHeroUrl(result.newUrl);
-      setOriginalUrl(result.originalUrl);
-      setHasAiResult(true);
-      setShowOriginal(false);
+      if (result.type === "floor_plan_edit") {
+        setFloorPlanUrl(result.newUrl);
+        setOriginalFloorPlanUrl(result.originalUrl);
+        setHasFloorPlanResult(true);
+        setShowOriginalFloorPlan(false);
+      } else {
+        setHeroUrl(result.newUrl);
+        setOriginalUrl(result.originalUrl);
+        setHasAiResult(true);
+        setShowOriginal(false);
+      }
     },
     []
   );
@@ -1961,6 +2033,10 @@ var PlanDetail = ({
         setOriginalUrl(newPlan.image_url);
         setHasAiResult(false);
         setShowOriginal(false);
+        setFloorPlanUrl(newPlan.floor_plan_url ?? "");
+        setOriginalFloorPlanUrl(newPlan.floor_plan_url ?? "");
+        setHasFloorPlanResult(false);
+        setShowOriginalFloorPlan(false);
       }
     },
     [onPlanSwitch, setCurrentPlan]
@@ -2076,6 +2152,12 @@ var PlanDetail = ({
                 {
                   plan,
                   config,
+                  heroUrl: displayUrl,
+                  floorPlanUrl: showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl,
+                  originalFloorPlanUrl,
+                  hasFloorPlanResult,
+                  showOriginalFloorPlan,
+                  onToggleFloorPlanOriginal: setShowOriginalFloorPlan,
                   onResult: handleResult,
                   onProcessingChange: setIsProcessing
                 }
