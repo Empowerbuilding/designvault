@@ -15,7 +15,7 @@ const config: DesignVaultConfig = {
   enableFavorites: true,
   enableSimilarPlans: true,
   maxFreeInteractions: 1,
-  schedulerUrl: "https://barnhaussteelbuilders.com/schedule",
+  schedulerUrl: "https://crm.empowerbuilding.ai/book/30-minute-consultation",
   attribution: {
     show: true,
     text: "Empower Building",

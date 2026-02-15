@@ -684,18 +684,21 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 15px;
-  color: #ffffff;
-  border: none;
+  color: #fff;
+  border: 2px solid var(--dv-brand-light);
   cursor: pointer;
-  background: linear-gradient(135deg, var(--dv-brand), color-mix(in srgb, var(--dv-brand) 70%, #000));
-  transition: filter 0.2s ease, box-shadow 0.2s ease;
+  background: linear-gradient(135deg, var(--dv-brand), var(--dv-brand-light));
+  transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
   white-space: nowrap;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 .dv-detail__scheduler-btn:hover {
   filter: brightness(1.15);
+  transform: scale(1.03);
 }
 
 .dv-detail__scheduler-btn--desktop {
@@ -704,22 +707,29 @@ html, body {
   top: 50%;
   transform: translateY(-50%);
   z-index: 20;
-  padding: 14px 24px;
+  padding: 16px 28px;
   border-radius: 9999px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 24px rgba(184, 134, 11, 0.45), 0 0 12px rgba(184, 134, 11, 0.25);
   writing-mode: horizontal-tb;
+  animation: dv-scheduler-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes dv-scheduler-pulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(184, 134, 11, 0.45), 0 0 12px rgba(184, 134, 11, 0.25); }
+  50% { box-shadow: 0 4px 32px rgba(184, 134, 11, 0.65), 0 0 20px rgba(184, 134, 11, 0.4); }
 }
 
 .dv-detail__scheduler-btn--desktop:hover {
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 32px rgba(184, 134, 11, 0.6), 0 0 16px rgba(184, 134, 11, 0.35);
+  animation: none;
 }
 
 .dv-detail__scheduler-btn--mobile {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   border-radius: var(--dv-radius);
   font-size: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(184, 134, 11, 0.4);
 }
 
 /* Detail — hero image */
@@ -1839,18 +1849,20 @@ html, body {
   border: none;
   border-radius: var(--dv-radius-sm);
   background: linear-gradient(135deg, var(--dv-brand), var(--dv-brand-light));
-  color: #000;
+  color: #fff;
   font-size: 15px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  transition: opacity var(--dv-transition), transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(184, 134, 11, 0.4);
+  transition: opacity var(--dv-transition), transform 0.15s ease, box-shadow 0.2s ease;
   margin-top: 4px;
 }
 
 .dv-lead-modal__submit:hover:not(:disabled) {
   opacity: 0.92;
   transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(184, 134, 11, 0.55);
 }
 
 .dv-lead-modal__submit:active:not(:disabled) {
