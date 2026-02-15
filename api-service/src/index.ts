@@ -11,6 +11,9 @@ import leadsRouter from "./routes/leads.js";
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
+// Trust first proxy (Coolify / Traefik) so express-rate-limit reads X-Forwarded-For
+app.set("trust proxy", 1);
+
 // ── Parse allowed origins ───────────────────────────────────
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "")
