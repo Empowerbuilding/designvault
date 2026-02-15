@@ -23,9 +23,17 @@ function generateId(): string {
   });
 }
 
+const CRM_VISITOR_KEY = "_crm_visitor_id";
+
 function getOrCreateAnonymousId(): string {
   if (typeof window === "undefined") return generateId();
   try {
+    // Prefer the CRM tracking script's visitor ID so page views link to the contact
+    const crmId = localStorage.getItem(CRM_VISITOR_KEY);
+    if (crmId) {
+      localStorage.setItem(ANON_ID_KEY, crmId);
+      return crmId;
+    }
     const existing = localStorage.getItem(ANON_ID_KEY);
     if (existing) return existing;
     const id = generateId();

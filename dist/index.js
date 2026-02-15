@@ -130,9 +130,15 @@ function generateId() {
     return (c === "x" ? r : r & 3 | 8).toString(16);
   });
 }
+var CRM_VISITOR_KEY = "_crm_visitor_id";
 function getOrCreateAnonymousId() {
   if (typeof window === "undefined") return generateId();
   try {
+    const crmId = localStorage.getItem(CRM_VISITOR_KEY);
+    if (crmId) {
+      localStorage.setItem(ANON_ID_KEY, crmId);
+      return crmId;
+    }
     const existing = localStorage.getItem(ANON_ID_KEY);
     if (existing) return existing;
     const id = generateId();
