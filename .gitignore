@@ -5,3 +5,5 @@ node_modules/
 .env.local
 .env.*.local
 *.tsbuildinfo
+examples/vite-app/assets/
+examples/vite-app/dist/
