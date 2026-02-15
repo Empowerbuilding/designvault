@@ -51,6 +51,13 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
     onProcessingChange(isStyleSwapProcessing);
   }, [isStyleSwapProcessing, onProcessingChange]);
 
+  // Auto-open lead capture modal when server says capture is needed
+  useEffect(() => {
+    if (needsCapture && !isCaptured) {
+      setModalOpen(true);
+    }
+  }, [needsCapture, isCaptured]);
+
   // ── Style Swap ──────────────────────────────────────────────
 
   const onSwap = useCallback(

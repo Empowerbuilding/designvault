@@ -12,6 +12,12 @@ function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 var React__default = /*#__PURE__*/_interopDefault(React);
 
 // src/api/client.ts
+var CaptureRequiredError = class extends Error {
+  constructor() {
+    super("Lead capture required");
+    this.name = "CaptureRequiredError";
+  }
+};
 var DesignVaultAPI = class {
   constructor(apiBaseUrl) {
     this.baseUrl = apiBaseUrl.replace(/\/$/, "");
@@ -108,7 +114,17 @@ var DesignVaultAPI = class {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
-      if (!res.ok) throw new Error(this.friendlyError(res.status));
+      if (!res.ok) {
+        if (res.status === 403) {
+          try {
+            const data = await res.json();
+            if (data?.needsCapture) throw new CaptureRequiredError();
+          } catch (e) {
+            if (e instanceof CaptureRequiredError) throw e;
+          }
+        }
+        throw new Error(this.friendlyError(res.status));
+      }
       const text = await res.text();
       if (!text) return void 0;
       return JSON.parse(text);
@@ -1813,7 +1829,8 @@ function useAIInteractions() {
   const [interactionCount, setInteractionCount] = React.useState(0);
   const [error, setError] = React.useState(null);
   const [hitHardLimit, setHitHardLimit] = React.useState(false);
-  const needsCapture = interactionCount >= maxFree && !isCaptured;
+  const [serverNeedsCapture, setServerNeedsCapture] = React.useState(false);
+  const needsCapture = interactionCount >= maxFree && !isCaptured || serverNeedsCapture && !isCaptured;
   const effectiveSessionId = sessionId ?? anonymousId;
   const handleStyleSwap = React.useCallback(
     async (planId, preset, imageType, imageUrl) => {
@@ -1832,7 +1849,12 @@ function useAIInteractions() {
           imageUrl
         );
         setLastResult(result);
-        setInteractionCount((c) => c + 1);
+        setServerNeedsCapture(false);
+        if (typeof result.remainingFree === "number") {
+          setInteractionCount(hardLimit - result.remainingFree);
+        } else {
+          setInteractionCount((c) => c + 1);
+        }
         if (result.success && result.resultUrl) {
           addModification({
             type: "style_swap",
@@ -1845,6 +1867,10 @@ function useAIInteractions() {
         }
         return result;
       } catch (err) {
+        if (err instanceof CaptureRequiredError) {
+          setServerNeedsCapture(true);
+          return null;
+        }
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
         return null;
@@ -1877,7 +1903,12 @@ function useAIInteractions() {
           currentUrl
         );
         setLastResult(result);
-        setInteractionCount((c) => c + 1);
+        setServerNeedsCapture(false);
+        if (typeof result.remainingFree === "number") {
+          setInteractionCount(hardLimit - result.remainingFree);
+        } else {
+          setInteractionCount((c) => c + 1);
+        }
         if (result.success && result.resultUrl) {
           addModification({
             type: "floor_plan_edit",
@@ -1890,6 +1921,10 @@ function useAIInteractions() {
         }
         return result;
       } catch (err) {
+        if (err instanceof CaptureRequiredError) {
+          setServerNeedsCapture(true);
+          return null;
+        }
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
         return null;
@@ -1968,6 +2003,11 @@ var AIToolsPanel = ({
   React.useEffect(() => {
     onProcessingChange(isStyleSwapProcessing);
   }, [isStyleSwapProcessing, onProcessingChange]);
+  React.useEffect(() => {
+    if (needsCapture && !isCaptured) {
+      setModalOpen(true);
+    }
+  }, [needsCapture, isCaptured]);
   const onSwap = React.useCallback(
     async (presetId) => {
       if (needsCapture) {

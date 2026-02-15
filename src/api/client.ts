@@ -5,6 +5,13 @@ import type {
   PlanFilters,
 } from "../types";
 
+export class CaptureRequiredError extends Error {
+  constructor() {
+    super("Lead capture required");
+    this.name = "CaptureRequiredError";
+  }
+}
+
 export class DesignVaultAPI {
   private baseUrl: string;
 
@@ -145,7 +152,18 @@ export class DesignVaultAPI {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error(this.friendlyError(res.status));
+      if (!res.ok) {
+        // Parse 403 to detect "needs capture" vs generic forbidden
+        if (res.status === 403) {
+          try {
+            const data = await res.json();
+            if (data?.needsCapture) throw new CaptureRequiredError();
+          } catch (e) {
+            if (e instanceof CaptureRequiredError) throw e;
+          }
+        }
+        throw new Error(this.friendlyError(res.status));
+      }
       // Some endpoints (trackClick) may return 204 with no body
       const text = await res.text();
       if (!text) return undefined as T;

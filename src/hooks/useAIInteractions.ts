@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { useDesignVaultContext } from "./useDesignVault";
+import { CaptureRequiredError } from "../api/client";
 import type { AIInteractionResult } from "../types";
 
 export function useAIInteractions() {
@@ -24,8 +25,10 @@ export function useAIInteractions() {
   const [interactionCount, setInteractionCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [hitHardLimit, setHitHardLimit] = useState(false);
+  const [serverNeedsCapture, setServerNeedsCapture] = useState(false);
 
-  const needsCapture = interactionCount >= maxFree && !isCaptured;
+  const needsCapture =
+    (interactionCount >= maxFree && !isCaptured) || (serverNeedsCapture && !isCaptured);
 
   const effectiveSessionId = sessionId ?? anonymousId;
 
@@ -53,7 +56,14 @@ export function useAIInteractions() {
           imageUrl
         );
         setLastResult(result);
-        setInteractionCount((c) => c + 1);
+        setServerNeedsCapture(false);
+
+        // Sync interaction count from server's remainingFree
+        if (typeof result.remainingFree === "number") {
+          setInteractionCount(hardLimit - result.remainingFree);
+        } else {
+          setInteractionCount((c) => c + 1);
+        }
 
         if (result.success && result.resultUrl) {
           addModification({
@@ -68,6 +78,10 @@ export function useAIInteractions() {
 
         return result;
       } catch (err) {
+        if (err instanceof CaptureRequiredError) {
+          setServerNeedsCapture(true);
+          return null;
+        }
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
         return null;
@@ -107,7 +121,14 @@ export function useAIInteractions() {
           currentUrl
         );
         setLastResult(result);
-        setInteractionCount((c) => c + 1);
+        setServerNeedsCapture(false);
+
+        // Sync interaction count from server's remainingFree
+        if (typeof result.remainingFree === "number") {
+          setInteractionCount(hardLimit - result.remainingFree);
+        } else {
+          setInteractionCount((c) => c + 1);
+        }
 
         if (result.success && result.resultUrl) {
           addModification({
@@ -122,6 +143,10 @@ export function useAIInteractions() {
 
         return result;
       } catch (err) {
+        if (err instanceof CaptureRequiredError) {
+          setServerNeedsCapture(true);
+          return null;
+        }
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
         return null;
