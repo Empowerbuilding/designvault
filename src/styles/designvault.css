@@ -788,6 +788,7 @@ html, body {
   grid-template-columns: 1fr 360px;
   gap: 20px 24px;
   padding: 24px;
+  padding-bottom: 40px;
 }
 
 .dv-detail-body__thumbs {
@@ -807,6 +808,7 @@ html, body {
 
 .dv-detail-body__similar {
   grid-column: 1;
+  overflow: visible;
 }
 
 /* Detail — thumbnails */
