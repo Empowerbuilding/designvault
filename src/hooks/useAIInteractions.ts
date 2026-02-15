@@ -73,7 +73,11 @@ export function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
-          setServerNeedsCapture(true);
+          if (isCaptured) {
+            setError("Something went wrong syncing your saved design. Please try again.");
+          } else {
+            setServerNeedsCapture(true);
+          }
           return null;
         }
         const msg = err instanceof Error ? err.message : String(err);
@@ -86,6 +90,7 @@ export function useAIInteractions() {
     [
       api,
       effectiveSessionId,
+      isCaptured,
       interactionCount,
       hardLimit,
       addModification,
@@ -132,7 +137,11 @@ export function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
-          setServerNeedsCapture(true);
+          if (isCaptured) {
+            setError("Something went wrong syncing your saved design. Please try again.");
+          } else {
+            setServerNeedsCapture(true);
+          }
           return null;
         }
         const msg = err instanceof Error ? err.message : String(err);
@@ -145,6 +154,7 @@ export function useAIInteractions() {
     [
       api,
       effectiveSessionId,
+      isCaptured,
       interactionCount,
       hardLimit,
       addModification,

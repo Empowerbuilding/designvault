@@ -113,26 +113,34 @@ router.post("/", async (req: Request, res: Response) => {
       }
     }
 
-    // Update session: mark as captured
-    const now = new Date().toISOString();
+    // Update session: mark as captured (only set is_captured — contact_id may
+    // be a UUID column so setting it to an email can cause the entire UPDATE
+    // to fail, which silently prevents is_captured from being set too)
     const { error: updateError } = await getSupabase()
       .from("design_sessions")
-      .update({
-        is_captured: true,
-        contact_id: email,
-        captured_at: now,
-      })
+      .update({ is_captured: true })
       .eq("id", sessionId);
 
     if (updateError) {
       log("SESSION_UPDATE_ERROR", { sessionId, error: updateError.message });
+      res.status(500).json({ error: "Failed to update session" });
+      return;
     }
+
+    // Try to set contact_id separately (non-blocking — may fail if UUID column)
+    await getSupabase()
+      .from("design_sessions")
+      .update({ contact_id: email })
+      .eq("id", sessionId)
+      .then(({ error }) => {
+        if (error) log("SESSION_CONTACT_ID_WARN", { sessionId, error: error.message });
+      });
 
     // Also mark any other sessions for this anonymous user as captured
     // so switching plans doesn't lose captured status
     await getSupabase()
       .from("design_sessions")
-      .update({ is_captured: true, contact_id: email })
+      .update({ is_captured: true })
       .eq("anonymous_id", session.anonymous_id)
       .eq("builder_slug", builderSlug)
       .eq("is_captured", false);

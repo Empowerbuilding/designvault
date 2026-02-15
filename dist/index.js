@@ -1864,7 +1864,11 @@ function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
-          setServerNeedsCapture(true);
+          if (isCaptured) {
+            setError("Something went wrong syncing your saved design. Please try again.");
+          } else {
+            setServerNeedsCapture(true);
+          }
           return null;
         }
         const msg = err instanceof Error ? err.message : String(err);
@@ -1877,6 +1881,7 @@ function useAIInteractions() {
     [
       api,
       effectiveSessionId,
+      isCaptured,
       interactionCount,
       hardLimit,
       addModification,
@@ -1914,7 +1919,11 @@ function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
-          setServerNeedsCapture(true);
+          if (isCaptured) {
+            setError("Something went wrong syncing your saved design. Please try again.");
+          } else {
+            setServerNeedsCapture(true);
+          }
           return null;
         }
         const msg = err instanceof Error ? err.message : String(err);
@@ -1927,6 +1936,7 @@ function useAIInteractions() {
     [
       api,
       effectiveSessionId,
+      isCaptured,
       interactionCount,
       hardLimit,
       addModification,
@@ -1995,11 +2005,6 @@ var AIToolsPanel = ({
   React.useEffect(() => {
     onProcessingChange(isStyleSwapProcessing);
   }, [isStyleSwapProcessing, onProcessingChange]);
-  React.useEffect(() => {
-    if (needsCapture && !isCaptured) {
-      setModalOpen(true);
-    }
-  }, [needsCapture, isCaptured]);
   const onSwap = React.useCallback(
     async (presetId) => {
       if (needsCapture) {

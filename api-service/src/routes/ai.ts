@@ -141,7 +141,7 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
         // Backfill this session's captured status
         await getSupabase()
           .from("design_sessions")
-          .update({ is_captured: true, contact_id: captured.contact_id })
+          .update({ is_captured: true })
           .eq("id", sessionId);
         session.is_captured = true;
         session.contact_id = captured.contact_id;
@@ -276,7 +276,7 @@ router.post(
         if (captured) {
           await getSupabase()
             .from("design_sessions")
-            .update({ is_captured: true, contact_id: captured.contact_id })
+            .update({ is_captured: true })
             .eq("id", sessionId);
           session.is_captured = true;
           session.contact_id = captured.contact_id;

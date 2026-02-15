@@ -20,7 +20,7 @@ router.post("/", async (req: Request, res: Response) => {
     // Check if this user already captured a lead in a previous session
     const { data: prevCaptured } = await getSupabase()
       .from("design_sessions")
-      .select("contact_id")
+      .select("id")
       .eq("anonymous_id", anonymousId)
       .eq("builder_slug", builderSlug)
       .eq("is_captured", true)
@@ -38,7 +38,6 @@ router.post("/", async (req: Request, res: Response) => {
         plan_id: planId,
         interaction_count: 0,
         is_captured: !!prevCaptured,
-        contact_id: prevCaptured?.contact_id ?? null,
         modifications: [],
       })
       .select()
