@@ -305,7 +305,8 @@ declare function useAIInteractions(): {
     handleStyleSwap: (planId: string, preset: string, imageType?: "exterior" | "interior", imageUrl?: string) => Promise<AIInteractionResult | null>;
     handleFloorPlanEdit: (planId: string, prompt: string, currentUrl?: string) => Promise<AIInteractionResult | null>;
     handleEnhancePrompt: (prompt: string, imageUrl: string) => Promise<string | null>;
-    isProcessing: boolean;
+    isStyleSwapProcessing: boolean;
+    isFloorPlanProcessing: boolean;
     lastResult: AIInteractionResult | null;
     needsCapture: boolean;
     interactionCount: number;

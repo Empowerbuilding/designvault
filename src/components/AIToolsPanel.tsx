@@ -24,7 +24,8 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
   const {
     handleStyleSwap,
     handleFloorPlanEdit,
-    isProcessing,
+    isStyleSwapProcessing,
+    isFloorPlanProcessing,
     needsCapture,
     error: aiError,
   } = useAIInteractions();
@@ -43,10 +44,10 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
     setWishlistItems([]);
   }, [plan.id]);
 
-  // Sync processing state up to PlanDetail
+  // Sync style swap processing to PlanDetail for hero shimmer
   useEffect(() => {
-    onProcessingChange(isProcessing);
-  }, [isProcessing, onProcessingChange]);
+    onProcessingChange(isStyleSwapProcessing);
+  }, [isStyleSwapProcessing, onProcessingChange]);
 
   // ── Style Swap ──────────────────────────────────────────────
 
@@ -163,7 +164,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
             planId={plan.id}
             currentStyle={plan.style}
             onSwap={onSwap}
-            isProcessing={isProcessing}
+            isProcessing={isStyleSwapProcessing}
             activePreset={activePreset}
           />
         </div>
@@ -188,7 +189,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
             onWishlistAdd={onWishlistAdd}
             onWishlistRemove={onWishlistRemove}
             onPreviewAI={onPreviewAI}
-            isProcessing={isProcessing}
+            isProcessing={isFloorPlanProcessing}
           />
         </div>
       )}

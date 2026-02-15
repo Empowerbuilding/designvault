@@ -16,7 +16,8 @@ export function useAIInteractions() {
   const maxFree = config.maxFreeInteractions ?? 1;
   const hardLimit = maxFree + 3;
 
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isStyleSwapProcessing, setIsStyleSwapProcessing] = useState(false);
+  const [isFloorPlanProcessing, setIsFloorPlanProcessing] = useState(false);
   const [lastResult, setLastResult] = useState<AIInteractionResult | null>(
     null
   );
@@ -39,7 +40,7 @@ export function useAIInteractions() {
         return null;
       }
 
-      setIsProcessing(true);
+      setIsStyleSwapProcessing(true);
       setError(null);
 
       try {
@@ -70,7 +71,7 @@ export function useAIInteractions() {
         setError(msg);
         return null;
       } finally {
-        setIsProcessing(false);
+        setIsStyleSwapProcessing(false);
       }
     },
     [
@@ -94,7 +95,7 @@ export function useAIInteractions() {
         return null;
       }
 
-      setIsProcessing(true);
+      setIsFloorPlanProcessing(true);
       setError(null);
 
       try {
@@ -124,7 +125,7 @@ export function useAIInteractions() {
         setError(msg);
         return null;
       } finally {
-        setIsProcessing(false);
+        setIsFloorPlanProcessing(false);
       }
     },
     [
@@ -160,7 +161,8 @@ export function useAIInteractions() {
     handleStyleSwap,
     handleFloorPlanEdit,
     handleEnhancePrompt,
-    isProcessing,
+    isStyleSwapProcessing,
+    isFloorPlanProcessing,
     lastResult,
     needsCapture,
     interactionCount,

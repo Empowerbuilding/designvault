@@ -1467,7 +1467,8 @@ function useAIInteractions() {
   } = useDesignVaultContext();
   const maxFree = config.maxFreeInteractions ?? 1;
   const hardLimit = maxFree + 3;
-  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [isStyleSwapProcessing, setIsStyleSwapProcessing] = React.useState(false);
+  const [isFloorPlanProcessing, setIsFloorPlanProcessing] = React.useState(false);
   const [lastResult, setLastResult] = React.useState(
     null
   );
@@ -1481,7 +1482,7 @@ function useAIInteractions() {
         setError("Interaction limit reached");
         return null;
       }
-      setIsProcessing(true);
+      setIsStyleSwapProcessing(true);
       setError(null);
       try {
         const result = await api.styleSwap(
@@ -1509,7 +1510,7 @@ function useAIInteractions() {
         setError(msg);
         return null;
       } finally {
-        setIsProcessing(false);
+        setIsStyleSwapProcessing(false);
       }
     },
     [
@@ -1527,7 +1528,7 @@ function useAIInteractions() {
         setError("Interaction limit reached");
         return null;
       }
-      setIsProcessing(true);
+      setIsFloorPlanProcessing(true);
       setError(null);
       try {
         const result = await api.floorPlanEdit(
@@ -1554,7 +1555,7 @@ function useAIInteractions() {
         setError(msg);
         return null;
       } finally {
-        setIsProcessing(false);
+        setIsFloorPlanProcessing(false);
       }
     },
     [
@@ -1584,7 +1585,8 @@ function useAIInteractions() {
     handleStyleSwap,
     handleFloorPlanEdit,
     handleEnhancePrompt,
-    isProcessing,
+    isStyleSwapProcessing,
+    isFloorPlanProcessing,
     lastResult,
     needsCapture,
     interactionCount,
@@ -1608,7 +1610,8 @@ var AIToolsPanel = ({
   const {
     handleStyleSwap,
     handleFloorPlanEdit,
-    isProcessing,
+    isStyleSwapProcessing,
+    isFloorPlanProcessing,
     needsCapture,
     error: aiError
   } = useAIInteractions();
@@ -1622,8 +1625,8 @@ var AIToolsPanel = ({
     setWishlistItems([]);
   }, [plan.id]);
   React.useEffect(() => {
-    onProcessingChange(isProcessing);
-  }, [isProcessing, onProcessingChange]);
+    onProcessingChange(isStyleSwapProcessing);
+  }, [isStyleSwapProcessing, onProcessingChange]);
   const onSwap = React.useCallback(
     async (presetId) => {
       if (needsCapture) {
@@ -1714,7 +1717,7 @@ var AIToolsPanel = ({
           planId: plan.id,
           currentStyle: plan.style,
           onSwap,
-          isProcessing,
+          isProcessing: isStyleSwapProcessing,
           activePreset
         }
       )
@@ -1735,7 +1738,7 @@ var AIToolsPanel = ({
           onWishlistAdd,
           onWishlistRemove,
           onPreviewAI,
-          isProcessing
+          isProcessing: isFloorPlanProcessing
         }
       )
     ] }),
