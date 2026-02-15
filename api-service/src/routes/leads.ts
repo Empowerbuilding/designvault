@@ -47,6 +47,12 @@ router.post("/", async (req: Request, res: Response) => {
       ? `${plan.beds ?? "?"}bd/${plan.baths ?? "?"}ba/${plan.area ?? "?"}sqft`
       : "";
 
+    // Facebook tracking data (forwarded from client)
+    const clientIp =
+      (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+      req.ip ||
+      "";
+
     // Build lead payload
     const payload: LeadPayload = {
       first_name: firstName,
@@ -55,6 +61,11 @@ router.post("/", async (req: Request, res: Response) => {
       phone,
       source: "floor_plan_archive",
       anonymous_id: session.anonymous_id ?? "",
+      ...(leadData.fbclid && { fbclid: leadData.fbclid }),
+      ...(leadData.fbp && { fbp: leadData.fbp }),
+      ...(leadData.fbc && { fbc: leadData.fbc }),
+      ...(leadData.client_user_agent && { client_user_agent: leadData.client_user_agent }),
+      ...(clientIp && { client_ip_address: clientIp }),
       metadata: {
         planId: session.plan_id,
         planTitle: plan?.title ?? "",

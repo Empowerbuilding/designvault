@@ -131,6 +131,7 @@ function generateId() {
   });
 }
 var CRM_VISITOR_KEY = "_crm_visitor_id";
+var CAPTURED_KEY = "dv-captured";
 function getOrCreateAnonymousId() {
   if (typeof window === "undefined") return generateId();
   try {
@@ -168,7 +169,21 @@ function DesignVaultProvider({
   );
   const [anonymousId] = React.useState(getOrCreateAnonymousId);
   const sessionStartRef = React.useRef(Date.now());
-  const [isCaptured, setCaptured] = React.useState(false);
+  const [isCaptured, setIsCaptured] = React.useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return localStorage.getItem(CAPTURED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const setCaptured = React.useCallback((captured) => {
+    setIsCaptured(captured);
+    try {
+      if (captured) localStorage.setItem(CAPTURED_KEY, "1");
+    } catch {
+    }
+  }, []);
   const [sessionId, setSessionId] = React.useState(null);
   const [modifications, setModifications] = React.useState([]);
   const [plansViewed, setPlansViewed] = React.useState([]);
@@ -1353,6 +1368,30 @@ function getLatencyLog() {
 }
 
 // src/hooks/useLeadCapture.ts
+function getCookie2(name) {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+function getFbTracking() {
+  if (typeof window === "undefined") return {};
+  const params = new URLSearchParams(window.location.search);
+  const fbclid = params.get("fbclid") || (() => {
+    try {
+      return localStorage.getItem("fbclid");
+    } catch {
+      return null;
+    }
+  })();
+  const fbp = getCookie2("_fbp");
+  const fbc = getCookie2("_fbc");
+  return {
+    ...fbclid && { fbclid },
+    ...fbp && { fbp },
+    ...fbc && { fbc },
+    client_user_agent: navigator.userAgent
+  };
+}
 var FAVORITES_KEY = "dv-favorites";
 function readFavoritesFromStorage() {
   if (typeof window === "undefined") return [];
@@ -1405,7 +1444,8 @@ function useLeadCapture() {
         favorites: readFavoritesFromStorage(),
         stylePref,
         sessionDuration,
-        plansViewed: plansViewed.length
+        plansViewed: plansViewed.length,
+        ...getFbTracking()
       };
       try {
         await api.saveDesign(
@@ -1772,12 +1812,13 @@ function useAIInteractions() {
   );
   const [interactionCount, setInteractionCount] = React.useState(0);
   const [error, setError] = React.useState(null);
+  const [hitHardLimit, setHitHardLimit] = React.useState(false);
   const needsCapture = interactionCount >= maxFree && !isCaptured;
   const effectiveSessionId = sessionId ?? anonymousId;
   const handleStyleSwap = React.useCallback(
     async (planId, preset, imageType, imageUrl) => {
       if (interactionCount >= hardLimit) {
-        setError("You've used all available customizations for this session.");
+        setHitHardLimit(true);
         return null;
       }
       setIsStyleSwapProcessing(true);
@@ -1823,7 +1864,7 @@ function useAIInteractions() {
   const handleFloorPlanEdit = React.useCallback(
     async (planId, prompt, currentUrl) => {
       if (interactionCount >= hardLimit) {
-        setError("You've used all available customizations for this session.");
+        setHitHardLimit(true);
         return null;
       }
       setIsFloorPlanProcessing(true);
@@ -1887,6 +1928,7 @@ function useAIInteractions() {
     isFloorPlanProcessing,
     lastResult,
     needsCapture,
+    hitHardLimit,
     interactionCount,
     error
   };
@@ -1911,6 +1953,7 @@ var AIToolsPanel = ({
     isStyleSwapProcessing,
     isFloorPlanProcessing,
     needsCapture,
+    hitHardLimit,
     error: aiError
   } = useAIInteractions();
   const { modifications, isCaptured, addModification } = useDesignVaultContext();
@@ -1994,10 +2037,10 @@ var AIToolsPanel = ({
       /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 20 }),
       /* @__PURE__ */ jsxRuntime.jsx("h3", { className: "dv-ai-tools__title", children: "AI Design Tools" })
     ] }),
-    (needsCapture || aiError && !isCaptured) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__gate", children: [
+    (needsCapture || aiError && !isCaptured) && !hitHardLimit && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__gate", children: [
       /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Lock, { size: 18, className: "dv-ai-tools__gate-icon" }),
       /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-title", children: "You've used your free design preview" }),
-      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-sub", children: "Save your design to unlock unlimited AI tools" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-sub", children: "Save your design to unlock more AI tools" }),
       /* @__PURE__ */ jsxRuntime.jsxs(
         "button",
         {
@@ -2010,7 +2053,28 @@ var AIToolsPanel = ({
         }
       )
     ] }),
-    aiError && isCaptured && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__error", children: aiError }),
+    hitHardLimit && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__gate", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(lucideReact.CalendarCheck, { size: 18, className: "dv-ai-tools__gate-icon" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-title", children: "You've explored all your free customizations!" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-sub", children: "Ready to make this plan yours? Schedule a free consultation and we'll create your full custom plan set." }),
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "button",
+        {
+          className: "dv-ai-tools__gate-btn",
+          onClick: () => {
+            const url = getSchedulerUrl(
+              config.schedulerUrl ?? "https://crm.empowerbuilding.ai/book/barnhaus-consultation"
+            );
+            window.open(url, "_blank", "noopener");
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntime.jsx(lucideReact.CalendarCheck, { size: 16 }),
+            "Schedule My Consultation"
+          ]
+        }
+      )
+    ] }),
+    aiError && isCaptured && !hitHardLimit && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__error", children: aiError }),
     config.enableStyleSwap !== false && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section", children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section-header", children: [
         /* @__PURE__ */ jsxRuntime.jsx(
@@ -2069,7 +2133,7 @@ var AIToolsPanel = ({
         ]
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__callout", children: "First customization is free. Save your design to unlock more." }),
+    !hitHardLimit && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__callout", children: "First customization is free. Save your design to unlock more." }),
     /* @__PURE__ */ jsxRuntime.jsx(
       LeadCaptureModal,
       {

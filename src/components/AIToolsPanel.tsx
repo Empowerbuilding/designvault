@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Sparkles, Save, Lock } from "lucide-react";
+import { Sparkles, Save, Lock, CalendarCheck } from "lucide-react";
 import { StyleSwapButtons } from "./StyleSwapButtons";
 import { FloorPlanEditor } from "./FloorPlanEditor";
 import { LeadCaptureModal } from "./LeadCaptureModal";
 import { useAIInteractions } from "../hooks/useAIInteractions";
 import { useDesignVaultContext } from "../hooks/useDesignVault";
+import { getSchedulerUrl } from "../utils/tracking";
 import type { AIToolsPanelProps } from "../types";
 
 export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
@@ -27,6 +28,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
     isStyleSwapProcessing,
     isFloorPlanProcessing,
     needsCapture,
+    hitHardLimit,
     error: aiError,
   } = useAIInteractions();
 
@@ -143,14 +145,14 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       </div>
 
       {/* Gate banner — shown when user needs to save to continue */}
-      {(needsCapture || (aiError && !isCaptured)) && (
+      {(needsCapture || (aiError && !isCaptured)) && !hitHardLimit && (
         <div className="dv-ai-tools__gate">
           <Lock size={18} className="dv-ai-tools__gate-icon" />
           <p className="dv-ai-tools__gate-title">
             You've used your free design preview
           </p>
           <p className="dv-ai-tools__gate-sub">
-            Save your design to unlock unlimited AI tools
+            Save your design to unlock more AI tools
           </p>
           <button
             className="dv-ai-tools__gate-btn"
@@ -162,8 +164,34 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
         </div>
       )}
 
-      {/* Error message (only for non-gate errors, e.g. network/server issues) */}
-      {aiError && isCaptured && (
+      {/* Hard limit — schedule consultation CTA */}
+      {hitHardLimit && (
+        <div className="dv-ai-tools__gate">
+          <CalendarCheck size={18} className="dv-ai-tools__gate-icon" />
+          <p className="dv-ai-tools__gate-title">
+            You've explored all your free customizations!
+          </p>
+          <p className="dv-ai-tools__gate-sub">
+            Ready to make this plan yours? Schedule a free consultation and
+            we'll create your full custom plan set.
+          </p>
+          <button
+            className="dv-ai-tools__gate-btn"
+            onClick={() => {
+              const url = getSchedulerUrl(
+                config.schedulerUrl ?? "https://crm.empowerbuilding.ai/book/barnhaus-consultation"
+              );
+              window.open(url, "_blank", "noopener");
+            }}
+          >
+            <CalendarCheck size={16} />
+            Schedule My Consultation
+          </button>
+        </div>
+      )}
+
+      {/* Error message (only for non-gate/non-limit errors, e.g. network/server issues) */}
+      {aiError && isCaptured && !hitHardLimit && (
         <div className="dv-ai-tools__error">{aiError}</div>
       )}
 
@@ -229,9 +257,11 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       </button>
 
       {/* Callout */}
-      <p className="dv-ai-tools__callout">
-        First customization is free. Save your design to unlock more.
-      </p>
+      {!hitHardLimit && (
+        <p className="dv-ai-tools__callout">
+          First customization is free. Save your design to unlock more.
+        </p>
+      )}
 
       {/* Lead Capture Modal */}
       <LeadCaptureModal

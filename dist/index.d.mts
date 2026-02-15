@@ -69,6 +69,10 @@ interface LeadCaptureData {
     stylePref: string | null;
     sessionDuration: number;
     plansViewed: number;
+    fbclid?: string;
+    fbp?: string;
+    fbc?: string;
+    client_user_agent?: string;
 }
 interface StylePreset {
     id: string;
@@ -311,6 +315,7 @@ declare function useAIInteractions(): {
     isFloorPlanProcessing: boolean;
     lastResult: AIInteractionResult | null;
     needsCapture: boolean;
+    hitHardLimit: boolean;
     interactionCount: number;
     error: string | null;
 };

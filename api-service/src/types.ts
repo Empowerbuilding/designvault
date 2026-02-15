@@ -64,6 +64,11 @@ export interface LeadPayload {
   phone: string;
   source: "floor_plan_archive";
   anonymous_id: string;
+  fbclid?: string;
+  fbp?: string;
+  fbc?: string;
+  client_user_agent?: string;
+  client_ip_address?: string;
   metadata: {
     planId: string;
     planTitle: string;

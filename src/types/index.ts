@@ -95,6 +95,10 @@ export interface LeadCaptureData {
   stylePref: string | null;
   sessionDuration: number;
   plansViewed: number;
+  fbclid?: string;
+  fbp?: string;
+  fbc?: string;
+  client_user_agent?: string;
 }
 
 // ── Style Presets ────────────────────────────────────────────

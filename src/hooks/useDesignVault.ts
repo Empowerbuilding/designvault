@@ -24,6 +24,7 @@ function generateId(): string {
 }
 
 const CRM_VISITOR_KEY = "_crm_visitor_id";
+const CAPTURED_KEY = "dv-captured";
 
 function getOrCreateAnonymousId(): string {
   if (typeof window === "undefined") return generateId();
@@ -101,7 +102,14 @@ export function DesignVaultProvider({
   const [anonymousId] = useState(getOrCreateAnonymousId);
   const sessionStartRef = useRef(Date.now());
 
-  const [isCaptured, setCaptured] = useState(false);
+  const [isCaptured, setIsCaptured] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try { return localStorage.getItem(CAPTURED_KEY) === "1"; } catch { return false; }
+  });
+  const setCaptured = useCallback((captured: boolean) => {
+    setIsCaptured(captured);
+    try { if (captured) localStorage.setItem(CAPTURED_KEY, "1"); } catch { /* noop */ }
+  }, []);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [modifications, setModifications] = useState<Modification[]>([]);
   const [plansViewed, setPlansViewed] = useState<string[]>([]);

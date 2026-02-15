@@ -23,6 +23,7 @@ export function useAIInteractions() {
   );
   const [interactionCount, setInteractionCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [hitHardLimit, setHitHardLimit] = useState(false);
 
   const needsCapture = interactionCount >= maxFree && !isCaptured;
 
@@ -36,7 +37,7 @@ export function useAIInteractions() {
       imageUrl?: string
     ): Promise<AIInteractionResult | null> => {
       if (interactionCount >= hardLimit) {
-        setError("You've used all available customizations for this session.");
+        setHitHardLimit(true);
         return null;
       }
 
@@ -91,7 +92,7 @@ export function useAIInteractions() {
       currentUrl?: string
     ): Promise<AIInteractionResult | null> => {
       if (interactionCount >= hardLimit) {
-        setError("You've used all available customizations for this session.");
+        setHitHardLimit(true);
         return null;
       }
 
@@ -165,6 +166,7 @@ export function useAIInteractions() {
     isFloorPlanProcessing,
     lastResult,
     needsCapture,
+    hitHardLimit,
     interactionCount,
     error,
   };

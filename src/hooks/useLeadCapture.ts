@@ -3,6 +3,28 @@ import { useDesignVaultContext } from "./useDesignVault";
 import { fireMetaPixelEvent } from "../utils/tracking";
 import type { LeadCaptureData } from "../types";
 
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function getFbTracking() {
+  if (typeof window === "undefined") return {};
+  const params = new URLSearchParams(window.location.search);
+  const fbclid = params.get("fbclid") || (() => {
+    try { return localStorage.getItem("fbclid"); } catch { return null; }
+  })();
+  const fbp = getCookie("_fbp");
+  const fbc = getCookie("_fbc");
+  return {
+    ...(fbclid && { fbclid }),
+    ...(fbp && { fbp }),
+    ...(fbc && { fbc }),
+    client_user_agent: navigator.userAgent,
+  };
+}
+
 const FAVORITES_KEY = "dv-favorites";
 
 function readFavoritesFromStorage(): string[] {
@@ -68,6 +90,7 @@ export function useLeadCapture() {
         stylePref,
         sessionDuration,
         plansViewed: plansViewed.length,
+        ...getFbTracking(),
       };
 
       try {
