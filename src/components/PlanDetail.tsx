@@ -201,7 +201,7 @@ if (plan.interior_urls) {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.3, ease: "easeOut" }}
                 >
-                  Customize This Design
+                  Make This Plan Yours
                   <ArrowRight size={18} />
                 </motion.button>
               </div>
@@ -216,7 +216,7 @@ if (plan.interior_urls) {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.35, ease: "easeOut" }}
               >
-                Customize This Design
+                Make This Plan Yours
                 <ArrowRight size={18} />
               </motion.button>
             )}
@@ -261,7 +261,6 @@ if (plan.interior_urls) {
               <div className="dv-detail-hero__gradient" />
 
               <div className="dv-detail-hero__info">
-                <h1 className="dv-detail-hero__title">{plan.title}</h1>
                 <div className="dv-detail-hero__specs">
                   <span>
                     <Home size={16} /> {plan.beds} Beds

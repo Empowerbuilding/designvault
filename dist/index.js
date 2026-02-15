@@ -2380,7 +2380,7 @@ var PlanDetail = ({
                 animate: { y: 0, opacity: 1 },
                 transition: { delay: 0.3, duration: 0.3, ease: "easeOut" },
                 children: [
-                  "Customize This Design",
+                  "Make This Plan Yours",
                   /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
                 ]
               }
@@ -2394,7 +2394,7 @@ var PlanDetail = ({
                 animate: { x: 0, opacity: 1 },
                 transition: { delay: 0.5, duration: 0.35, ease: "easeOut" },
                 children: [
-                  "Customize This Design",
+                  "Make This Plan Yours",
                   /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
                 ]
               }
@@ -2433,29 +2433,26 @@ var PlanDetail = ({
                 /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-detail-hero__processing-text", children: "AI is generating..." })
               ] }),
               /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-hero__gradient" }),
-              /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero__info", children: [
-                /* @__PURE__ */ jsxRuntime.jsx("h1", { className: "dv-detail-hero__title", children: plan.title }),
-                /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero__specs", children: [
-                  /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-                    /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Home, { size: 16 }),
-                    " ",
-                    plan.beds,
-                    " Beds"
-                  ] }),
-                  /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-                    /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Bath, { size: 16 }),
-                    " ",
-                    plan.baths,
-                    " Baths"
-                  ] }),
-                  /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-                    /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Square, { size: 16 }),
-                    " ",
-                    plan.area.toLocaleString(),
-                    " sqft"
-                  ] })
+              /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-hero__info", children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero__specs", children: [
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Home, { size: 16 }),
+                  " ",
+                  plan.beds,
+                  " Beds"
+                ] }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Bath, { size: 16 }),
+                  " ",
+                  plan.baths,
+                  " Baths"
+                ] }),
+                /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Square, { size: 16 }),
+                  " ",
+                  plan.area.toLocaleString(),
+                  " sqft"
                 ] })
-              ] }),
+              ] }) }),
               hasAiResult && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero__compare", children: [
                 /* @__PURE__ */ jsxRuntime.jsx(
                   "button",
