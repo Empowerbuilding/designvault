@@ -652,18 +652,20 @@ html, body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: #1a1a1a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   transition: background var(--dv-transition), transform 0.15s ease,
-    box-shadow var(--dv-transition);
+    box-shadow var(--dv-transition), border-color var(--dv-transition);
 }
 
 .dv-detail-panel__close:hover {
-  background: #ffffff;
+  background: rgba(0, 0, 0, 0.85);
+  border-color: var(--dv-brand);
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* Detail — hero image */
