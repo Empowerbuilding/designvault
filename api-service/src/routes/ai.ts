@@ -127,6 +127,27 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
       return;
     }
 
+    // If this session isn't marked captured, check if the user captured on another session
+    if (!session.is_captured) {
+      const { data: captured } = await getSupabase()
+        .from("design_sessions")
+        .select("contact_id")
+        .eq("anonymous_id", session.anonymous_id)
+        .eq("is_captured", true)
+        .limit(1)
+        .single();
+
+      if (captured) {
+        // Backfill this session's captured status
+        await getSupabase()
+          .from("design_sessions")
+          .update({ is_captured: true, contact_id: captured.contact_id })
+          .eq("id", sessionId);
+        session.is_captured = true;
+        session.contact_id = captured.contact_id;
+      }
+    }
+
     const count = session.interaction_count ?? 0;
     if (!session.is_captured && count >= MAX_FREE) {
       res.status(403).json({
@@ -240,6 +261,26 @@ router.post(
       if (!session) {
         res.status(404).json({ error: "Session not found" });
         return;
+      }
+
+      // If this session isn't marked captured, check if the user captured on another session
+      if (!session.is_captured) {
+        const { data: captured } = await getSupabase()
+          .from("design_sessions")
+          .select("contact_id")
+          .eq("anonymous_id", session.anonymous_id)
+          .eq("is_captured", true)
+          .limit(1)
+          .single();
+
+        if (captured) {
+          await getSupabase()
+            .from("design_sessions")
+            .update({ is_captured: true, contact_id: captured.contact_id })
+            .eq("id", sessionId);
+          session.is_captured = true;
+          session.contact_id = captured.contact_id;
+        }
       }
 
       const count = session.interaction_count ?? 0;

@@ -115,14 +115,27 @@ router.post("/", async (req: Request, res: Response) => {
 
     // Update session: mark as captured
     const now = new Date().toISOString();
-    await getSupabase()
+    const { error: updateError } = await getSupabase()
       .from("design_sessions")
       .update({
         is_captured: true,
-        contact_id: email, // Use email as contact reference
+        contact_id: email,
         captured_at: now,
       })
       .eq("id", sessionId);
+
+    if (updateError) {
+      log("SESSION_UPDATE_ERROR", { sessionId, error: updateError.message });
+    }
+
+    // Also mark any other sessions for this anonymous user as captured
+    // so switching plans doesn't lose captured status
+    await getSupabase()
+      .from("design_sessions")
+      .update({ is_captured: true, contact_id: email })
+      .eq("anonymous_id", session.anonymous_id)
+      .eq("builder_slug", builderSlug)
+      .eq("is_captured", false);
 
     log("LEAD_SAVED", {
       sessionId,
