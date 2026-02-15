@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { DesignVault } from "designvault";
 import type { DesignVaultConfig } from "designvault";
-import "./styles.css";
+import "designvault/styles.css";
 
 const config: DesignVaultConfig = {
   builderSlug: "barnhaus",
@@ -15,6 +15,7 @@ const config: DesignVaultConfig = {
   enableFavorites: true,
   enableSimilarPlans: true,
   maxFreeInteractions: 1,
+  schedulerUrl: "https://barnhaussteelbuilders.com/schedule",
   attribution: {
     show: true,
     text: "Empower Building",
