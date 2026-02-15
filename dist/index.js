@@ -808,39 +808,14 @@ var StyleSwapButtons = ({
     }) })
   ] });
 };
-var MIN_SCALE = 1;
-var MAX_SCALE = 4;
-var ZOOM_STEP = 0.5;
-var ZOOM_LABEL_TIMEOUT = 1500;
-function isTouchDevice() {
-  return typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-}
 var ImageLightbox = ({
   src,
   alt,
   isOpen,
   onClose
 }) => {
-  const [scale, setScale] = React.useState(1);
-  const [translate, setTranslate] = React.useState({ x: 0, y: 0 });
-  const [showZoomLabel, setShowZoomLabel] = React.useState(false);
-  const [isTouch, setIsTouch] = React.useState(false);
-  const dragging = React.useRef(false);
-  const didDrag = React.useRef(false);
-  const lastPos = React.useRef({ x: 0, y: 0 });
-  const lastPinchDist = React.useRef(null);
-  const lastTapTime = React.useRef(0);
-  const lastTapPos = React.useRef({ x: 0, y: 0 });
+  const scrollRef = React.useRef(null);
   const imgRef = React.useRef(null);
-  const zoomLabelTimer = React.useRef(null);
-  React.useEffect(() => {
-    setIsTouch(isTouchDevice());
-  }, []);
-  React.useEffect(() => {
-    setScale(1);
-    setTranslate({ x: 0, y: 0 });
-    setShowZoomLabel(false);
-  }, [isOpen, src]);
   React.useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => {
@@ -849,219 +824,26 @@ var ImageLightbox = ({
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, onClose]);
-  const flashZoomLabel = React.useCallback(() => {
-    setShowZoomLabel(true);
-    if (zoomLabelTimer.current) clearTimeout(zoomLabelTimer.current);
-    zoomLabelTimer.current = setTimeout(() => setShowZoomLabel(false), ZOOM_LABEL_TIMEOUT);
-  }, []);
   React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    }
     return () => {
-      if (zoomLabelTimer.current) clearTimeout(zoomLabelTimer.current);
+      document.body.style.overflow = "";
     };
-  }, []);
-  const clampTranslate = React.useCallback(
-    (x, y, s) => {
-      if (s <= 1) return { x: 0, y: 0 };
-      const img = imgRef.current;
-      if (!img) return { x, y };
-      const rect = img.getBoundingClientRect();
-      const viewW = window.innerWidth;
-      const viewH = window.innerHeight;
-      const overflowX = Math.max(0, (rect.width - viewW) / 2 / s);
-      const overflowY = Math.max(0, (rect.height - viewH) / 2 / s);
-      const maxX = Math.max(overflowX, (s - 1) * rect.width / s / 2);
-      const maxY = Math.max(overflowY, (s - 1) * rect.height / s / 2);
-      return {
-        x: Math.max(-maxX, Math.min(maxX, x)),
-        y: Math.max(-maxY, Math.min(maxY, y))
-      };
-    },
-    []
-  );
-  const handleWheel = React.useCallback(
-    (e) => {
-      e.preventDefault();
-      flashZoomLabel();
-      setScale((prev) => {
-        const next = Math.max(MIN_SCALE, Math.min(MAX_SCALE, prev - e.deltaY * 2e-3));
-        if (next <= 1) setTranslate({ x: 0, y: 0 });
-        return next;
-      });
-    },
-    [flashZoomLabel]
-  );
-  const zoomToPoint = React.useCallback(
-    (clientX, clientY) => {
-      flashZoomLabel();
-      if (scale > 1) {
-        setScale(1);
-        setTranslate({ x: 0, y: 0 });
-      } else {
-        const img = imgRef.current;
-        if (img) {
-          const rect = img.getBoundingClientRect();
-          const cx = rect.left + rect.width / 2;
-          const cy = rect.top + rect.height / 2;
-          const offsetX = (cx - clientX) * 1;
-          const offsetY = (cy - clientY) * 1;
-          setScale(2.5);
-          setTranslate(clampTranslate(offsetX, offsetY, 2.5));
-        } else {
-          setScale(2.5);
-        }
-      }
-    },
-    [scale, flashZoomLabel, clampTranslate]
-  );
-  const handleDoubleClick = React.useCallback(
-    (e) => {
-      e.stopPropagation();
-      zoomToPoint(e.clientX, e.clientY);
-    },
-    [zoomToPoint]
-  );
-  const handleMouseDown = React.useCallback(
-    (e) => {
-      if (scale <= 1) return;
-      e.preventDefault();
-      dragging.current = true;
-      didDrag.current = false;
-      lastPos.current = { x: e.clientX, y: e.clientY };
-    },
-    [scale]
-  );
-  const handleMouseMove = React.useCallback(
-    (e) => {
-      if (!dragging.current) return;
-      didDrag.current = true;
-      const dx = e.clientX - lastPos.current.x;
-      const dy = e.clientY - lastPos.current.y;
-      lastPos.current = { x: e.clientX, y: e.clientY };
-      setTranslate((prev) => clampTranslate(prev.x + dx, prev.y + dy, scale));
-    },
-    [scale, clampTranslate]
-  );
-  const handleMouseUp = React.useCallback(() => {
-    dragging.current = false;
-  }, []);
-  const handleTouchStart = React.useCallback(
-    (e) => {
-      if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        lastPinchDist.current = Math.hypot(dx, dy);
-      } else if (e.touches.length === 1) {
-        if (scale > 1) {
-          dragging.current = true;
-          didDrag.current = false;
-        }
-        lastPos.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY
-        };
-      }
-    },
-    [scale]
-  );
-  const handleTouchMove = React.useCallback(
-    (e) => {
-      if (e.touches.length === 2 && lastPinchDist.current !== null) {
-        e.preventDefault();
-        flashZoomLabel();
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const dist = Math.hypot(dx, dy);
-        const delta = dist / lastPinchDist.current;
-        lastPinchDist.current = dist;
-        setScale((prev) => {
-          const next = Math.max(MIN_SCALE, Math.min(MAX_SCALE, prev * delta));
-          if (next <= 1) setTranslate({ x: 0, y: 0 });
-          return next;
-        });
-      } else if (e.touches.length === 1 && dragging.current) {
-        e.preventDefault();
-        const dx = e.touches[0].clientX - lastPos.current.x;
-        const dy = e.touches[0].clientY - lastPos.current.y;
-        didDrag.current = true;
-        lastPos.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY
-        };
-        setTranslate((prev) => clampTranslate(prev.x + dx, prev.y + dy, scale));
-      }
-    },
-    [scale, clampTranslate, flashZoomLabel]
-  );
-  const handleTouchEnd = React.useCallback(
-    (e) => {
-      const wasDrag = didDrag.current;
-      dragging.current = false;
-      didDrag.current = false;
-      lastPinchDist.current = null;
-      if (e.changedTouches.length === 1 && e.touches.length === 0 && !wasDrag) {
-        const now = Date.now();
-        const touch = e.changedTouches[0];
-        const timeDelta = now - lastTapTime.current;
-        const posDelta = Math.hypot(
-          touch.clientX - lastTapPos.current.x,
-          touch.clientY - lastTapPos.current.y
-        );
-        if (timeDelta < 300 && posDelta < 30) {
-          lastTapTime.current = 0;
-          zoomToPoint(touch.clientX, touch.clientY);
-        } else {
-          lastTapTime.current = now;
-          lastTapPos.current = { x: touch.clientX, y: touch.clientY };
-          if (scale <= 1) {
-            const tapTimer = setTimeout(() => {
-              if (Date.now() - lastTapTime.current >= 280) {
-                onClose();
-              }
-            }, 300);
-            return () => clearTimeout(tapTimer);
-          }
-        }
-      }
-    },
-    [scale, onClose, zoomToPoint]
-  );
-  const zoomIn = React.useCallback(
-    (e) => {
-      e.stopPropagation();
-      flashZoomLabel();
-      setScale((prev) => Math.min(MAX_SCALE, prev + ZOOM_STEP));
-    },
-    [flashZoomLabel]
-  );
-  const zoomOut = React.useCallback(
-    (e) => {
-      e.stopPropagation();
-      flashZoomLabel();
-      setScale((prev) => {
-        const next = Math.max(MIN_SCALE, prev - ZOOM_STEP);
-        if (next <= 1) setTranslate({ x: 0, y: 0 });
-        return next;
-      });
-    },
-    [flashZoomLabel]
-  );
-  const handleOverlayClick = React.useCallback(
-    (e) => {
-      if (scale <= 1 && e.target === e.currentTarget) onClose();
-    },
-    [scale, onClose]
-  );
-  const handleImgClick = React.useCallback(
-    (e) => {
-      if (didDrag.current) return;
-      e.stopPropagation();
-      if (scale <= 1 && !isTouch) {
-        onClose();
-      }
-    },
-    [scale, isTouch, onClose]
-  );
-  const showControls = scale > 1;
+  }, [isOpen]);
+  const handleImageLoad = () => {
+    const container = scrollRef.current;
+    const img = imgRef.current;
+    if (!container || !img) return;
+    const scrollLeft = (img.offsetWidth - container.clientWidth) / 2;
+    const scrollTop = (img.offsetHeight - container.clientHeight) / 2;
+    container.scrollTo({
+      left: Math.max(0, scrollLeft),
+      top: Math.max(0, scrollTop),
+      behavior: "instant"
+    });
+  };
   return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsxs(
     framerMotion.motion.div,
     {
@@ -1070,87 +852,27 @@ var ImageLightbox = ({
       animate: { opacity: 1 },
       exit: { opacity: 0 },
       transition: { duration: 0.2 },
-      style: { touchAction: scale > 1 ? "none" : "manipulation" },
-      onClick: handleOverlayClick,
-      onMouseMove: handleMouseMove,
-      onMouseUp: handleMouseUp,
-      onMouseLeave: handleMouseUp,
       children: [
         /* @__PURE__ */ jsxRuntime.jsx(
           "button",
           {
             className: "dv-lightbox-overlay__close",
-            onClick: (e) => {
-              e.stopPropagation();
-              onClose();
-            },
+            onClick: onClose,
             "aria-label": "Close",
             children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 24 })
           }
         ),
-        showControls && /* @__PURE__ */ jsxRuntime.jsxs(
-          "div",
-          {
-            className: "dv-lightbox-overlay__controls",
-            style: { opacity: showZoomLabel ? 1 : 0.6 },
-            children: [
-              !isTouch && /* @__PURE__ */ jsxRuntime.jsx(
-                "button",
-                {
-                  className: "dv-lightbox-overlay__zoom-btn",
-                  onClick: zoomOut,
-                  disabled: scale <= MIN_SCALE,
-                  "aria-label": "Zoom out",
-                  children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ZoomOut, { size: 18 })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntime.jsxs(
-                "span",
-                {
-                  className: "dv-lightbox-overlay__zoom-level",
-                  style: { opacity: showZoomLabel ? 1 : 0 },
-                  children: [
-                    scale.toFixed(1),
-                    "x"
-                  ]
-                }
-              ),
-              !isTouch && /* @__PURE__ */ jsxRuntime.jsx(
-                "button",
-                {
-                  className: "dv-lightbox-overlay__zoom-btn",
-                  onClick: zoomIn,
-                  disabled: scale >= MAX_SCALE,
-                  "aria-label": "Zoom in",
-                  children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ZoomIn, { size: 18 })
-                }
-              )
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntime.jsx(
+        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-lightbox-scroll", ref: scrollRef, children: /* @__PURE__ */ jsxRuntime.jsx(
           "img",
           {
             ref: imgRef,
-            className: "dv-lightbox-overlay__img",
+            className: "dv-lightbox-scroll__img",
             src,
             alt,
             draggable: false,
-            style: {
-              transform: `scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`,
-              cursor: scale > 1 ? dragging.current ? "grabbing" : "grab" : "default",
-              transition: dragging.current ? "none" : "transform 0.15s ease",
-              touchAction: scale > 1 ? "none" : "manipulation"
-            },
-            onClick: handleImgClick,
-            onDoubleClick: handleDoubleClick,
-            onMouseDown: handleMouseDown,
-            onTouchStart: handleTouchStart,
-            onTouchMove: handleTouchMove,
-            onTouchEnd: handleTouchEnd,
-            onWheel: handleWheel
+            onLoad: handleImageLoad
           }
-        )
+        ) })
       ]
     }
   ) });
