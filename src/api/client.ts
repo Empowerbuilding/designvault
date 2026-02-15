@@ -100,7 +100,7 @@ export class DesignVaultAPI {
   ): Promise<{ success: boolean }> {
     return this.post<{ success: boolean }>(
       `${this.baseUrl}/api/save-design`,
-      { ...data, sessionId, builderSlug }
+      { leadData: data, sessionId, builderSlug }
     );
   }
 

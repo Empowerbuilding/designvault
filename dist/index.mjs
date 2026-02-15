@@ -65,7 +65,7 @@ var DesignVaultAPI = class {
   async saveDesign(data, sessionId, builderSlug) {
     return this.post(
       `${this.baseUrl}/api/save-design`,
-      { ...data, sessionId, builderSlug }
+      { leadData: data, sessionId, builderSlug }
     );
   }
   // ── Sessions ─────────────────────────────────────────────────
