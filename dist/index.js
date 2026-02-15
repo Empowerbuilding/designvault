@@ -86,7 +86,7 @@ var DesignVaultAPI = class {
   // ── Internal helpers ─────────────────────────────────────────
   friendlyError(status) {
     if (status === 429) return "Too many requests \u2014 please wait a moment and try again.";
-    if (status === 403) return "Access denied. Save your design to unlock more AI features.";
+    if (status === 403) return "Save your design to unlock more AI tools.";
     if (status === 404) return "This design could not be found. Please try another.";
     if (status >= 500) return "Our servers are busy \u2014 please try again in a few seconds.";
     return "Something went wrong. Please try again.";
@@ -1810,7 +1810,23 @@ var AIToolsPanel = ({
       /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 20 }),
       /* @__PURE__ */ jsxRuntime.jsx("h3", { className: "dv-ai-tools__title", children: "AI Design Tools" })
     ] }),
-    aiError && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__error", children: aiError }),
+    (needsCapture || aiError && !isCaptured) && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__gate", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Lock, { size: 18, className: "dv-ai-tools__gate-icon" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-title", children: "You've used your free design preview" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-sub", children: "Save your design to unlock unlimited AI tools" }),
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "button",
+        {
+          className: "dv-ai-tools__gate-btn",
+          onClick: openModal,
+          children: [
+            /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Save, { size: 16 }),
+            config.ctaText || "Save My Design"
+          ]
+        }
+      )
+    ] }),
+    aiError && isCaptured && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__error", children: aiError }),
     config.enableStyleSwap !== false && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section", children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section-header", children: [
         /* @__PURE__ */ jsxRuntime.jsx(

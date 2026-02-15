@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Sparkles, Save } from "lucide-react";
+import { Sparkles, Save, Lock } from "lucide-react";
 import { StyleSwapButtons } from "./StyleSwapButtons";
 import { FloorPlanEditor } from "./FloorPlanEditor";
 import { LeadCaptureModal } from "./LeadCaptureModal";
@@ -142,8 +142,30 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
         <h3 className="dv-ai-tools__title">AI Design Tools</h3>
       </div>
 
-      {/* Error message */}
-      {aiError && <div className="dv-ai-tools__error">{aiError}</div>}
+      {/* Gate banner — shown when user needs to save to continue */}
+      {(needsCapture || (aiError && !isCaptured)) && (
+        <div className="dv-ai-tools__gate">
+          <Lock size={18} className="dv-ai-tools__gate-icon" />
+          <p className="dv-ai-tools__gate-title">
+            You've used your free design preview
+          </p>
+          <p className="dv-ai-tools__gate-sub">
+            Save your design to unlock unlimited AI tools
+          </p>
+          <button
+            className="dv-ai-tools__gate-btn"
+            onClick={openModal}
+          >
+            <Save size={16} />
+            {config.ctaText || "Save My Design"}
+          </button>
+        </div>
+      )}
+
+      {/* Error message (only for non-gate errors, e.g. network/server issues) */}
+      {aiError && isCaptured && (
+        <div className="dv-ai-tools__error">{aiError}</div>
+      )}
 
       {/* ── CHANGE EXTERIOR STYLE section ── */}
       {config.enableStyleSwap !== false && (

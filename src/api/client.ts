@@ -121,7 +121,7 @@ export class DesignVaultAPI {
 
   private friendlyError(status: number): string {
     if (status === 429) return "Too many requests — please wait a moment and try again.";
-    if (status === 403) return "Access denied. Save your design to unlock more AI features.";
+    if (status === 403) return "Save your design to unlock more AI tools.";
     if (status === 404) return "This design could not be found. Please try another.";
     if (status >= 500) return "Our servers are busy — please try again in a few seconds.";
     return "Something went wrong. Please try again.";

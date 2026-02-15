@@ -1004,6 +1004,66 @@ html, body {
   border-radius: var(--dv-radius-sm);
 }
 
+.dv-ai-tools__gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 20px 16px;
+  border-radius: var(--dv-radius);
+  background: linear-gradient(
+    135deg,
+    rgba(184, 134, 11, 0.1),
+    rgba(184, 134, 11, 0.05)
+  );
+  border: 1px solid rgba(184, 134, 11, 0.3);
+}
+
+.dv-ai-tools__gate-icon {
+  color: var(--dv-brand);
+  margin-bottom: 2px;
+}
+
+.dv-ai-tools__gate-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.dv-ai-tools__gate-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 8px;
+}
+
+.dv-ai-tools__gate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--dv-radius-sm);
+  background: linear-gradient(
+    135deg,
+    var(--dv-brand),
+    color-mix(in srgb, var(--dv-brand) 70%, #000)
+  );
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dv-ai-tools__gate-btn:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 4px 16px rgba(184, 134, 11, 0.3);
+}
+
 /* Save button */
 .dv-ai-tools__save-btn {
   display: flex;
