@@ -76,6 +76,7 @@ export {
   fireMetaPixelEvent,
   generateAnonymousId,
   getSessionDuration,
+  getSchedulerUrl,
   trackAILatency,
   getLatencyLog,
 } from "./utils/tracking";

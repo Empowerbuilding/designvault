@@ -678,6 +678,50 @@ html, body {
   }
 }
 
+/* Detail — scheduler button */
+.dv-detail__scheduler-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--dv-brand), color-mix(in srgb, var(--dv-brand) 70%, #000));
+  transition: filter 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.dv-detail__scheduler-btn:hover {
+  filter: brightness(1.15);
+}
+
+.dv-detail__scheduler-btn--desktop {
+  position: fixed;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  padding: 14px 24px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  writing-mode: horizontal-tb;
+}
+
+.dv-detail__scheduler-btn--desktop:hover {
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.5);
+}
+
+.dv-detail__scheduler-btn--mobile {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--dv-radius);
+  font-size: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
 /* Detail — hero image */
 .dv-detail-hero {
   position: relative;

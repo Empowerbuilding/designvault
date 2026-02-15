@@ -140,6 +140,7 @@ export interface DesignVaultConfig {
   enableStyleSwap?: boolean;
   enableFavorites?: boolean;
   enableSimilarPlans?: boolean;
+  schedulerUrl?: string;
   attribution?: {
     show: boolean;
     text: string;

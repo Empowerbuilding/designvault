@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Home, Bath, Square, Check } from "lucide-react";
+import { X, Home, Bath, Square, Check, ArrowRight } from "lucide-react";
 import { AIToolsPanel } from "./AIToolsPanel";
 import { ImageLightbox } from "./ImageLightbox";
 import { SimilarPlans } from "./SimilarPlans";
 import { useSession } from "../hooks/useSession";
+import { getSchedulerUrl } from "../utils/tracking";
 import type { PlanDetailProps } from "../types";
 
 export const PlanDetail: React.FC<PlanDetailProps> = ({
@@ -127,6 +128,11 @@ if (plan.interior_urls) {
     [onPlanSwitch, setCurrentPlan]
   );
 
+  const handleSchedulerClick = useCallback(() => {
+    if (!config.schedulerUrl) return;
+    window.open(getSchedulerUrl(config.schedulerUrl), "_blank", "noopener");
+  }, [config.schedulerUrl]);
+
   const isMobile =
     typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -158,6 +164,34 @@ if (plan.interior_urls) {
             >
               <X size={24} />
             </button>
+
+            {/* Scheduler button — mobile: full-width top */}
+            {config.schedulerUrl && isMobile && (
+              <motion.button
+                className="dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile"
+                onClick={handleSchedulerClick}
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.3, ease: "easeOut" }}
+              >
+                Customize This Design
+                <ArrowRight size={18} />
+              </motion.button>
+            )}
+
+            {/* Scheduler button — desktop: fixed right-center pill */}
+            {config.schedulerUrl && !isMobile && (
+              <motion.button
+                className="dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop"
+                onClick={handleSchedulerClick}
+                initial={{ x: 40, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.35, ease: "easeOut" }}
+              >
+                Customize This Design
+                <ArrowRight size={18} />
+              </motion.button>
+            )}
 
             {/* Hero image */}
             <div className="dv-detail-hero">

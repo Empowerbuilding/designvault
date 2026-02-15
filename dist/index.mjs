@@ -1117,6 +1117,29 @@ function trackEvent(endpoint, eventData) {
   }).catch(() => {
   });
 }
+function getCookie(name) {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+function getSchedulerUrl(baseUrl) {
+  if (typeof window === "undefined") return baseUrl;
+  const url = new URL(baseUrl);
+  const params = new URLSearchParams(window.location.search);
+  const fbclid = params.get("fbclid") || (() => {
+    try {
+      return localStorage.getItem("fbclid");
+    } catch {
+      return null;
+    }
+  })();
+  if (fbclid) url.searchParams.set("fbclid", fbclid);
+  const fbp = getCookie("_fbp");
+  if (fbp) url.searchParams.set("fbp", fbp);
+  const fbc = getCookie("_fbc");
+  if (fbc) url.searchParams.set("fbc", fbc);
+  return url.toString();
+}
 var latencyLog = [];
 function trackAILatency(type, startTime, endTime) {
   const entry = {
@@ -2088,6 +2111,10 @@ var PlanDetail = ({
     },
     [onPlanSwitch, setCurrentPlan]
   );
+  const handleSchedulerClick = useCallback(() => {
+    if (!config.schedulerUrl) return;
+    window.open(getSchedulerUrl(config.schedulerUrl), "_blank", "noopener");
+  }, [config.schedulerUrl]);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsx(
     motion.div,
@@ -2116,6 +2143,34 @@ var PlanDetail = ({
                 onClick: onClose,
                 "aria-label": "Close",
                 children: /* @__PURE__ */ jsx(X, { size: 24 })
+              }
+            ),
+            config.schedulerUrl && isMobile && /* @__PURE__ */ jsxs(
+              motion.button,
+              {
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile",
+                onClick: handleSchedulerClick,
+                initial: { y: -20, opacity: 0 },
+                animate: { y: 0, opacity: 1 },
+                transition: { delay: 0.3, duration: 0.3, ease: "easeOut" },
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsx(ArrowRight, { size: 18 })
+                ]
+              }
+            ),
+            config.schedulerUrl && !isMobile && /* @__PURE__ */ jsxs(
+              motion.button,
+              {
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop",
+                onClick: handleSchedulerClick,
+                initial: { x: 40, opacity: 0 },
+                animate: { x: 0, opacity: 1 },
+                transition: { delay: 0.5, duration: 0.35, ease: "easeOut" },
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsx(ArrowRight, { size: 18 })
+                ]
               }
             ),
             /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero", children: [
@@ -2359,6 +2414,6 @@ var DesignVault = ({
   ) });
 };
 
-export { AIToolsPanel, ArchiveGrid, CategoryTiles, DEFAULT_STYLE_PRESETS, DesignVault, DesignVaultAPI, DesignVaultContext, DesignVaultProvider, FavoriteButton, FeaturedRow, FilterBar, FloorPlanEditor, LeadCaptureModal, PlanCard, PlanDetail, SimilarPlans, StyleSwapButtons, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
+export { AIToolsPanel, ArchiveGrid, CategoryTiles, DEFAULT_STYLE_PRESETS, DesignVault, DesignVaultAPI, DesignVaultContext, DesignVaultProvider, FavoriteButton, FeaturedRow, FilterBar, FloorPlanEditor, LeadCaptureModal, PlanCard, PlanDetail, SimilarPlans, StyleSwapButtons, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSchedulerUrl, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

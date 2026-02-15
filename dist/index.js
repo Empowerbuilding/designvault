@@ -1125,6 +1125,29 @@ function trackEvent(endpoint, eventData) {
   }).catch(() => {
   });
 }
+function getCookie(name) {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+function getSchedulerUrl(baseUrl) {
+  if (typeof window === "undefined") return baseUrl;
+  const url = new URL(baseUrl);
+  const params = new URLSearchParams(window.location.search);
+  const fbclid = params.get("fbclid") || (() => {
+    try {
+      return localStorage.getItem("fbclid");
+    } catch {
+      return null;
+    }
+  })();
+  if (fbclid) url.searchParams.set("fbclid", fbclid);
+  const fbp = getCookie("_fbp");
+  if (fbp) url.searchParams.set("fbp", fbp);
+  const fbc = getCookie("_fbc");
+  if (fbc) url.searchParams.set("fbc", fbc);
+  return url.toString();
+}
 var latencyLog = [];
 function trackAILatency(type, startTime, endTime) {
   const entry = {
@@ -2096,6 +2119,10 @@ var PlanDetail = ({
     },
     [onPlanSwitch, setCurrentPlan]
   );
+  const handleSchedulerClick = React.useCallback(() => {
+    if (!config.schedulerUrl) return;
+    window.open(getSchedulerUrl(config.schedulerUrl), "_blank", "noopener");
+  }, [config.schedulerUrl]);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsx(
     framerMotion.motion.div,
@@ -2124,6 +2151,34 @@ var PlanDetail = ({
                 onClick: onClose,
                 "aria-label": "Close",
                 children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 24 })
+              }
+            ),
+            config.schedulerUrl && isMobile && /* @__PURE__ */ jsxRuntime.jsxs(
+              framerMotion.motion.button,
+              {
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile",
+                onClick: handleSchedulerClick,
+                initial: { y: -20, opacity: 0 },
+                animate: { y: 0, opacity: 1 },
+                transition: { delay: 0.3, duration: 0.3, ease: "easeOut" },
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
+                ]
+              }
+            ),
+            config.schedulerUrl && !isMobile && /* @__PURE__ */ jsxRuntime.jsxs(
+              framerMotion.motion.button,
+              {
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop",
+                onClick: handleSchedulerClick,
+                initial: { x: 40, opacity: 0 },
+                animate: { x: 0, opacity: 1 },
+                transition: { delay: 0.5, duration: 0.35, ease: "easeOut" },
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
+                ]
               }
             ),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero", children: [
@@ -2388,6 +2443,7 @@ exports.default = DesignVault;
 exports.fireMetaPixelEvent = fireMetaPixelEvent;
 exports.generateAnonymousId = generateAnonymousId;
 exports.getLatencyLog = getLatencyLog;
+exports.getSchedulerUrl = getSchedulerUrl;
 exports.getSessionDuration = getSessionDuration;
 exports.trackAIInteraction = trackAIInteraction;
 exports.trackAILatency = trackAILatency;

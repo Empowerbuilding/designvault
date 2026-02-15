@@ -97,6 +97,7 @@ interface DesignVaultConfig {
     enableStyleSwap?: boolean;
     enableFavorites?: boolean;
     enableSimilarPlans?: boolean;
+    schedulerUrl?: string;
     attribution?: {
         show: boolean;
         text: string;
@@ -363,6 +364,7 @@ declare function fireMetaPixelEvent(pixelId: string, eventName: string, params?:
 declare function generateAnonymousId(): string;
 declare function getSessionDuration(startTime: number): number;
 declare function trackEvent(endpoint: string, eventData: Record<string, unknown>): void;
+declare function getSchedulerUrl(baseUrl: string): string;
 interface LatencyEntry {
     type: "style_swap" | "floor_plan_edit" | "enhance_prompt";
     durationMs: number;
@@ -372,4 +374,4 @@ declare function trackAILatency(type: LatencyEntry["type"], startTime: number, e
 /** Returns the collected latency entries (for debugging / analytics) */
 declare function getLatencyLog(): readonly LatencyEntry[];
 
-export { type AIInteractionResult, AIToolsPanel, type AIToolsPanelProps, ArchiveGrid, type ArchiveGridProps, CategoryTiles, type CategoryTilesProps, DEFAULT_STYLE_PRESETS, type DesignSession, DesignVault, DesignVaultAPI, type DesignVaultConfig, DesignVaultContext, type DesignVaultContextValue, type DesignVaultProps, DesignVaultProvider, type DesignVaultProviderProps, FavoriteButton, type FavoriteButtonProps, FeaturedRow, type FeaturedRowProps, FilterBar, type FilterBarProps, type FloorPlan, type FloorPlanCategory, FloorPlanEditor, type FloorPlanEditorProps, type FloorPlanStyle, type LeadCaptureData, LeadCaptureModal, type LeadCaptureModalProps, type Modification, PlanCard, type PlanCardProps, PlanDetail, type PlanDetailProps, type PlanFilters, type PriceTier, SimilarPlans, type SimilarPlansProps, type StylePreset, StyleSwapButtons, type StyleSwapButtonsProps, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };
+export { type AIInteractionResult, AIToolsPanel, type AIToolsPanelProps, ArchiveGrid, type ArchiveGridProps, CategoryTiles, type CategoryTilesProps, DEFAULT_STYLE_PRESETS, type DesignSession, DesignVault, DesignVaultAPI, type DesignVaultConfig, DesignVaultContext, type DesignVaultContextValue, type DesignVaultProps, DesignVaultProvider, type DesignVaultProviderProps, FavoriteButton, type FavoriteButtonProps, FeaturedRow, type FeaturedRowProps, FilterBar, type FilterBarProps, type FloorPlan, type FloorPlanCategory, FloorPlanEditor, type FloorPlanEditorProps, type FloorPlanStyle, type LeadCaptureData, LeadCaptureModal, type LeadCaptureModalProps, type Modification, PlanCard, type PlanCardProps, PlanDetail, type PlanDetailProps, type PlanFilters, type PriceTier, SimilarPlans, type SimilarPlansProps, type StylePreset, StyleSwapButtons, type StyleSwapButtonsProps, DesignVault as default, fireMetaPixelEvent, generateAnonymousId, getLatencyLog, getSchedulerUrl, getSessionDuration, trackAIInteraction, trackAILatency, trackEvent, trackLeadCapture, trackPageView, trackPlanView, useAIInteractions, useDesignVaultContext, useFavorites, useLeadCapture, usePlans, useSession };

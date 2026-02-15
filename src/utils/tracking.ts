@@ -179,6 +179,36 @@ export function trackEvent(
   });
 }
 
+// ── Scheduler URL ───────────────────────────────────────────
+
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+export function getSchedulerUrl(baseUrl: string): string {
+  if (typeof window === "undefined") return baseUrl;
+
+  const url = new URL(baseUrl);
+  const params = new URLSearchParams(window.location.search);
+
+  // fbclid from URL params or localStorage
+  const fbclid = params.get("fbclid") || (() => {
+    try { return localStorage.getItem("fbclid"); } catch { return null; }
+  })();
+  if (fbclid) url.searchParams.set("fbclid", fbclid);
+
+  // _fbp and _fbc from cookies
+  const fbp = getCookie("_fbp");
+  if (fbp) url.searchParams.set("fbp", fbp);
+
+  const fbc = getCookie("_fbc");
+  if (fbc) url.searchParams.set("fbc", fbc);
+
+  return url.toString();
+}
+
 // ── Performance Tracking ────────────────────────────────────
 
 interface LatencyEntry {
