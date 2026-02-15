@@ -251,6 +251,7 @@ declare class DesignVaultAPI {
     createSession(planId: string, builderSlug: string, anonymousId: string): Promise<{
         sessionId: string;
     }>;
+    private friendlyError;
     private get;
     private post;
 }

@@ -119,19 +119,22 @@ export class DesignVaultAPI {
 
   // ── Internal helpers ─────────────────────────────────────────
 
+  private friendlyError(status: number): string {
+    if (status === 429) return "Too many requests — please wait a moment and try again.";
+    if (status === 403) return "Access denied. Save your design to unlock more AI features.";
+    if (status === 404) return "This design could not be found. Please try another.";
+    if (status >= 500) return "Our servers are busy — please try again in a few seconds.";
+    return "Something went wrong. Please try again.";
+  }
+
   private async get<T>(url: string): Promise<T> {
     try {
       const res = await fetch(url);
-      if (!res.ok) {
-        const body = await res.text();
-        throw new Error(
-          `GET ${url} failed (${res.status}): ${body}`
-        );
-      }
+      if (!res.ok) throw new Error(this.friendlyError(res.status));
       return (await res.json()) as T;
     } catch (err) {
       if (err instanceof Error) throw err;
-      throw new Error(`GET ${url} failed: ${String(err)}`);
+      throw new Error("Unable to connect. Please check your internet and try again.");
     }
   }
 
@@ -142,19 +145,14 @@ export class DesignVaultAPI {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(
-          `POST ${url} failed (${res.status}): ${text}`
-        );
-      }
+      if (!res.ok) throw new Error(this.friendlyError(res.status));
       // Some endpoints (trackClick) may return 204 with no body
       const text = await res.text();
       if (!text) return undefined as T;
       return JSON.parse(text) as T;
     } catch (err) {
       if (err instanceof Error) throw err;
-      throw new Error(`POST ${url} failed: ${String(err)}`);
+      throw new Error("Unable to connect. Please check your internet and try again.");
     }
   }
 }

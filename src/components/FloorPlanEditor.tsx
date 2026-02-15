@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Plus, Sparkles, Check, X, Loader2 } from "lucide-react";
+import { Plus, Sparkles, Check, X, Loader2, Search } from "lucide-react";
+import { ImageLightbox } from "./ImageLightbox";
 import type { FloorPlanEditorProps } from "../types";
 
 export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
@@ -15,6 +16,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
   isProcessing,
 }) => {
   const [input, setInput] = useState("");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const handleAdd = () => {
     const text = input.trim();
@@ -37,11 +39,22 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
       {/* Floor plan image with before/after toggle */}
       {displayUrl && (
         <div className="dv-wishlist__preview">
-          <img
-            src={displayUrl}
-            alt={hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan"}
-            className="dv-wishlist__preview-img"
-          />
+          <div
+            className="dv-wishlist__preview-clickable"
+            onClick={() => setLightboxOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter") setLightboxOpen(true); }}
+          >
+            <img
+              src={displayUrl}
+              alt={hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan"}
+              className="dv-wishlist__preview-img"
+            />
+            <div className="dv-wishlist__preview-zoom">
+              <Search size={16} />
+            </div>
+          </div>
           {hasFloorPlanResult && (
             <div className="dv-wishlist__compare">
               <button
@@ -128,6 +141,12 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
           </p>
         </div>
       )}
+      <ImageLightbox
+        src={displayUrl}
+        alt="Floor plan"
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 };

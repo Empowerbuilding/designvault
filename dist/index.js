@@ -84,19 +84,21 @@ var DesignVaultAPI = class {
     );
   }
   // ── Internal helpers ─────────────────────────────────────────
+  friendlyError(status) {
+    if (status === 429) return "Too many requests \u2014 please wait a moment and try again.";
+    if (status === 403) return "Access denied. Save your design to unlock more AI features.";
+    if (status === 404) return "This design could not be found. Please try another.";
+    if (status >= 500) return "Our servers are busy \u2014 please try again in a few seconds.";
+    return "Something went wrong. Please try again.";
+  }
   async get(url) {
     try {
       const res = await fetch(url);
-      if (!res.ok) {
-        const body = await res.text();
-        throw new Error(
-          `GET ${url} failed (${res.status}): ${body}`
-        );
-      }
+      if (!res.ok) throw new Error(this.friendlyError(res.status));
       return await res.json();
     } catch (err) {
       if (err instanceof Error) throw err;
-      throw new Error(`GET ${url} failed: ${String(err)}`);
+      throw new Error("Unable to connect. Please check your internet and try again.");
     }
   }
   async post(url, body) {
@@ -106,18 +108,13 @@ var DesignVaultAPI = class {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
-      if (!res.ok) {
-        const text2 = await res.text();
-        throw new Error(
-          `POST ${url} failed (${res.status}): ${text2}`
-        );
-      }
+      if (!res.ok) throw new Error(this.friendlyError(res.status));
       const text = await res.text();
       if (!text) return void 0;
       return JSON.parse(text);
     } catch (err) {
       if (err instanceof Error) throw err;
-      throw new Error(`POST ${url} failed: ${String(err)}`);
+      throw new Error("Unable to connect. Please check your internet and try again.");
     }
   }
 };
@@ -811,6 +808,241 @@ var StyleSwapButtons = ({
     }) })
   ] });
 };
+var MIN_SCALE = 1;
+var MAX_SCALE = 4;
+var ZOOM_STEP = 0.5;
+var ImageLightbox = ({
+  src,
+  alt,
+  isOpen,
+  onClose
+}) => {
+  const [scale, setScale] = React.useState(1);
+  const [translate, setTranslate] = React.useState({ x: 0, y: 0 });
+  const dragging = React.useRef(false);
+  const lastPos = React.useRef({ x: 0, y: 0 });
+  const lastPinchDist = React.useRef(null);
+  const imgRef = React.useRef(null);
+  React.useEffect(() => {
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+  }, [isOpen, src]);
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isOpen, onClose]);
+  const clampTranslate = React.useCallback(
+    (x, y, s) => {
+      if (s <= 1) return { x: 0, y: 0 };
+      const img = imgRef.current;
+      if (!img) return { x, y };
+      const rect = img.getBoundingClientRect();
+      const imgW = rect.width / s;
+      const imgH = rect.height / s;
+      const maxX = (s - 1) * imgW / 2;
+      const maxY = (s - 1) * imgH / 2;
+      return {
+        x: Math.max(-maxX, Math.min(maxX, x)),
+        y: Math.max(-maxY, Math.min(maxY, y))
+      };
+    },
+    []
+  );
+  const handleWheel = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      setScale((prev) => {
+        const next = Math.max(MIN_SCALE, Math.min(MAX_SCALE, prev - e.deltaY * 2e-3));
+        if (next <= 1) setTranslate({ x: 0, y: 0 });
+        return next;
+      });
+    },
+    []
+  );
+  const handleDoubleClick = React.useCallback(
+    (e) => {
+      e.stopPropagation();
+      if (scale > 1) {
+        setScale(1);
+        setTranslate({ x: 0, y: 0 });
+      } else {
+        setScale(2.5);
+      }
+    },
+    [scale]
+  );
+  const handleMouseDown = React.useCallback(
+    (e) => {
+      if (scale <= 1) return;
+      e.preventDefault();
+      dragging.current = true;
+      lastPos.current = { x: e.clientX, y: e.clientY };
+    },
+    [scale]
+  );
+  const handleMouseMove = React.useCallback(
+    (e) => {
+      if (!dragging.current) return;
+      const dx = e.clientX - lastPos.current.x;
+      const dy = e.clientY - lastPos.current.y;
+      lastPos.current = { x: e.clientX, y: e.clientY };
+      setTranslate((prev) => clampTranslate(prev.x + dx, prev.y + dy, scale));
+    },
+    [scale, clampTranslate]
+  );
+  const handleMouseUp = React.useCallback(() => {
+    dragging.current = false;
+  }, []);
+  const handleTouchStart = React.useCallback(
+    (e) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        lastPinchDist.current = Math.hypot(dx, dy);
+      } else if (e.touches.length === 1 && scale > 1) {
+        dragging.current = true;
+        lastPos.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY
+        };
+      }
+    },
+    [scale]
+  );
+  const handleTouchMove = React.useCallback(
+    (e) => {
+      if (e.touches.length === 2 && lastPinchDist.current !== null) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        const delta = dist / lastPinchDist.current;
+        lastPinchDist.current = dist;
+        setScale((prev) => {
+          const next = Math.max(MIN_SCALE, Math.min(MAX_SCALE, prev * delta));
+          if (next <= 1) setTranslate({ x: 0, y: 0 });
+          return next;
+        });
+      } else if (e.touches.length === 1 && dragging.current) {
+        const dx = e.touches[0].clientX - lastPos.current.x;
+        const dy = e.touches[0].clientY - lastPos.current.y;
+        lastPos.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY
+        };
+        setTranslate((prev) => clampTranslate(prev.x + dx, prev.y + dy, scale));
+      }
+    },
+    [scale, clampTranslate]
+  );
+  const handleTouchEnd = React.useCallback(() => {
+    dragging.current = false;
+    lastPinchDist.current = null;
+  }, []);
+  const zoomIn = React.useCallback(
+    (e) => {
+      e.stopPropagation();
+      setScale((prev) => Math.min(MAX_SCALE, prev + ZOOM_STEP));
+    },
+    []
+  );
+  const zoomOut = React.useCallback(
+    (e) => {
+      e.stopPropagation();
+      setScale((prev) => {
+        const next = Math.max(MIN_SCALE, prev - ZOOM_STEP);
+        if (next <= 1) setTranslate({ x: 0, y: 0 });
+        return next;
+      });
+    },
+    []
+  );
+  const handleOverlayClick = React.useCallback(
+    (e) => {
+      if (scale <= 1 && e.target === e.currentTarget) onClose();
+    },
+    [scale, onClose]
+  );
+  return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsxs(
+    framerMotion.motion.div,
+    {
+      className: "dv-lightbox-overlay",
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: { duration: 0.2 },
+      onClick: handleOverlayClick,
+      onMouseMove: handleMouseMove,
+      onMouseUp: handleMouseUp,
+      onMouseLeave: handleMouseUp,
+      children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            className: "dv-lightbox-overlay__close",
+            onClick: (e) => {
+              e.stopPropagation();
+              onClose();
+            },
+            "aria-label": "Close",
+            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 24 })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lightbox-overlay__controls", children: [
+          /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              className: "dv-lightbox-overlay__zoom-btn",
+              onClick: zoomOut,
+              disabled: scale <= MIN_SCALE,
+              "aria-label": "Zoom out",
+              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ZoomOut, { size: 18 })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "dv-lightbox-overlay__zoom-level", children: [
+            Math.round(scale * 100),
+            "%"
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              className: "dv-lightbox-overlay__zoom-btn",
+              onClick: zoomIn,
+              disabled: scale >= MAX_SCALE,
+              "aria-label": "Zoom in",
+              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ZoomIn, { size: 18 })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "img",
+          {
+            ref: imgRef,
+            className: "dv-lightbox-overlay__img",
+            src,
+            alt,
+            draggable: false,
+            style: {
+              transform: `scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`,
+              cursor: scale > 1 ? "grab" : "zoom-in",
+              transition: dragging.current ? "none" : "transform 0.15s ease"
+            },
+            onClick: handleDoubleClick,
+            onMouseDown: handleMouseDown,
+            onTouchStart: handleTouchStart,
+            onTouchMove: handleTouchMove,
+            onTouchEnd: handleTouchEnd,
+            onWheel: handleWheel
+          }
+        )
+      ]
+    }
+  ) });
+};
 var FloorPlanEditor = ({
   floorPlanUrl,
   originalFloorPlanUrl,
@@ -824,6 +1056,7 @@ var FloorPlanEditor = ({
   isProcessing
 }) => {
   const [input, setInput] = React.useState("");
+  const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const handleAdd = () => {
     const text = input.trim();
     if (!text) return;
@@ -839,12 +1072,27 @@ var FloorPlanEditor = ({
   const displayUrl = showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist", children: [
     displayUrl && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__preview", children: [
-      /* @__PURE__ */ jsxRuntime.jsx(
-        "img",
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        "div",
         {
-          src: displayUrl,
-          alt: hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan",
-          className: "dv-wishlist__preview-img"
+          className: "dv-wishlist__preview-clickable",
+          onClick: () => setLightboxOpen(true),
+          role: "button",
+          tabIndex: 0,
+          onKeyDown: (e) => {
+            if (e.key === "Enter") setLightboxOpen(true);
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "img",
+              {
+                src: displayUrl,
+                alt: hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan",
+                className: "dv-wishlist__preview-img"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-wishlist__preview-zoom", children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Search, { size: 16 }) })
+          ]
         }
       ),
       hasFloorPlanResult && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-wishlist__compare", children: [
@@ -921,7 +1169,16 @@ var FloorPlanEditor = ({
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-wishlist__ai-disclaimer", children: "Results are AI-generated and may not be exact" })
-    ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      ImageLightbox,
+      {
+        src: displayUrl,
+        alt: "Floor plan",
+        isOpen: lightboxOpen,
+        onClose: () => setLightboxOpen(false)
+      }
+    )
   ] });
 };
 
@@ -1479,7 +1736,7 @@ function useAIInteractions() {
   const handleStyleSwap = React.useCallback(
     async (planId, preset, imageType, imageUrl) => {
       if (interactionCount >= hardLimit) {
-        setError("Interaction limit reached");
+        setError("You've used all available customizations for this session.");
         return null;
       }
       setIsStyleSwapProcessing(true);
@@ -1525,7 +1782,7 @@ function useAIInteractions() {
   const handleFloorPlanEdit = React.useCallback(
     async (planId, prompt, currentUrl) => {
       if (interactionCount >= hardLimit) {
-        setError("Interaction limit reached");
+        setError("You've used all available customizations for this session.");
         return null;
       }
       setIsFloorPlanProcessing(true);
@@ -1767,52 +2024,6 @@ var AIToolsPanel = ({
       }
     )
   ] });
-};
-var ImageLightbox = ({
-  src,
-  alt,
-  isOpen,
-  onClose
-}) => {
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
-  return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsxs(
-    framerMotion.motion.div,
-    {
-      className: "dv-lightbox-overlay",
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      exit: { opacity: 0 },
-      transition: { duration: 0.2 },
-      onClick: onClose,
-      children: [
-        /* @__PURE__ */ jsxRuntime.jsx(
-          "button",
-          {
-            className: "dv-lightbox-overlay__close",
-            onClick: onClose,
-            "aria-label": "Close",
-            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 24 })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntime.jsx(
-          "img",
-          {
-            className: "dv-lightbox-overlay__img",
-            src,
-            alt,
-            onClick: (e) => e.stopPropagation()
-          }
-        )
-      ]
-    }
-  ) });
 };
 function scoreSimilarity(a, b) {
   let score = 0;

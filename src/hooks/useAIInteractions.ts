@@ -36,7 +36,7 @@ export function useAIInteractions() {
       imageUrl?: string
     ): Promise<AIInteractionResult | null> => {
       if (interactionCount >= hardLimit) {
-        setError("Interaction limit reached");
+        setError("You've used all available customizations for this session.");
         return null;
       }
 
@@ -91,7 +91,7 @@ export function useAIInteractions() {
       currentUrl?: string
     ): Promise<AIInteractionResult | null> => {
       if (interactionCount >= hardLimit) {
-        setError("Interaction limit reached");
+        setError("You've used all available customizations for this session.");
         return null;
       }
 
