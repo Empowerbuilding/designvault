@@ -167,30 +167,38 @@ if (plan.interior_urls) {
 
             {/* Scheduler button — mobile: full-width top */}
             {config.schedulerUrl && isMobile && (
-              <motion.button
-                className="dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile"
-                onClick={handleSchedulerClick}
+              <motion.div
+                className="dv-detail__scheduler-wrap dv-detail__scheduler-wrap--mobile"
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.3, ease: "easeOut" }}
               >
-                Customize This Design
-                <ArrowRight size={18} />
-              </motion.button>
+                <button
+                  className="dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile"
+                  onClick={handleSchedulerClick}
+                >
+                  Customize This Design
+                  <ArrowRight size={18} />
+                </button>
+              </motion.div>
             )}
 
             {/* Scheduler button — desktop: fixed right-center pill */}
             {config.schedulerUrl && !isMobile && (
-              <motion.button
-                className="dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop"
-                onClick={handleSchedulerClick}
+              <motion.div
+                className="dv-detail__scheduler-wrap dv-detail__scheduler-wrap--desktop"
                 initial={{ x: 40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.35, ease: "easeOut" }}
               >
-                Customize This Design
-                <ArrowRight size={18} />
-              </motion.button>
+                <button
+                  className="dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop"
+                  onClick={handleSchedulerClick}
+                >
+                  Customize This Design
+                  <ArrowRight size={18} />
+                </button>
+              </motion.div>
             )}
 
             {/* Hero image */}
