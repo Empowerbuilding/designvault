@@ -2169,44 +2169,32 @@ var PlanDetail = ({
                 children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 24 })
               }
             ),
-            config.schedulerUrl && isMobile && /* @__PURE__ */ jsxRuntime.jsx(
-              framerMotion.motion.div,
+            config.schedulerUrl && isMobile && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail__scheduler-row", children: /* @__PURE__ */ jsxRuntime.jsxs(
+              framerMotion.motion.button,
               {
-                className: "dv-detail__scheduler-wrap dv-detail__scheduler-wrap--mobile",
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile",
+                onClick: handleSchedulerClick,
                 initial: { y: -20, opacity: 0 },
                 animate: { y: 0, opacity: 1 },
                 transition: { delay: 0.3, duration: 0.3, ease: "easeOut" },
-                children: /* @__PURE__ */ jsxRuntime.jsxs(
-                  "button",
-                  {
-                    className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile",
-                    onClick: handleSchedulerClick,
-                    children: [
-                      "Customize This Design",
-                      /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
-                    ]
-                  }
-                )
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
+                ]
               }
-            ),
-            config.schedulerUrl && !isMobile && /* @__PURE__ */ jsxRuntime.jsx(
-              framerMotion.motion.div,
+            ) }),
+            config.schedulerUrl && !isMobile && /* @__PURE__ */ jsxRuntime.jsxs(
+              framerMotion.motion.button,
               {
-                className: "dv-detail__scheduler-wrap dv-detail__scheduler-wrap--desktop",
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop",
+                onClick: handleSchedulerClick,
                 initial: { x: 40, opacity: 0 },
                 animate: { x: 0, opacity: 1 },
                 transition: { delay: 0.5, duration: 0.35, ease: "easeOut" },
-                children: /* @__PURE__ */ jsxRuntime.jsxs(
-                  "button",
-                  {
-                    className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop",
-                    onClick: handleSchedulerClick,
-                    children: [
-                      "Customize This Design",
-                      /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
-                    ]
-                  }
-                )
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
+                ]
               }
             ),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero", children: [

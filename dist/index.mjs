@@ -2161,44 +2161,32 @@ var PlanDetail = ({
                 children: /* @__PURE__ */ jsx(X, { size: 24 })
               }
             ),
-            config.schedulerUrl && isMobile && /* @__PURE__ */ jsx(
-              motion.div,
+            config.schedulerUrl && isMobile && /* @__PURE__ */ jsx("div", { className: "dv-detail__scheduler-row", children: /* @__PURE__ */ jsxs(
+              motion.button,
               {
-                className: "dv-detail__scheduler-wrap dv-detail__scheduler-wrap--mobile",
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile",
+                onClick: handleSchedulerClick,
                 initial: { y: -20, opacity: 0 },
                 animate: { y: 0, opacity: 1 },
                 transition: { delay: 0.3, duration: 0.3, ease: "easeOut" },
-                children: /* @__PURE__ */ jsxs(
-                  "button",
-                  {
-                    className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--mobile",
-                    onClick: handleSchedulerClick,
-                    children: [
-                      "Customize This Design",
-                      /* @__PURE__ */ jsx(ArrowRight, { size: 18 })
-                    ]
-                  }
-                )
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsx(ArrowRight, { size: 18 })
+                ]
               }
-            ),
-            config.schedulerUrl && !isMobile && /* @__PURE__ */ jsx(
-              motion.div,
+            ) }),
+            config.schedulerUrl && !isMobile && /* @__PURE__ */ jsxs(
+              motion.button,
               {
-                className: "dv-detail__scheduler-wrap dv-detail__scheduler-wrap--desktop",
+                className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop",
+                onClick: handleSchedulerClick,
                 initial: { x: 40, opacity: 0 },
                 animate: { x: 0, opacity: 1 },
                 transition: { delay: 0.5, duration: 0.35, ease: "easeOut" },
-                children: /* @__PURE__ */ jsxs(
-                  "button",
-                  {
-                    className: "dv-detail__scheduler-btn dv-detail__scheduler-btn--desktop",
-                    onClick: handleSchedulerClick,
-                    children: [
-                      "Customize This Design",
-                      /* @__PURE__ */ jsx(ArrowRight, { size: 18 })
-                    ]
-                  }
-                )
+                children: [
+                  "Customize This Design",
+                  /* @__PURE__ */ jsx(ArrowRight, { size: 18 })
+                ]
               }
             ),
             /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero", children: [
