@@ -168,14 +168,14 @@ html, body {
   border-radius: var(--dv-radius);
   border: 1px solid var(--dv-border);
   background: linear-gradient(145deg, #2a2a2a 0%, #1e1e1e 100%);
-  color: var(--dv-text-dim);
+  color: var(--dv-text);
   cursor: pointer;
   transition: border-color var(--dv-transition), transform var(--dv-transition),
     box-shadow var(--dv-transition), color var(--dv-transition);
 }
 
 .dv-category-tile:hover {
-  border-color: var(--dv-text-muted);
+  border-color: var(--dv-brand);
   transform: translateY(-2px);
   color: var(--dv-text);
 }
@@ -233,7 +233,7 @@ html, body {
 .dv-filter-bar__select {
   appearance: none;
   padding: 8px 32px 8px 12px;
-  border: 1px solid var(--dv-border);
+  border: 1px solid #4a4a4a;
   border-radius: var(--dv-radius-sm);
   background: var(--dv-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
   color: var(--dv-text);
@@ -244,7 +244,7 @@ html, body {
 }
 
 .dv-filter-bar__select:hover {
-  border-color: var(--dv-text-muted);
+  border-color: #666666;
 }
 
 .dv-filter-bar__select:focus {
@@ -774,7 +774,15 @@ html, body {
   font-size: 12px;
   font-weight: 600;
   color: var(--dv-text-dim);
-  transition: background var(--dv-transition), color var(--dv-transition);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background var(--dv-transition), color var(--dv-transition),
+    border-color var(--dv-transition);
+}
+
+.dv-detail-hero__compare-btn:hover {
+  border-color: var(--dv-brand);
+  color: var(--dv-text);
 }
 
 .dv-detail-hero__compare-btn--active {
@@ -949,9 +957,9 @@ html, body {
   width: 100%;
   padding: 14px 16px;
   border-radius: var(--dv-radius-sm);
-  border: 2px solid var(--dv-brand);
-  background: transparent;
-  color: var(--dv-brand-light);
+  border: none;
+  background: linear-gradient(to right, #B8860B, #966F09);
+  color: #ffffff;
   font-size: 15px;
   font-weight: 700;
   font-family: inherit;
@@ -960,8 +968,8 @@ html, body {
 }
 
 .dv-ai-tools__save-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--dv-brand), var(--dv-brand-light));
-  color: #000;
+  background: linear-gradient(to right, #966F09, #8B5A00);
+  color: #ffffff;
   box-shadow: 0 4px 20px var(--dv-brand-dim);
   transform: translateY(-1px);
 }
@@ -978,7 +986,7 @@ html, body {
 /* Callout box */
 .dv-ai-tools__callout {
   font-size: 12px;
-  color: var(--dv-text-muted);
+  color: var(--dv-text-dim);
   text-align: center;
   padding: 10px 12px;
   background: var(--dv-brand-dim);
@@ -1018,7 +1026,7 @@ html, body {
 .dv-ai-tools__section-label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--dv-text-muted);
+  color: var(--dv-brand-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1034,7 +1042,7 @@ html, body {
 .dv-style-swap__label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--dv-text-muted);
+  color: var(--dv-brand-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1052,9 +1060,9 @@ html, body {
   gap: 6px;
   padding: 10px 8px;
   border-radius: var(--dv-radius-sm);
-  border: 1px solid var(--dv-border);
-  background: rgba(184, 134, 11, 0.08);
-  color: var(--dv-text-dim);
+  border: 1px solid rgba(184, 134, 11, 0.25);
+  background: rgba(184, 134, 11, 0.12);
+  color: var(--dv-text);
   font-size: 13px;
   font-family: inherit;
   transition: transform var(--dv-transition), background var(--dv-transition),
@@ -1064,7 +1072,7 @@ html, body {
 .dv-style-swap__btn:hover:not(:disabled) {
   transform: scale(1.03);
   border-color: var(--dv-brand);
-  background: rgba(184, 134, 11, 0.15);
+  background: rgba(184, 134, 11, 0.25);
   color: var(--dv-text);
 }
 
@@ -1111,7 +1119,7 @@ html, body {
 .dv-wishlist__label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--dv-text-muted);
+  color: var(--dv-brand-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1210,7 +1218,7 @@ html, body {
   opacity: 0.5;
 }
 
-/* Add to Wishlist button — gold outline, not filled */
+/* Add to Wishlist button — gold outline */
 .dv-wishlist__add-btn {
   display: flex;
   align-items: center;
@@ -1219,17 +1227,19 @@ html, body {
   width: 100%;
   padding: 9px 14px;
   border-radius: var(--dv-radius-sm);
-  border: 1px solid var(--dv-brand);
-  background: transparent;
+  border: 1px solid rgba(184, 134, 11, 0.4);
+  background: rgba(184, 134, 11, 0.1);
   color: var(--dv-brand-light);
   font-size: 13px;
   font-weight: 600;
   font-family: inherit;
-  transition: background var(--dv-transition), color var(--dv-transition);
+  transition: background var(--dv-transition), color var(--dv-transition),
+    border-color var(--dv-transition);
 }
 
 .dv-wishlist__add-btn:hover:not(:disabled) {
   background: var(--dv-brand-dim);
+  border-color: var(--dv-brand);
 }
 
 .dv-wishlist__add-btn:disabled {
@@ -1303,17 +1313,19 @@ html, body {
   gap: 5px;
   padding: 7px 14px;
   border-radius: var(--dv-radius-sm);
-  border: 1px solid var(--dv-border);
-  background: transparent;
-  color: var(--dv-text-muted);
+  border: 1px solid rgba(184, 134, 11, 0.3);
+  background: rgba(184, 134, 11, 0.08);
+  color: var(--dv-text-dim);
   font-size: 12px;
   font-family: inherit;
-  transition: border-color var(--dv-transition), color var(--dv-transition);
+  transition: border-color var(--dv-transition), color var(--dv-transition),
+    background var(--dv-transition);
 }
 
 .dv-wishlist__ai-btn:hover:not(:disabled) {
   border-color: var(--dv-brand);
   color: var(--dv-brand-light);
+  background: rgba(184, 134, 11, 0.15);
 }
 
 .dv-wishlist__ai-btn:disabled {
