@@ -18,11 +18,10 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
   const { setCurrentPlan } = useSession();
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const [heroUrl, setHeroUrl] = useState(plan.image_url);
-  const [originalUrl, setOriginalUrl] = useState(plan.image_url);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [aiResults, setAiResults] = useState<Record<string, string>>({});
   const [showOriginal, setShowOriginal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [hasAiResult, setHasAiResult] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   // Floor plan AI result state (separate from hero/exterior)
@@ -44,13 +43,18 @@ if (plan.interior_urls) {
     return thumbs;
   }, [plan]);
 
+  // Derived values for the active image
+  const currentOriginalUrl = thumbnails[activeIndex]?.url ?? plan.image_url;
+  const currentAiUrl = aiResults[currentOriginalUrl];
+  const hasAiResult = !!currentAiUrl;
+  const displayUrl = showOriginal ? currentOriginalUrl : (currentAiUrl ?? currentOriginalUrl);
+
   // Track plan view on open
   useEffect(() => {
     if (isOpen) {
       setCurrentPlan(plan);
-      setHeroUrl(plan.image_url);
-      setOriginalUrl(plan.image_url);
-      setHasAiResult(false);
+      setActiveIndex(0);
+      setAiResults({});
       setShowOriginal(false);
       setFloorPlanUrl(plan.floor_plan_url ?? "");
       setOriginalFloorPlanUrl(plan.floor_plan_url ?? "");
@@ -93,9 +97,10 @@ if (plan.interior_urls) {
         setHasFloorPlanResult(true);
         setShowOriginalFloorPlan(false);
       } else {
-        setHeroUrl(result.newUrl);
-        setOriginalUrl(result.originalUrl);
-        setHasAiResult(true);
+        setAiResults((prev) => ({
+          ...prev,
+          [result.originalUrl]: result.newUrl,
+        }));
         setShowOriginal(false);
       }
     },
@@ -108,9 +113,8 @@ if (plan.interior_urls) {
         onPlanSwitch(newPlan);
       } else {
         setCurrentPlan(newPlan);
-        setHeroUrl(newPlan.image_url);
-        setOriginalUrl(newPlan.image_url);
-        setHasAiResult(false);
+        setActiveIndex(0);
+        setAiResults({});
         setShowOriginal(false);
         setFloorPlanUrl(newPlan.floor_plan_url ?? "");
         setOriginalFloorPlanUrl(newPlan.floor_plan_url ?? "");
@@ -121,7 +125,6 @@ if (plan.interior_urls) {
     [onPlanSwitch, setCurrentPlan]
   );
 
-  const displayUrl = showOriginal ? originalUrl : heroUrl;
   const isMobile =
     typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -222,18 +225,16 @@ if (plan.interior_urls) {
               {thumbnails.length > 1 && (
                 <div className="dv-detail-body__thumbs">
                   <div className="dv-detail-thumbs">
-                    {thumbnails.map((thumb) => (
+                    {thumbnails.map((thumb, index) => (
                       <button
                         key={thumb.url}
                         className={`dv-detail-thumbs__item ${
-                          heroUrl === thumb.url && !hasAiResult
+                          activeIndex === index
                             ? "dv-detail-thumbs__item--active"
                             : ""
                         }`}
                         onClick={() => {
-                          setHeroUrl(thumb.url);
-                          setOriginalUrl(thumb.url);
-                          setHasAiResult(false);
+                          setActiveIndex(index);
                           setShowOriginal(false);
                         }}
                       >
@@ -253,6 +254,7 @@ if (plan.interior_urls) {
                   plan={plan}
                   config={config}
                   heroUrl={displayUrl}
+                  originalHeroUrl={currentOriginalUrl}
                   floorPlanUrl={showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl}
                   originalFloorPlanUrl={originalFloorPlanUrl}
                   hasFloorPlanResult={hasFloorPlanResult}

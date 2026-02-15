@@ -11,6 +11,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
   plan,
   config,
   heroUrl,
+  originalHeroUrl,
   floorPlanUrl,
   originalFloorPlanUrl,
   hasFloorPlanResult,
@@ -61,12 +62,12 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       if (result?.success && result.resultUrl) {
         onResult({
           newUrl: result.resultUrl,
-          originalUrl: plan.image_url,
+          originalUrl: originalHeroUrl,
           type: "style_swap",
         });
       }
     },
-    [needsCapture, handleStyleSwap, plan.id, plan.image_url, onResult]
+    [needsCapture, handleStyleSwap, plan.id, originalHeroUrl, onResult]
   );
 
   // ── Wishlist ────────────────────────────────────────────────

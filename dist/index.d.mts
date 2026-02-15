@@ -128,6 +128,7 @@ interface AIToolsPanelProps {
     plan: FloorPlan;
     config: DesignVaultConfig;
     heroUrl: string;
+    originalHeroUrl: string;
     floorPlanUrl: string;
     originalFloorPlanUrl: string;
     hasFloorPlanResult: boolean;

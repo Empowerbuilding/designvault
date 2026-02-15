@@ -1593,6 +1593,7 @@ var AIToolsPanel = ({
   plan,
   config,
   heroUrl,
+  originalHeroUrl,
   floorPlanUrl,
   originalFloorPlanUrl,
   hasFloorPlanResult,
@@ -1631,12 +1632,12 @@ var AIToolsPanel = ({
       if (result?.success && result.resultUrl) {
         onResult({
           newUrl: result.resultUrl,
-          originalUrl: plan.image_url,
+          originalUrl: originalHeroUrl,
           type: "style_swap"
         });
       }
     },
-    [needsCapture, handleStyleSwap, plan.id, plan.image_url, onResult]
+    [needsCapture, handleStyleSwap, plan.id, originalHeroUrl, onResult]
   );
   const onWishlistAdd = React.useCallback(
     (text) => {
@@ -1963,11 +1964,10 @@ var PlanDetail = ({
 }) => {
   const { setCurrentPlan } = useSession();
   const panelRef = React.useRef(null);
-  const [heroUrl, setHeroUrl] = React.useState(plan.image_url);
-  const [originalUrl, setOriginalUrl] = React.useState(plan.image_url);
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [aiResults, setAiResults] = React.useState({});
   const [showOriginal, setShowOriginal] = React.useState(false);
   const [isProcessing, setIsProcessing] = React.useState(false);
-  const [hasAiResult, setHasAiResult] = React.useState(false);
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const [floorPlanUrl, setFloorPlanUrl] = React.useState(plan.floor_plan_url ?? "");
   const [originalFloorPlanUrl, setOriginalFloorPlanUrl] = React.useState(plan.floor_plan_url ?? "");
@@ -1984,12 +1984,15 @@ var PlanDetail = ({
     }
     return thumbs;
   }, [plan]);
+  const currentOriginalUrl = thumbnails[activeIndex]?.url ?? plan.image_url;
+  const currentAiUrl = aiResults[currentOriginalUrl];
+  const hasAiResult = !!currentAiUrl;
+  const displayUrl = showOriginal ? currentOriginalUrl : currentAiUrl ?? currentOriginalUrl;
   React.useEffect(() => {
     if (isOpen) {
       setCurrentPlan(plan);
-      setHeroUrl(plan.image_url);
-      setOriginalUrl(plan.image_url);
-      setHasAiResult(false);
+      setActiveIndex(0);
+      setAiResults({});
       setShowOriginal(false);
       setFloorPlanUrl(plan.floor_plan_url ?? "");
       setOriginalFloorPlanUrl(plan.floor_plan_url ?? "");
@@ -2023,9 +2026,10 @@ var PlanDetail = ({
         setHasFloorPlanResult(true);
         setShowOriginalFloorPlan(false);
       } else {
-        setHeroUrl(result.newUrl);
-        setOriginalUrl(result.originalUrl);
-        setHasAiResult(true);
+        setAiResults((prev) => ({
+          ...prev,
+          [result.originalUrl]: result.newUrl
+        }));
         setShowOriginal(false);
       }
     },
@@ -2037,9 +2041,8 @@ var PlanDetail = ({
         onPlanSwitch(newPlan);
       } else {
         setCurrentPlan(newPlan);
-        setHeroUrl(newPlan.image_url);
-        setOriginalUrl(newPlan.image_url);
-        setHasAiResult(false);
+        setActiveIndex(0);
+        setAiResults({});
         setShowOriginal(false);
         setFloorPlanUrl(newPlan.floor_plan_url ?? "");
         setOriginalFloorPlanUrl(newPlan.floor_plan_url ?? "");
@@ -2049,7 +2052,6 @@ var PlanDetail = ({
     },
     [onPlanSwitch, setCurrentPlan]
   );
-  const displayUrl = showOriginal ? originalUrl : heroUrl;
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsx(
     framerMotion.motion.div,
@@ -2138,14 +2140,12 @@ var PlanDetail = ({
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-body", children: [
-              thumbnails.length > 1 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-body__thumbs", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-thumbs", children: thumbnails.map((thumb) => /* @__PURE__ */ jsxRuntime.jsxs(
+              thumbnails.length > 1 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-body__thumbs", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-thumbs", children: thumbnails.map((thumb, index) => /* @__PURE__ */ jsxRuntime.jsxs(
                 "button",
                 {
-                  className: `dv-detail-thumbs__item ${heroUrl === thumb.url && !hasAiResult ? "dv-detail-thumbs__item--active" : ""}`,
+                  className: `dv-detail-thumbs__item ${activeIndex === index ? "dv-detail-thumbs__item--active" : ""}`,
                   onClick: () => {
-                    setHeroUrl(thumb.url);
-                    setOriginalUrl(thumb.url);
-                    setHasAiResult(false);
+                    setActiveIndex(index);
                     setShowOriginal(false);
                   },
                   children: [
@@ -2161,6 +2161,7 @@ var PlanDetail = ({
                   plan,
                   config,
                   heroUrl: displayUrl,
+                  originalHeroUrl: currentOriginalUrl,
                   floorPlanUrl: showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl,
                   originalFloorPlanUrl,
                   hasFloorPlanResult,
