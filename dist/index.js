@@ -816,6 +816,7 @@ var ImageLightbox = ({
 }) => {
   const scrollRef = React.useRef(null);
   const imgRef = React.useRef(null);
+  const lastTouchRef = React.useRef(null);
   React.useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => {
@@ -844,6 +845,32 @@ var ImageLightbox = ({
       behavior: "instant"
     });
   };
+  const handleTouchStart = React.useCallback((e) => {
+    if (e.touches.length === 1) {
+      lastTouchRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+    } else {
+      lastTouchRef.current = null;
+    }
+  }, []);
+  const handleTouchMove = React.useCallback((e) => {
+    if (e.touches.length !== 1 || !lastTouchRef.current) return;
+    const container = scrollRef.current;
+    if (!container) return;
+    const touch = e.touches[0];
+    const deltaX = lastTouchRef.current.x - touch.clientX;
+    const deltaY = lastTouchRef.current.y - touch.clientY;
+    container.scrollBy(deltaX, deltaY);
+    lastTouchRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
+    };
+  }, []);
+  const handleTouchEnd = React.useCallback(() => {
+    lastTouchRef.current = null;
+  }, []);
   return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsxs(
     framerMotion.motion.div,
     {
@@ -862,17 +889,27 @@ var ImageLightbox = ({
             children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 24 })
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-lightbox-scroll", ref: scrollRef, children: /* @__PURE__ */ jsxRuntime.jsx(
-          "img",
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "div",
           {
-            ref: imgRef,
-            className: "dv-lightbox-scroll__img",
-            src,
-            alt,
-            draggable: false,
-            onLoad: handleImageLoad
+            className: "dv-lightbox-scroll",
+            ref: scrollRef,
+            onTouchStart: handleTouchStart,
+            onTouchMove: handleTouchMove,
+            onTouchEnd: handleTouchEnd,
+            children: /* @__PURE__ */ jsxRuntime.jsx(
+              "img",
+              {
+                ref: imgRef,
+                className: "dv-lightbox-scroll__img",
+                src,
+                alt,
+                draggable: false,
+                onLoad: handleImageLoad
+              }
+            )
           }
-        ) })
+        )
       ]
     }
   ) });

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -17,6 +17,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const lastTouchRef = useRef<{ x: number; y: number } | null>(null);
 
   // Escape key closes
   useEffect(() => {
@@ -44,7 +45,6 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
     const img = imgRef.current;
     if (!container || !img) return;
 
-    // Center the image in the scrollable area
     const scrollLeft = (img.offsetWidth - container.clientWidth) / 2;
     const scrollTop = (img.offsetHeight - container.clientHeight) / 2;
     container.scrollTo({
@@ -53,6 +53,42 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
       behavior: "instant",
     });
   };
+
+  // ── Single-finger pan via JS (touch-action: pinch-zoom gives us control) ──
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      lastTouchRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+    } else {
+      lastTouchRef.current = null;
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length !== 1 || !lastTouchRef.current) return;
+
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const touch = e.touches[0];
+    const deltaX = lastTouchRef.current.x - touch.clientX;
+    const deltaY = lastTouchRef.current.y - touch.clientY;
+
+    // Let the native scroll container handle bounds naturally
+    container.scrollBy(deltaX, deltaY);
+
+    lastTouchRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+    };
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    lastTouchRef.current = null;
+  }, []);
 
   return (
     <AnimatePresence>
@@ -73,8 +109,14 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
             <X size={24} />
           </button>
 
-          {/* Scrollable container — native scroll handles pan */}
-          <div className="dv-lightbox-scroll" ref={scrollRef}>
+          {/* Scrollable container — JS handles single-finger pan */}
+          <div
+            className="dv-lightbox-scroll"
+            ref={scrollRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <img
               ref={imgRef}
               className="dv-lightbox-scroll__img"

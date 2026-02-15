@@ -808,6 +808,7 @@ var ImageLightbox = ({
 }) => {
   const scrollRef = useRef(null);
   const imgRef = useRef(null);
+  const lastTouchRef = useRef(null);
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => {
@@ -836,6 +837,32 @@ var ImageLightbox = ({
       behavior: "instant"
     });
   };
+  const handleTouchStart = useCallback((e) => {
+    if (e.touches.length === 1) {
+      lastTouchRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+    } else {
+      lastTouchRef.current = null;
+    }
+  }, []);
+  const handleTouchMove = useCallback((e) => {
+    if (e.touches.length !== 1 || !lastTouchRef.current) return;
+    const container = scrollRef.current;
+    if (!container) return;
+    const touch = e.touches[0];
+    const deltaX = lastTouchRef.current.x - touch.clientX;
+    const deltaY = lastTouchRef.current.y - touch.clientY;
+    container.scrollBy(deltaX, deltaY);
+    lastTouchRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
+    };
+  }, []);
+  const handleTouchEnd = useCallback(() => {
+    lastTouchRef.current = null;
+  }, []);
   return /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxs(
     motion.div,
     {
@@ -854,17 +881,27 @@ var ImageLightbox = ({
             children: /* @__PURE__ */ jsx(X, { size: 24 })
           }
         ),
-        /* @__PURE__ */ jsx("div", { className: "dv-lightbox-scroll", ref: scrollRef, children: /* @__PURE__ */ jsx(
-          "img",
+        /* @__PURE__ */ jsx(
+          "div",
           {
-            ref: imgRef,
-            className: "dv-lightbox-scroll__img",
-            src,
-            alt,
-            draggable: false,
-            onLoad: handleImageLoad
+            className: "dv-lightbox-scroll",
+            ref: scrollRef,
+            onTouchStart: handleTouchStart,
+            onTouchMove: handleTouchMove,
+            onTouchEnd: handleTouchEnd,
+            children: /* @__PURE__ */ jsx(
+              "img",
+              {
+                ref: imgRef,
+                className: "dv-lightbox-scroll__img",
+                src,
+                alt,
+                draggable: false,
+                onLoad: handleImageLoad
+              }
+            )
           }
-        ) })
+        )
       ]
     }
   ) });
