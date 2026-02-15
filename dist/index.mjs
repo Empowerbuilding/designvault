@@ -857,10 +857,12 @@ var ImageLightbox = ({
       const img = imgRef.current;
       if (!img) return { x, y };
       const rect = img.getBoundingClientRect();
-      const imgW = rect.width / s;
-      const imgH = rect.height / s;
-      const maxX = (s - 1) * imgW / 2;
-      const maxY = (s - 1) * imgH / 2;
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+      const overflowX = Math.max(0, (rect.width - viewW) / 2 / s);
+      const overflowY = Math.max(0, (rect.height - viewH) / 2 / s);
+      const maxX = Math.max(overflowX, (s - 1) * rect.width / s / 2);
+      const maxY = Math.max(overflowY, (s - 1) * rect.height / s / 2);
       return {
         x: Math.max(-maxX, Math.min(maxX, x)),
         y: Math.max(-maxY, Math.min(maxY, y))
@@ -969,6 +971,7 @@ var ImageLightbox = ({
           return next;
         });
       } else if (e.touches.length === 1 && dragging.current) {
+        e.preventDefault();
         const dx = e.touches[0].clientX - lastPos.current.x;
         const dy = e.touches[0].clientY - lastPos.current.y;
         didDrag.current = true;
@@ -1059,6 +1062,7 @@ var ImageLightbox = ({
       animate: { opacity: 1 },
       exit: { opacity: 0 },
       transition: { duration: 0.2 },
+      style: { touchAction: scale > 1 ? "none" : "manipulation" },
       onClick: handleOverlayClick,
       onMouseMove: handleMouseMove,
       onMouseUp: handleMouseUp,
@@ -1127,7 +1131,8 @@ var ImageLightbox = ({
             style: {
               transform: `scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`,
               cursor: scale > 1 ? dragging.current ? "grabbing" : "grab" : "default",
-              transition: dragging.current ? "none" : "transform 0.15s ease"
+              transition: dragging.current ? "none" : "transform 0.15s ease",
+              touchAction: scale > 1 ? "none" : "manipulation"
             },
             onClick: handleImgClick,
             onDoubleClick: handleDoubleClick,
