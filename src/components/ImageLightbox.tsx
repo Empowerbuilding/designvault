@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -15,9 +15,25 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   isOpen,
   onClose,
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+
+  // Transform state
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+
+  // Touch tracking refs
   const lastTouchRef = useRef<{ x: number; y: number } | null>(null);
+  const lastPinchDistRef = useRef<number | null>(null);
+  const lastPinchCenterRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Reset on open/close
+  useEffect(() => {
+    if (isOpen) {
+      setScale(1);
+      setTranslate({ x: 0, y: 0 });
+    }
+  }, [isOpen]);
 
   // Escape key closes
   useEffect(() => {
@@ -39,22 +55,55 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
     };
   }, [isOpen]);
 
-  // Center scroll position when image loads
-  const handleImageLoad = () => {
-    const container = scrollRef.current;
-    const img = imgRef.current;
-    if (!container || !img) return;
+  // Clamp translate so image edges don't go past viewport center
+  const clampTranslate = useCallback(
+    (tx: number, ty: number, s: number) => {
+      const img = imgRef.current;
+      const container = containerRef.current;
+      if (!img || !container) return { x: tx, y: ty };
 
-    const scrollLeft = (img.offsetWidth - container.clientWidth) / 2;
-    const scrollTop = (img.offsetHeight - container.clientHeight) / 2;
-    container.scrollTo({
-      left: Math.max(0, scrollLeft),
-      top: Math.max(0, scrollTop),
-      behavior: "instant",
-    });
+      const imgW = img.naturalWidth || img.offsetWidth;
+      const imgH = img.naturalHeight || img.offsetHeight;
+      const cW = container.clientWidth;
+      const cH = container.clientHeight;
+
+      // Compute displayed image size (object-fit: contain)
+      const imgAspect = imgW / imgH;
+      const cAspect = cW / cH;
+      let displayW: number, displayH: number;
+      if (imgAspect > cAspect) {
+        displayW = cW;
+        displayH = cW / imgAspect;
+      } else {
+        displayH = cH;
+        displayW = cH * imgAspect;
+      }
+
+      const scaledW = displayW * s;
+      const scaledH = displayH * s;
+
+      const maxX = Math.max(0, (scaledW - cW) / 2);
+      const maxY = Math.max(0, (scaledH - cH) / 2);
+
+      return {
+        x: Math.min(maxX, Math.max(-maxX, tx)),
+        y: Math.min(maxY, Math.max(-maxY, ty)),
+      };
+    },
+    []
+  );
+
+  // Get distance between two touches
+  const getTouchDist = (t1: React.Touch, t2: React.Touch) => {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
   };
 
-  // ── Single-finger pan via JS (touch-action: pinch-zoom gives us control) ──
+  const getTouchCenter = (t1: React.Touch, t2: React.Touch) => ({
+    x: (t1.clientX + t2.clientX) / 2,
+    y: (t1.clientY + t2.clientY) / 2,
+  });
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 1) {
@@ -62,33 +111,95 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
       };
-    } else {
+      lastPinchDistRef.current = null;
+      lastPinchCenterRef.current = null;
+    } else if (e.touches.length === 2) {
       lastTouchRef.current = null;
+      lastPinchDistRef.current = getTouchDist(e.touches[0], e.touches[1]);
+      lastPinchCenterRef.current = getTouchCenter(e.touches[0], e.touches[1]);
     }
   }, []);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length !== 1 || !lastTouchRef.current) return;
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
 
-    const container = scrollRef.current;
-    if (!container) return;
+      if (e.touches.length === 2) {
+        // Pinch zoom
+        const dist = getTouchDist(e.touches[0], e.touches[1]);
+        const center = getTouchCenter(e.touches[0], e.touches[1]);
 
-    const touch = e.touches[0];
-    const deltaX = lastTouchRef.current.x - touch.clientX;
-    const deltaY = lastTouchRef.current.y - touch.clientY;
+        if (lastPinchDistRef.current != null) {
+          const ratio = dist / lastPinchDistRef.current;
+          setScale((prev) => {
+            const next = Math.min(5, Math.max(1, prev * ratio));
+            // If zooming back to 1, reset translate
+            if (next <= 1) {
+              setTranslate({ x: 0, y: 0 });
+            }
+            return next;
+          });
+        }
 
-    // Let the native scroll container handle bounds naturally
-    container.scrollBy(deltaX, deltaY);
+        if (lastPinchCenterRef.current != null) {
+          const dx = center.x - lastPinchCenterRef.current.x;
+          const dy = center.y - lastPinchCenterRef.current.y;
+          setTranslate((prev) =>
+            clampTranslate(prev.x + dx, prev.y + dy, scale)
+          );
+        }
 
-    lastTouchRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-    };
-  }, []);
+        lastPinchDistRef.current = dist;
+        lastPinchCenterRef.current = center;
+      } else if (e.touches.length === 1 && scale > 1) {
+        // Single-finger pan (only when zoomed)
+        if (lastTouchRef.current) {
+          const dx = e.touches[0].clientX - lastTouchRef.current.x;
+          const dy = e.touches[0].clientY - lastTouchRef.current.y;
+          setTranslate((prev) =>
+            clampTranslate(prev.x + dx, prev.y + dy, scale)
+          );
+        }
+        lastTouchRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+      }
+    },
+    [scale, clampTranslate]
+  );
 
-  const handleTouchEnd = useCallback(() => {
-    lastTouchRef.current = null;
-  }, []);
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 0) {
+        lastTouchRef.current = null;
+        lastPinchDistRef.current = null;
+        lastPinchCenterRef.current = null;
+
+        // Snap back to 1x if close
+        if (scale < 1.1) {
+          setScale(1);
+          setTranslate({ x: 0, y: 0 });
+        }
+      } else if (e.touches.length === 1) {
+        // Went from pinch to single finger — start panning
+        lastTouchRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+        lastPinchDistRef.current = null;
+        lastPinchCenterRef.current = null;
+      }
+    },
+    [scale]
+  );
+
+  // Tap to close (only when not zoomed)
+  const handleClick = useCallback(() => {
+    if (scale <= 1.1) {
+      onClose();
+    }
+  }, [scale, onClose]);
 
   return (
     <AnimatePresence>
@@ -109,13 +220,15 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
             <X size={24} />
           </button>
 
-          {/* Scrollable container — JS handles single-finger pan */}
+          {/* Image container — JS handles pinch zoom + single-finger pan */}
           <div
             className="dv-lightbox-scroll"
-            ref={scrollRef}
+            ref={containerRef}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onClick={handleClick}
+            style={{ touchAction: "none" }}
           >
             <img
               ref={imgRef}
@@ -123,7 +236,10 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
               src={src}
               alt={alt}
               draggable={false}
-              onLoad={handleImageLoad}
+              style={{
+                transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
+                transition: scale <= 1 ? "transform 0.2s ease" : "none",
+              }}
             />
           </div>
         </motion.div>

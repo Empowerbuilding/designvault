@@ -806,9 +806,19 @@ var ImageLightbox = ({
   isOpen,
   onClose
 }) => {
-  const scrollRef = useRef(null);
+  const containerRef = useRef(null);
   const imgRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
   const lastTouchRef = useRef(null);
+  const lastPinchDistRef = useRef(null);
+  const lastPinchCenterRef = useRef(null);
+  useEffect(() => {
+    if (isOpen) {
+      setScale(1);
+      setTranslate({ x: 0, y: 0 });
+    }
+  }, [isOpen]);
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => {
@@ -825,44 +835,126 @@ var ImageLightbox = ({
       document.body.style.overflow = "";
     };
   }, [isOpen]);
-  const handleImageLoad = () => {
-    const container = scrollRef.current;
-    const img = imgRef.current;
-    if (!container || !img) return;
-    const scrollLeft = (img.offsetWidth - container.clientWidth) / 2;
-    const scrollTop = (img.offsetHeight - container.clientHeight) / 2;
-    container.scrollTo({
-      left: Math.max(0, scrollLeft),
-      top: Math.max(0, scrollTop),
-      behavior: "instant"
-    });
+  const clampTranslate = useCallback(
+    (tx, ty, s) => {
+      const img = imgRef.current;
+      const container = containerRef.current;
+      if (!img || !container) return { x: tx, y: ty };
+      const imgW = img.naturalWidth || img.offsetWidth;
+      const imgH = img.naturalHeight || img.offsetHeight;
+      const cW = container.clientWidth;
+      const cH = container.clientHeight;
+      const imgAspect = imgW / imgH;
+      const cAspect = cW / cH;
+      let displayW, displayH;
+      if (imgAspect > cAspect) {
+        displayW = cW;
+        displayH = cW / imgAspect;
+      } else {
+        displayH = cH;
+        displayW = cH * imgAspect;
+      }
+      const scaledW = displayW * s;
+      const scaledH = displayH * s;
+      const maxX = Math.max(0, (scaledW - cW) / 2);
+      const maxY = Math.max(0, (scaledH - cH) / 2);
+      return {
+        x: Math.min(maxX, Math.max(-maxX, tx)),
+        y: Math.min(maxY, Math.max(-maxY, ty))
+      };
+    },
+    []
+  );
+  const getTouchDist = (t1, t2) => {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
   };
+  const getTouchCenter = (t1, t2) => ({
+    x: (t1.clientX + t2.clientX) / 2,
+    y: (t1.clientY + t2.clientY) / 2
+  });
   const handleTouchStart = useCallback((e) => {
     if (e.touches.length === 1) {
       lastTouchRef.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY
       };
-    } else {
+      lastPinchDistRef.current = null;
+      lastPinchCenterRef.current = null;
+    } else if (e.touches.length === 2) {
       lastTouchRef.current = null;
+      lastPinchDistRef.current = getTouchDist(e.touches[0], e.touches[1]);
+      lastPinchCenterRef.current = getTouchCenter(e.touches[0], e.touches[1]);
     }
   }, []);
-  const handleTouchMove = useCallback((e) => {
-    if (e.touches.length !== 1 || !lastTouchRef.current) return;
-    const container = scrollRef.current;
-    if (!container) return;
-    const touch = e.touches[0];
-    const deltaX = lastTouchRef.current.x - touch.clientX;
-    const deltaY = lastTouchRef.current.y - touch.clientY;
-    container.scrollBy(deltaX, deltaY);
-    lastTouchRef.current = {
-      x: touch.clientX,
-      y: touch.clientY
-    };
-  }, []);
-  const handleTouchEnd = useCallback(() => {
-    lastTouchRef.current = null;
-  }, []);
+  const handleTouchMove = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (e.touches.length === 2) {
+        const dist = getTouchDist(e.touches[0], e.touches[1]);
+        const center = getTouchCenter(e.touches[0], e.touches[1]);
+        if (lastPinchDistRef.current != null) {
+          const ratio = dist / lastPinchDistRef.current;
+          setScale((prev) => {
+            const next = Math.min(5, Math.max(1, prev * ratio));
+            if (next <= 1) {
+              setTranslate({ x: 0, y: 0 });
+            }
+            return next;
+          });
+        }
+        if (lastPinchCenterRef.current != null) {
+          const dx = center.x - lastPinchCenterRef.current.x;
+          const dy = center.y - lastPinchCenterRef.current.y;
+          setTranslate(
+            (prev) => clampTranslate(prev.x + dx, prev.y + dy, scale)
+          );
+        }
+        lastPinchDistRef.current = dist;
+        lastPinchCenterRef.current = center;
+      } else if (e.touches.length === 1 && scale > 1) {
+        if (lastTouchRef.current) {
+          const dx = e.touches[0].clientX - lastTouchRef.current.x;
+          const dy = e.touches[0].clientY - lastTouchRef.current.y;
+          setTranslate(
+            (prev) => clampTranslate(prev.x + dx, prev.y + dy, scale)
+          );
+        }
+        lastTouchRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY
+        };
+      }
+    },
+    [scale, clampTranslate]
+  );
+  const handleTouchEnd = useCallback(
+    (e) => {
+      if (e.touches.length === 0) {
+        lastTouchRef.current = null;
+        lastPinchDistRef.current = null;
+        lastPinchCenterRef.current = null;
+        if (scale < 1.1) {
+          setScale(1);
+          setTranslate({ x: 0, y: 0 });
+        }
+      } else if (e.touches.length === 1) {
+        lastTouchRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY
+        };
+        lastPinchDistRef.current = null;
+        lastPinchCenterRef.current = null;
+      }
+    },
+    [scale]
+  );
+  const handleClick = useCallback(() => {
+    if (scale <= 1.1) {
+      onClose();
+    }
+  }, [scale, onClose]);
   return /* @__PURE__ */ jsx(AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxs(
     motion.div,
     {
@@ -885,10 +977,12 @@ var ImageLightbox = ({
           "div",
           {
             className: "dv-lightbox-scroll",
-            ref: scrollRef,
+            ref: containerRef,
             onTouchStart: handleTouchStart,
             onTouchMove: handleTouchMove,
             onTouchEnd: handleTouchEnd,
+            onClick: handleClick,
+            style: { touchAction: "none" },
             children: /* @__PURE__ */ jsx(
               "img",
               {
@@ -897,7 +991,10 @@ var ImageLightbox = ({
                 src,
                 alt,
                 draggable: false,
-                onLoad: handleImageLoad
+                style: {
+                  transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
+                  transition: scale <= 1 ? "transform 0.2s ease" : "none"
+                }
               }
             )
           }
