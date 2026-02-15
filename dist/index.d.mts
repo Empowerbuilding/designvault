@@ -129,6 +129,7 @@ interface AIToolsPanelProps {
     config: DesignVaultConfig;
     heroUrl: string;
     originalHeroUrl: string;
+    imageType: "exterior" | "interior";
     floorPlanUrl: string;
     originalFloorPlanUrl: string;
     hasFloorPlanResult: boolean;
@@ -239,7 +240,7 @@ declare class DesignVaultAPI {
     getPlans(filters?: PlanFilters): Promise<FloorPlan[]>;
     getPlan(id: string): Promise<FloorPlan>;
     trackClick(planId: string): Promise<void>;
-    styleSwap(planId: string, preset: string, sessionId: string): Promise<AIInteractionResult>;
+    styleSwap(planId: string, preset: string, sessionId: string, imageType?: "exterior" | "interior", imageUrl?: string): Promise<AIInteractionResult>;
     floorPlanEdit(planId: string, prompt: string, sessionId: string, currentUrl?: string): Promise<AIInteractionResult>;
     enhancePrompt(prompt: string, imageUrl: string): Promise<{
         enhancedPrompt: string;
@@ -301,7 +302,7 @@ declare function usePlans(initialFilters?: PlanFilters): {
 };
 
 declare function useAIInteractions(): {
-    handleStyleSwap: (planId: string, preset: string) => Promise<AIInteractionResult | null>;
+    handleStyleSwap: (planId: string, preset: string, imageType?: "exterior" | "interior", imageUrl?: string) => Promise<AIInteractionResult | null>;
     handleFloorPlanEdit: (planId: string, prompt: string, currentUrl?: string) => Promise<AIInteractionResult | null>;
     handleEnhancePrompt: (prompt: string, imageUrl: string) => Promise<string | null>;
     isProcessing: boolean;

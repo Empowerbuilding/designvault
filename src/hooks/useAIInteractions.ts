@@ -30,7 +30,9 @@ export function useAIInteractions() {
   const handleStyleSwap = useCallback(
     async (
       planId: string,
-      preset: string
+      preset: string,
+      imageType?: "exterior" | "interior",
+      imageUrl?: string
     ): Promise<AIInteractionResult | null> => {
       if (interactionCount >= hardLimit) {
         setError("Interaction limit reached");
@@ -44,7 +46,9 @@ export function useAIInteractions() {
         const result = await api.styleSwap(
           planId,
           preset,
-          effectiveSessionId
+          effectiveSessionId,
+          imageType,
+          imageUrl
         );
         setLastResult(result);
         setInteractionCount((c) => c + 1);

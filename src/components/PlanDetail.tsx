@@ -48,6 +48,8 @@ if (plan.interior_urls) {
   const currentAiUrl = aiResults[currentOriginalUrl];
   const hasAiResult = !!currentAiUrl;
   const displayUrl = showOriginal ? currentOriginalUrl : (currentAiUrl ?? currentOriginalUrl);
+  const imageType: "exterior" | "interior" =
+    thumbnails[activeIndex]?.label === "Exterior" ? "exterior" : "interior";
 
   // Track plan view on open
   useEffect(() => {
@@ -255,6 +257,7 @@ if (plan.interior_urls) {
                   config={config}
                   heroUrl={displayUrl}
                   originalHeroUrl={currentOriginalUrl}
+                  imageType={imageType}
                   floorPlanUrl={showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl}
                   originalFloorPlanUrl={originalFloorPlanUrl}
                   hasFloorPlanResult={hasFloorPlanResult}

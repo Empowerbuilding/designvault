@@ -12,6 +12,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
   config,
   heroUrl,
   originalHeroUrl,
+  imageType,
   floorPlanUrl,
   originalFloorPlanUrl,
   hasFloorPlanResult,
@@ -57,7 +58,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       }
 
       setActivePreset(presetId);
-      const result = await handleStyleSwap(plan.id, presetId);
+      const result = await handleStyleSwap(plan.id, presetId, imageType, originalHeroUrl);
 
       if (result?.success && result.resultUrl) {
         onResult({
@@ -67,7 +68,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
         });
       }
     },
-    [needsCapture, handleStyleSwap, plan.id, originalHeroUrl, onResult]
+    [needsCapture, handleStyleSwap, plan.id, imageType, originalHeroUrl, onResult]
   );
 
   // ── Wishlist ────────────────────────────────────────────────
@@ -152,7 +153,9 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
               alt="Exterior preview"
               className="dv-ai-tools__section-thumb"
             />
-            <span className="dv-ai-tools__section-label">Change Exterior Style</span>
+            <span className="dv-ai-tools__section-label">
+              {imageType === "interior" ? "Change Interior Style" : "Change Exterior Style"}
+            </span>
           </div>
           <StyleSwapButtons
             planId={plan.id}

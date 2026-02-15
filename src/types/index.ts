@@ -179,6 +179,7 @@ export interface AIToolsPanelProps {
   config: DesignVaultConfig;
   heroUrl: string;
   originalHeroUrl: string;
+  imageType: "exterior" | "interior";
   floorPlanUrl: string;
   originalFloorPlanUrl: string;
   hasFloorPlanResult: boolean;

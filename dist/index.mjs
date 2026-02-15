@@ -43,10 +43,10 @@ var DesignVaultAPI = class {
     await this.post(`${this.baseUrl}/api/plans/${planId}/click`, {});
   }
   // ── AI ───────────────────────────────────────────────────────
-  async styleSwap(planId, preset, sessionId) {
+  async styleSwap(planId, preset, sessionId, imageType, imageUrl) {
     return this.post(
       `${this.baseUrl}/api/style-swap`,
-      { planId, preset, sessionId }
+      { planId, preset, sessionId, imageType, imageUrl }
     );
   }
   async floorPlanEdit(planId, prompt, sessionId, currentUrl) {
@@ -1468,7 +1468,7 @@ function useAIInteractions() {
   const needsCapture = interactionCount >= maxFree && !isCaptured;
   const effectiveSessionId = sessionId ?? anonymousId;
   const handleStyleSwap = useCallback(
-    async (planId, preset) => {
+    async (planId, preset, imageType, imageUrl) => {
       if (interactionCount >= hardLimit) {
         setError("Interaction limit reached");
         return null;
@@ -1479,7 +1479,9 @@ function useAIInteractions() {
         const result = await api.styleSwap(
           planId,
           preset,
-          effectiveSessionId
+          effectiveSessionId,
+          imageType,
+          imageUrl
         );
         setLastResult(result);
         setInteractionCount((c) => c + 1);
@@ -1586,6 +1588,7 @@ var AIToolsPanel = ({
   config,
   heroUrl,
   originalHeroUrl,
+  imageType,
   floorPlanUrl,
   originalFloorPlanUrl,
   hasFloorPlanResult,
@@ -1620,7 +1623,7 @@ var AIToolsPanel = ({
         return;
       }
       setActivePreset(presetId);
-      const result = await handleStyleSwap(plan.id, presetId);
+      const result = await handleStyleSwap(plan.id, presetId, imageType, originalHeroUrl);
       if (result?.success && result.resultUrl) {
         onResult({
           newUrl: result.resultUrl,
@@ -1629,7 +1632,7 @@ var AIToolsPanel = ({
         });
       }
     },
-    [needsCapture, handleStyleSwap, plan.id, originalHeroUrl, onResult]
+    [needsCapture, handleStyleSwap, plan.id, imageType, originalHeroUrl, onResult]
   );
   const onWishlistAdd = useCallback(
     (text) => {
@@ -1693,7 +1696,7 @@ var AIToolsPanel = ({
             className: "dv-ai-tools__section-thumb"
           }
         ),
-        /* @__PURE__ */ jsx("span", { className: "dv-ai-tools__section-label", children: "Change Exterior Style" })
+        /* @__PURE__ */ jsx("span", { className: "dv-ai-tools__section-label", children: imageType === "interior" ? "Change Interior Style" : "Change Exterior Style" })
       ] }),
       /* @__PURE__ */ jsx(
         StyleSwapButtons,
@@ -1980,6 +1983,7 @@ var PlanDetail = ({
   const currentAiUrl = aiResults[currentOriginalUrl];
   const hasAiResult = !!currentAiUrl;
   const displayUrl = showOriginal ? currentOriginalUrl : currentAiUrl ?? currentOriginalUrl;
+  const imageType = thumbnails[activeIndex]?.label === "Exterior" ? "exterior" : "interior";
   useEffect(() => {
     if (isOpen) {
       setCurrentPlan(plan);
@@ -2154,6 +2158,7 @@ var PlanDetail = ({
                   config,
                   heroUrl: displayUrl,
                   originalHeroUrl: currentOriginalUrl,
+                  imageType,
                   floorPlanUrl: showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl,
                   originalFloorPlanUrl,
                   hasFloorPlanResult,

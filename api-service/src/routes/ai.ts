@@ -108,7 +108,7 @@ function remainingFree(
 
 router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
   try {
-    const { planId, preset, sessionId } = req.body;
+    const { planId, preset, sessionId, imageType, imageUrl } = req.body;
 
     if (!planId || !preset || !sessionId) {
       res.status(400).json({ error: "planId, preset, and sessionId required" });
@@ -161,13 +161,17 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
 
     // Call n8n webhook
     const presetPrompt = stylePresets[preset];
-    const prompt = `Restyle this exact same home, keeping the identical structure, shape, roofline, windows, and layout. Only change the exterior materials, finishes, and landscaping to match this style: ${presetPrompt}. Keep the same camera angle, perspective, and composition. Photorealistic architectural photography.`;
-    log("STYLE_SWAP_START", { planId, preset, planTitle: plan.title });
+    const isInterior = imageType === "interior";
+    const prompt = isInterior
+      ? `Restyle this exact same interior room, keeping the identical layout, furniture placement, and room dimensions. Only change the interior materials, finishes, colors, and decor to match this style: ${presetPrompt}. Keep the same camera angle, perspective, and composition. Photorealistic interior photography.`
+      : `Restyle this exact same home, keeping the identical structure, shape, roofline, windows, and layout. Only change the exterior materials, finishes, and landscaping to match this style: ${presetPrompt}. Keep the same camera angle, perspective, and composition. Photorealistic architectural photography.`;
+    const effectiveImageUrl = imageUrl || plan.image_url;
+    log("STYLE_SWAP_START", { planId, preset, imageType: imageType ?? "exterior", planTitle: plan.title });
 
     const n8nResult = await callN8nWebhook<Record<string, unknown>>(
       "78eb9ad8-765f-4a20-8823-96a2e49d5f73",
       {
-        imageUrl: plan.image_url,
+        imageUrl: effectiveImageUrl,
         prompt,
         planId,
         preset,

@@ -59,11 +59,13 @@ export class DesignVaultAPI {
   async styleSwap(
     planId: string,
     preset: string,
-    sessionId: string
+    sessionId: string,
+    imageType?: "exterior" | "interior",
+    imageUrl?: string
   ): Promise<AIInteractionResult> {
     return this.post<AIInteractionResult>(
       `${this.baseUrl}/api/style-swap`,
-      { planId, preset, sessionId }
+      { planId, preset, sessionId, imageType, imageUrl }
     );
   }
 
