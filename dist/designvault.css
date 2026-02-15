@@ -1000,6 +1000,8 @@ html, body {
 .dv-ai-tools__section-thumb {
   width: 48px;
   height: 36px;
+  max-width: 48px;
+  max-height: 36px;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid var(--dv-border);

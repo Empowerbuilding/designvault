@@ -1701,7 +1701,9 @@ var AIToolsPanel = ({
           {
             src: heroUrl,
             alt: "Exterior preview",
-            className: "dv-ai-tools__section-thumb"
+            className: "dv-ai-tools__section-thumb",
+            width: 48,
+            height: 36
           }
         ),
         /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-ai-tools__section-label", children: imageType === "interior" ? "Change Interior Style" : "Change Exterior Style" })
@@ -1719,17 +1721,7 @@ var AIToolsPanel = ({
     ] }),
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__divider" }),
     config.enableFloorPlanEdit !== false && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section", children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__section-header", children: [
-        originalFloorPlanUrl ? /* @__PURE__ */ jsxRuntime.jsx(
-          "img",
-          {
-            src: originalFloorPlanUrl,
-            alt: "Floor plan preview",
-            className: "dv-ai-tools__section-thumb"
-          }
-        ) : /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__section-thumb dv-ai-tools__section-thumb--empty" }),
-        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-ai-tools__section-label", children: "Customize Floor Plan" })
-      ] }),
+      /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__section-header", children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-ai-tools__section-label", children: "Customize Floor Plan" }) }),
       /* @__PURE__ */ jsxRuntime.jsx(
         FloorPlanEditor,
         {

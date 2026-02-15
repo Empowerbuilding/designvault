@@ -152,6 +152,8 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
               src={heroUrl}
               alt="Exterior preview"
               className="dv-ai-tools__section-thumb"
+              width={48}
+              height={36}
             />
             <span className="dv-ai-tools__section-label">
               {imageType === "interior" ? "Change Interior Style" : "Change Exterior Style"}
@@ -173,15 +175,6 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       {config.enableFloorPlanEdit !== false && (
         <div className="dv-ai-tools__section">
           <div className="dv-ai-tools__section-header">
-            {originalFloorPlanUrl ? (
-              <img
-                src={originalFloorPlanUrl}
-                alt="Floor plan preview"
-                className="dv-ai-tools__section-thumb"
-              />
-            ) : (
-              <div className="dv-ai-tools__section-thumb dv-ai-tools__section-thumb--empty" />
-            )}
             <span className="dv-ai-tools__section-label">Customize Floor Plan</span>
           </div>
           <FloorPlanEditor
