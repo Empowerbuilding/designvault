@@ -242,7 +242,8 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                     Save Your Custom Design
                   </h2>
                   <p className="dv-lead-modal__subtitle">
-                    We&rsquo;ll send you the full details for{" "}
+                    Enter your contact info to unlock more AI customizations
+                    and receive the full details for{" "}
                     <strong>{plan.title}</strong>
                   </p>
                 </div>
