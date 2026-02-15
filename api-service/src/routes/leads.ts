@@ -54,6 +54,7 @@ router.post("/", async (req: Request, res: Response) => {
       email,
       phone,
       source: "floor_plan_archive",
+      anonymous_id: session.anonymous_id ?? "",
       metadata: {
         planId: session.plan_id,
         planTitle: plan?.title ?? "",
@@ -75,9 +76,16 @@ router.post("/", async (req: Request, res: Response) => {
           webhookUrl: builder.webhookUrl,
         });
 
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (builder.webhookApiKey) {
+          headers["x-api-key"] = builder.webhookApiKey;
+        }
+
         const webhookRes = await fetch(builder.webhookUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(payload),
         });
 

@@ -53,6 +53,7 @@ export interface DesignCacheEntry {
 export interface BuilderConfig {
   name: string;
   webhookUrl: string | null;
+  webhookApiKey?: string;
   brandColor: string;
 }
 
@@ -62,6 +63,7 @@ export interface LeadPayload {
   email: string;
   phone: string;
   source: "floor_plan_archive";
+  anonymous_id: string;
   metadata: {
     planId: string;
     planTitle: string;

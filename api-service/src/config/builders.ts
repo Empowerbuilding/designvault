@@ -3,7 +3,8 @@ import type { BuilderConfig } from "../types.js";
 export const builders: Record<string, BuilderConfig> = {
   barnhaus: {
     name: "Barnhaus Steel Builders",
-    webhookUrl: null, // Barnhaus handles differently
+    webhookUrl: "https://crm.empowerbuilding.ai/api/leads/webhook",
+    webhookApiKey: process.env.BARNHAUS_WEBHOOK_API_KEY ?? "",
     brandColor: "#B8860B",
   },
   cw: {
