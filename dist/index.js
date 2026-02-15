@@ -812,7 +812,10 @@ var ImageLightbox = ({
   src,
   alt,
   isOpen,
-  onClose
+  onClose,
+  images,
+  activeIndex = 0,
+  onIndexChange
 }) => {
   const containerRef = React.useRef(null);
   const imgRef = React.useRef(null);
@@ -821,12 +824,17 @@ var ImageLightbox = ({
   const lastTouchRef = React.useRef(null);
   const lastPinchDistRef = React.useRef(null);
   const lastPinchCenterRef = React.useRef(null);
+  const swipeStartRef = React.useRef(null);
+  const swipeDeltaRef = React.useRef(0);
+  const wasPinchingRef = React.useRef(false);
+  const canSwipe = !!images && images.length > 1 && !!onIndexChange;
+  const displaySrc = images?.[activeIndex]?.url ?? src;
   React.useEffect(() => {
     if (isOpen) {
       setScale(1);
       setTranslate({ x: 0, y: 0 });
     }
-  }, [isOpen]);
+  }, [isOpen, activeIndex]);
   React.useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => {
@@ -888,10 +896,18 @@ var ImageLightbox = ({
         x: e.touches[0].clientX,
         y: e.touches[0].clientY
       };
+      swipeStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+      swipeDeltaRef.current = 0;
+      wasPinchingRef.current = false;
       lastPinchDistRef.current = null;
       lastPinchCenterRef.current = null;
     } else if (e.touches.length === 2) {
       lastTouchRef.current = null;
+      swipeStartRef.current = null;
+      wasPinchingRef.current = true;
       lastPinchDistRef.current = getTouchDist(e.touches[0], e.touches[1]);
       lastPinchCenterRef.current = getTouchCenter(e.touches[0], e.touches[1]);
     }
@@ -921,28 +937,47 @@ var ImageLightbox = ({
         }
         lastPinchDistRef.current = dist;
         lastPinchCenterRef.current = center;
-      } else if (e.touches.length === 1 && scale > 1) {
-        if (lastTouchRef.current) {
-          const dx = e.touches[0].clientX - lastTouchRef.current.x;
-          const dy = e.touches[0].clientY - lastTouchRef.current.y;
-          setTranslate(
-            (prev) => clampTranslate(prev.x + dx, prev.y + dy, scale)
-          );
+      } else if (e.touches.length === 1) {
+        if (scale > 1) {
+          if (lastTouchRef.current) {
+            const dx = e.touches[0].clientX - lastTouchRef.current.x;
+            const dy = e.touches[0].clientY - lastTouchRef.current.y;
+            setTranslate(
+              (prev) => clampTranslate(prev.x + dx, prev.y + dy, scale)
+            );
+          }
+          lastTouchRef.current = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY
+          };
+        } else if (canSwipe && swipeStartRef.current && !wasPinchingRef.current) {
+          swipeDeltaRef.current = e.touches[0].clientX - swipeStartRef.current.x;
         }
-        lastTouchRef.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY
-        };
       }
     },
-    [scale, clampTranslate]
+    [scale, clampTranslate, canSwipe]
   );
   const handleTouchEnd = React.useCallback(
     (e) => {
       if (e.touches.length === 0) {
+        if (canSwipe && scale <= 1.1 && !wasPinchingRef.current && Math.abs(swipeDeltaRef.current) > 50) {
+          if (swipeDeltaRef.current < -50 && activeIndex < images.length - 1) {
+            onIndexChange(activeIndex + 1);
+          } else if (swipeDeltaRef.current > 50 && activeIndex > 0) {
+            onIndexChange(activeIndex - 1);
+          }
+          swipeDeltaRef.current = 0;
+          swipeStartRef.current = null;
+          lastTouchRef.current = null;
+          lastPinchDistRef.current = null;
+          lastPinchCenterRef.current = null;
+          return;
+        }
         lastTouchRef.current = null;
         lastPinchDistRef.current = null;
         lastPinchCenterRef.current = null;
+        swipeStartRef.current = null;
+        swipeDeltaRef.current = 0;
         if (scale < 1.1) {
           setScale(1);
           setTranslate({ x: 0, y: 0 });
@@ -956,7 +991,7 @@ var ImageLightbox = ({
         lastPinchCenterRef.current = null;
       }
     },
-    [scale]
+    [scale, canSwipe, activeIndex, images, onIndexChange]
   );
   const handleClick = React.useCallback(() => {
     if (scale <= 1.1) {
@@ -996,7 +1031,7 @@ var ImageLightbox = ({
               {
                 ref: imgRef,
                 className: "dv-lightbox-scroll__img",
-                src,
+                src: displaySrc,
                 alt,
                 draggable: false,
                 style: {
@@ -1006,7 +1041,16 @@ var ImageLightbox = ({
               }
             )
           }
-        )
+        ),
+        canSwipe && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-lightbox-dots", children: images.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            className: `dv-lightbox-dots__dot ${i === activeIndex ? "dv-lightbox-dots__dot--active" : ""}`,
+            onClick: () => onIndexChange(i),
+            "aria-label": `Image ${i + 1}`
+          },
+          i
+        )) })
       ]
     }
   ) });
@@ -2170,6 +2214,11 @@ function useSession() {
     getSessionDuration: getSessionDuration2
   };
 }
+var heroSlideVariants = {
+  enter: (dir) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir) => ({ x: dir > 0 ? -300 : 300, opacity: 0 })
+};
 var PlanDetail = ({
   plan,
   isOpen,
@@ -2185,6 +2234,7 @@ var PlanDetail = ({
   const [showOriginal, setShowOriginal] = React.useState(false);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
+  const [swipeDirection, setSwipeDirection] = React.useState(1);
   const [floorPlanUrl, setFloorPlanUrl] = React.useState(plan.floor_plan_url ?? "");
   const [originalFloorPlanUrl, setOriginalFloorPlanUrl] = React.useState(plan.floor_plan_url ?? "");
   const [showOriginalFloorPlan, setShowOriginalFloorPlan] = React.useState(false);
@@ -2211,6 +2261,7 @@ var PlanDetail = ({
       setActiveIndex(0);
       setAiResults({});
       setShowOriginal(false);
+      setSwipeDirection(1);
       setFloorPlanUrl(plan.floor_plan_url ?? "");
       setOriginalFloorPlanUrl(plan.floor_plan_url ?? "");
       setHasFloorPlanResult(false);
@@ -2273,6 +2324,23 @@ var PlanDetail = ({
     if (!config.schedulerUrl) return;
     window.open(getSchedulerUrl(config.schedulerUrl), "_blank", "noopener");
   }, [config.schedulerUrl]);
+  const handleHeroSwipe = React.useCallback(
+    (_event, info) => {
+      const { offset, velocity } = info;
+      const swipedLeft = offset.x < -50 || velocity.x < -300;
+      const swipedRight = offset.x > 50 || velocity.x > 300;
+      if (swipedLeft && activeIndex < thumbnails.length - 1) {
+        setSwipeDirection(1);
+        setActiveIndex((prev) => prev + 1);
+        setShowOriginal(false);
+      } else if (swipedRight && activeIndex > 0) {
+        setSwipeDirection(-1);
+        setActiveIndex((prev) => prev - 1);
+        setShowOriginal(false);
+      }
+    },
+    [activeIndex, thumbnails.length]
+  );
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsx(
     framerMotion.motion.div,
@@ -2332,15 +2400,34 @@ var PlanDetail = ({
               }
             ),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero", children: [
-              /* @__PURE__ */ jsxRuntime.jsx(
-                "img",
+              /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { initial: false, mode: "popLayout", custom: swipeDirection, children: /* @__PURE__ */ jsxRuntime.jsx(
+                framerMotion.motion.div,
                 {
-                  src: displayUrl,
-                  alt: plan.title,
-                  className: "dv-detail-hero__img",
-                  onClick: () => setLightboxOpen(true)
-                }
-              ),
+                  className: "dv-detail-hero__swipe-container",
+                  drag: thumbnails.length > 1 ? "x" : false,
+                  dragConstraints: { left: 0, right: 0 },
+                  dragElastic: 0.2,
+                  onDragEnd: handleHeroSwipe,
+                  onTap: () => setLightboxOpen(true),
+                  custom: swipeDirection,
+                  initial: "enter",
+                  animate: "center",
+                  exit: "exit",
+                  variants: heroSlideVariants,
+                  transition: { duration: 0.3, ease: "easeInOut" },
+                  style: { touchAction: "pan-y" },
+                  children: /* @__PURE__ */ jsxRuntime.jsx(
+                    "img",
+                    {
+                      src: displayUrl,
+                      alt: plan.title,
+                      className: "dv-detail-hero__img",
+                      draggable: false
+                    }
+                  )
+                },
+                activeIndex
+              ) }),
               isProcessing && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-hero__processing", children: [
                 /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-hero__shimmer" }),
                 /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-detail-hero__processing-text", children: "AI is generating..." })
@@ -2386,7 +2473,20 @@ var PlanDetail = ({
                     children: "Original"
                   }
                 )
-              ] })
+              ] }),
+              thumbnails.length > 1 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-hero__dots", children: thumbnails.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(
+                "button",
+                {
+                  className: `dv-detail-hero__dot ${i === activeIndex ? "dv-detail-hero__dot--active" : ""}`,
+                  onClick: () => {
+                    setSwipeDirection(i > activeIndex ? 1 : -1);
+                    setActiveIndex(i);
+                    setShowOriginal(false);
+                  },
+                  "aria-label": `Image ${i + 1}`
+                },
+                i
+              )) })
             ] }),
             /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-detail-body", children: [
               thumbnails.length > 1 && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-body__thumbs", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-detail-thumbs", children: thumbnails.map((thumb, index) => /* @__PURE__ */ jsxRuntime.jsxs(
@@ -2394,6 +2494,7 @@ var PlanDetail = ({
                 {
                   className: `dv-detail-thumbs__item ${activeIndex === index ? "dv-detail-thumbs__item--active" : ""}`,
                   onClick: () => {
+                    setSwipeDirection(index > activeIndex ? 1 : -1);
                     setActiveIndex(index);
                     setShowOriginal(false);
                   },
@@ -2453,7 +2554,14 @@ var PlanDetail = ({
                 src: displayUrl,
                 alt: plan.title,
                 isOpen: lightboxOpen,
-                onClose: () => setLightboxOpen(false)
+                onClose: () => setLightboxOpen(false),
+                images: thumbnails,
+                activeIndex,
+                onIndexChange: (i) => {
+                  setSwipeDirection(i > activeIndex ? 1 : -1);
+                  setActiveIndex(i);
+                  setShowOriginal(false);
+                }
               }
             )
           ]

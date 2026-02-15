@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { X, Home, Bath, Square, Check, ArrowRight } from "lucide-react";
 import { AIToolsPanel } from "./AIToolsPanel";
 import { ImageLightbox } from "./ImageLightbox";
@@ -7,6 +7,12 @@ import { SimilarPlans } from "./SimilarPlans";
 import { useSession } from "../hooks/useSession";
 import { getSchedulerUrl } from "../utils/tracking";
 import type { PlanDetailProps } from "../types";
+
+const heroSlideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
+};
 
 export const PlanDetail: React.FC<PlanDetailProps> = ({
   plan,
@@ -24,6 +30,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
   const [showOriginal, setShowOriginal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState<1 | -1>(1);
 
   // Floor plan AI result state (separate from hero/exterior)
   const [floorPlanUrl, setFloorPlanUrl] = useState(plan.floor_plan_url ?? "");
@@ -59,6 +66,7 @@ if (plan.interior_urls) {
       setActiveIndex(0);
       setAiResults({});
       setShowOriginal(false);
+      setSwipeDirection(1);
       setFloorPlanUrl(plan.floor_plan_url ?? "");
       setOriginalFloorPlanUrl(plan.floor_plan_url ?? "");
       setHasFloorPlanResult(false);
@@ -133,6 +141,24 @@ if (plan.interior_urls) {
     window.open(getSchedulerUrl(config.schedulerUrl), "_blank", "noopener");
   }, [config.schedulerUrl]);
 
+  const handleHeroSwipe = useCallback(
+    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      const { offset, velocity } = info;
+      const swipedLeft = offset.x < -50 || velocity.x < -300;
+      const swipedRight = offset.x > 50 || velocity.x > 300;
+      if (swipedLeft && activeIndex < thumbnails.length - 1) {
+        setSwipeDirection(1);
+        setActiveIndex((prev) => prev + 1);
+        setShowOriginal(false);
+      } else if (swipedRight && activeIndex > 0) {
+        setSwipeDirection(-1);
+        setActiveIndex((prev) => prev - 1);
+        setShowOriginal(false);
+      }
+    },
+    [activeIndex, thumbnails.length]
+  );
+
   const isMobile =
     typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -195,14 +221,33 @@ if (plan.interior_urls) {
               </motion.button>
             )}
 
-            {/* Hero image */}
+            {/* Hero image — swipeable */}
             <div className="dv-detail-hero">
-              <img
-                src={displayUrl}
-                alt={plan.title}
-                className="dv-detail-hero__img"
-                onClick={() => setLightboxOpen(true)}
-              />
+              <AnimatePresence initial={false} mode="popLayout" custom={swipeDirection}>
+                <motion.div
+                  key={activeIndex}
+                  className="dv-detail-hero__swipe-container"
+                  drag={thumbnails.length > 1 ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={handleHeroSwipe}
+                  onTap={() => setLightboxOpen(true)}
+                  custom={swipeDirection}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  variants={heroSlideVariants}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  style={{ touchAction: "pan-y" }}
+                >
+                  <img
+                    src={displayUrl}
+                    alt={plan.title}
+                    className="dv-detail-hero__img"
+                    draggable={false}
+                  />
+                </motion.div>
+              </AnimatePresence>
 
               {isProcessing && (
                 <div className="dv-detail-hero__processing">
@@ -255,6 +300,26 @@ if (plan.interior_urls) {
                   </button>
                 </div>
               )}
+
+              {/* Dot indicators */}
+              {thumbnails.length > 1 && (
+                <div className="dv-detail-hero__dots">
+                  {thumbnails.map((_, i) => (
+                    <button
+                      key={i}
+                      className={`dv-detail-hero__dot ${
+                        i === activeIndex ? "dv-detail-hero__dot--active" : ""
+                      }`}
+                      onClick={() => {
+                        setSwipeDirection(i > activeIndex ? 1 : -1);
+                        setActiveIndex(i);
+                        setShowOriginal(false);
+                      }}
+                      aria-label={`Image ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Body: grid layout */}
@@ -272,6 +337,7 @@ if (plan.interior_urls) {
                             : ""
                         }`}
                         onClick={() => {
+                          setSwipeDirection(index > activeIndex ? 1 : -1);
                           setActiveIndex(index);
                           setShowOriginal(false);
                         }}
@@ -347,6 +413,13 @@ if (plan.interior_urls) {
               alt={plan.title}
               isOpen={lightboxOpen}
               onClose={() => setLightboxOpen(false)}
+              images={thumbnails}
+              activeIndex={activeIndex}
+              onIndexChange={(i) => {
+                setSwipeDirection(i > activeIndex ? 1 : -1);
+                setActiveIndex(i);
+                setShowOriginal(false);
+              }}
             />
           </motion.div>
         </motion.div>

@@ -7,6 +7,9 @@ interface ImageLightboxProps {
   alt: string;
   isOpen: boolean;
   onClose: () => void;
+  images?: { url: string; label: string }[];
+  activeIndex?: number;
+  onIndexChange?: (index: number) => void;
 }
 
 export const ImageLightbox: React.FC<ImageLightboxProps> = ({
@@ -14,6 +17,9 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   alt,
   isOpen,
   onClose,
+  images,
+  activeIndex = 0,
+  onIndexChange,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -27,13 +33,21 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   const lastPinchDistRef = useRef<number | null>(null);
   const lastPinchCenterRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Reset on open/close
+  // Swipe-to-navigate tracking (only at 1x zoom)
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const swipeDeltaRef = useRef(0);
+  const wasPinchingRef = useRef(false);
+
+  const canSwipe = !!images && images.length > 1 && !!onIndexChange;
+  const displaySrc = images?.[activeIndex]?.url ?? src;
+
+  // Reset on open/close or image change
   useEffect(() => {
     if (isOpen) {
       setScale(1);
       setTranslate({ x: 0, y: 0 });
     }
-  }, [isOpen]);
+  }, [isOpen, activeIndex]);
 
   // Escape key closes
   useEffect(() => {
@@ -111,10 +125,18 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
       };
+      swipeStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+      swipeDeltaRef.current = 0;
+      wasPinchingRef.current = false;
       lastPinchDistRef.current = null;
       lastPinchCenterRef.current = null;
     } else if (e.touches.length === 2) {
       lastTouchRef.current = null;
+      swipeStartRef.current = null;
+      wasPinchingRef.current = true;
       lastPinchDistRef.current = getTouchDist(e.touches[0], e.touches[1]);
       lastPinchCenterRef.current = getTouchCenter(e.touches[0], e.touches[1]);
     }
@@ -151,30 +173,59 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
 
         lastPinchDistRef.current = dist;
         lastPinchCenterRef.current = center;
-      } else if (e.touches.length === 1 && scale > 1) {
-        // Single-finger pan (only when zoomed)
-        if (lastTouchRef.current) {
-          const dx = e.touches[0].clientX - lastTouchRef.current.x;
-          const dy = e.touches[0].clientY - lastTouchRef.current.y;
-          setTranslate((prev) =>
-            clampTranslate(prev.x + dx, prev.y + dy, scale)
-          );
+      } else if (e.touches.length === 1) {
+        if (scale > 1) {
+          // Single-finger pan (only when zoomed)
+          if (lastTouchRef.current) {
+            const dx = e.touches[0].clientX - lastTouchRef.current.x;
+            const dy = e.touches[0].clientY - lastTouchRef.current.y;
+            setTranslate((prev) =>
+              clampTranslate(prev.x + dx, prev.y + dy, scale)
+            );
+          }
+          lastTouchRef.current = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+          };
+        } else if (canSwipe && swipeStartRef.current && !wasPinchingRef.current) {
+          // Track horizontal swipe delta at 1x zoom
+          swipeDeltaRef.current =
+            e.touches[0].clientX - swipeStartRef.current.x;
         }
-        lastTouchRef.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        };
       }
     },
-    [scale, clampTranslate]
+    [scale, clampTranslate, canSwipe]
   );
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       if (e.touches.length === 0) {
+        // Check for swipe-to-navigate at 1x zoom
+        if (
+          canSwipe &&
+          scale <= 1.1 &&
+          !wasPinchingRef.current &&
+          Math.abs(swipeDeltaRef.current) > 50
+        ) {
+          if (swipeDeltaRef.current < -50 && activeIndex < images!.length - 1) {
+            onIndexChange!(activeIndex + 1);
+          } else if (swipeDeltaRef.current > 50 && activeIndex > 0) {
+            onIndexChange!(activeIndex - 1);
+          }
+          // Reset refs and skip the tap-to-close logic
+          swipeDeltaRef.current = 0;
+          swipeStartRef.current = null;
+          lastTouchRef.current = null;
+          lastPinchDistRef.current = null;
+          lastPinchCenterRef.current = null;
+          return;
+        }
+
         lastTouchRef.current = null;
         lastPinchDistRef.current = null;
         lastPinchCenterRef.current = null;
+        swipeStartRef.current = null;
+        swipeDeltaRef.current = 0;
 
         // Snap back to 1x if close
         if (scale < 1.1) {
@@ -191,10 +242,10 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
         lastPinchCenterRef.current = null;
       }
     },
-    [scale]
+    [scale, canSwipe, activeIndex, images, onIndexChange]
   );
 
-  // Tap to close (only when not zoomed)
+  // Tap to close (only when not zoomed and not swiping)
   const handleClick = useCallback(() => {
     if (scale <= 1.1) {
       onClose();
@@ -220,7 +271,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
             <X size={24} />
           </button>
 
-          {/* Image container — JS handles pinch zoom + single-finger pan */}
+          {/* Image container — JS handles pinch zoom + single-finger pan + swipe nav */}
           <div
             className="dv-lightbox-scroll"
             ref={containerRef}
@@ -233,7 +284,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
             <img
               ref={imgRef}
               className="dv-lightbox-scroll__img"
-              src={src}
+              src={displaySrc}
               alt={alt}
               draggable={false}
               style={{
@@ -242,6 +293,22 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
               }}
             />
           </div>
+
+          {/* Dot indicators */}
+          {canSwipe && (
+            <div className="dv-lightbox-dots">
+              {images!.map((_, i) => (
+                <button
+                  key={i}
+                  className={`dv-lightbox-dots__dot ${
+                    i === activeIndex ? "dv-lightbox-dots__dot--active" : ""
+                  }`}
+                  onClick={() => onIndexChange!(i)}
+                  aria-label={`Image ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

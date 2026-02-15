@@ -862,6 +862,53 @@ html, body {
   box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4);
 }
 
+/* Detail — hero swipe container */
+.dv-detail-hero__swipe-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-in;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.dv-detail-hero__swipe-container img {
+  pointer-events: none;
+}
+
+/* Detail — hero dot indicators */
+.dv-detail-hero__dots {
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+
+.dv-detail-hero__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background var(--dv-transition), transform var(--dv-transition);
+}
+
+.dv-detail-hero__dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dv-detail-hero__dot--active {
+  background: var(--dv-brand-light);
+  transform: scale(1.4);
+}
+
 /* Detail — body layout */
 .dv-detail-body {
   display: grid;
@@ -2406,6 +2453,37 @@ html, body {
     top: 12px;
     right: 12px;
   }
+}
+
+/* Lightbox dot indicators */
+.dv-lightbox-dots {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10003;
+}
+
+.dv-lightbox-dots__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dv-lightbox-dots__dot:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.dv-lightbox-dots__dot--active {
+  background: var(--dv-brand-light);
+  transform: scale(1.4);
 }
 
 /* ── 24. Utility ─────────────────────────────────────────────── */
