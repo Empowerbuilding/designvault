@@ -57,13 +57,7 @@ export function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-
-        // Sync interaction count from server's remainingFree
-        if (typeof result.remainingFree === "number") {
-          setInteractionCount(hardLimit - result.remainingFree);
-        } else {
-          setInteractionCount((c) => c + 1);
-        }
+        setInteractionCount((c) => c + 1);
 
         if (result.success && result.resultUrl) {
           addModification({
@@ -122,13 +116,7 @@ export function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-
-        // Sync interaction count from server's remainingFree
-        if (typeof result.remainingFree === "number") {
-          setInteractionCount(hardLimit - result.remainingFree);
-        } else {
-          setInteractionCount((c) => c + 1);
-        }
+        setInteractionCount((c) => c + 1);
 
         if (result.success && result.resultUrl) {
           addModification({

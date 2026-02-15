@@ -1842,11 +1842,7 @@ function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-        if (typeof result.remainingFree === "number") {
-          setInteractionCount(hardLimit - result.remainingFree);
-        } else {
-          setInteractionCount((c) => c + 1);
-        }
+        setInteractionCount((c) => c + 1);
         if (result.success && result.resultUrl) {
           addModification({
             type: "style_swap",
@@ -1896,11 +1892,7 @@ function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-        if (typeof result.remainingFree === "number") {
-          setInteractionCount(hardLimit - result.remainingFree);
-        } else {
-          setInteractionCount((c) => c + 1);
-        }
+        setInteractionCount((c) => c + 1);
         if (result.success && result.resultUrl) {
           addModification({
             type: "floor_plan_edit",
