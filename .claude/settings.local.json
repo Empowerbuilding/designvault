@@ -13,7 +13,10 @@
       "Bash(sync)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git status:*)",
+      "WebFetch(domain:designvault.barnhaussteelbuilders.com)",
+      "Bash(curl:*)"
     ]
   }
 }
