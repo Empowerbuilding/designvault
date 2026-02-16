@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Unlock, CheckCircle, Loader2, Sparkles } from "lucide-react";
+import { X, Save, CheckCircle, Loader2, Sparkles } from "lucide-react";
 import { useLeadCapture } from "../hooks/useLeadCapture";
 import type { LeadCaptureModalProps, Modification } from "../types";
 
@@ -241,12 +241,12 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                 <div className="dv-lead-modal__header">
                   <Sparkles size={24} className="dv-lead-modal__header-icon" />
                   <h2 className="dv-lead-modal__title">
-                    Unlock {postCaptureExtra} More AI Designs
+                    Save Your Custom Design
                   </h2>
                   <p className="dv-lead-modal__subtitle">
-                    Share your info to get {postCaptureExtra} more AI credits
-                    and receive the full details for{" "}
-                    <strong>{plan.title}</strong>
+                    Save your design to receive the full details for{" "}
+                    <strong>{plan.title}</strong> and unlock{" "}
+                    {postCaptureExtra} more AI credits
                   </p>
                 </div>
 
@@ -387,12 +387,12 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                           size={18}
                           className="dv-lead-modal__spinner"
                         />
-                        Unlocking...
+                        Saving...
                       </>
                     ) : (
                       <>
-                        <Unlock size={16} />
-                        {config.ctaText || `Unlock ${postCaptureExtra} More AI Designs`}
+                        <Save size={16} />
+                        {config.ctaText || "Save My Design"}
                       </>
                     )}
                   </button>

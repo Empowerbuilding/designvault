@@ -166,7 +166,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       {!isCaptured && !needsCapture && !hitHardLimit && (
         <div className="dv-ai-tools__unlock-hint">
           <Unlock size={14} />
-          <span>Share your info to unlock {postCaptureExtra} more AI designs</span>
+          <span>Save your design to unlock {postCaptureExtra} more AI credits</span>
         </div>
       )}
 
@@ -178,14 +178,14 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
             You've used your free design preview
           </p>
           <p className="dv-ai-tools__gate-sub">
-            Unlock {postCaptureExtra} more AI designs by sharing your info
+            Save your design and unlock {postCaptureExtra} more AI customizations
           </p>
           <button
             className="dv-ai-tools__gate-btn"
             onClick={openModal}
           >
-            <Unlock size={16} />
-            Unlock {postCaptureExtra} More AI Designs
+            <Save size={16} />
+            Save My Design & Unlock {postCaptureExtra} More
           </button>
         </div>
       )}
@@ -285,8 +285,8 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
           </>
         ) : (
           <>
-            <Unlock size={16} />
-            Unlock {postCaptureExtra} More AI Designs
+            <Save size={16} />
+            Save My Design
           </>
         )}
       </button>
@@ -294,7 +294,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       {/* Callout */}
       {!hitHardLimit && !isCaptured && (
         <p className="dv-ai-tools__callout">
-          {maxFree} free credit{maxFree !== 1 ? "s" : ""}. Share your info to unlock {postCaptureExtra} more.
+          {maxFree} free credit{maxFree !== 1 ? "s" : ""}. Save your design to unlock {postCaptureExtra} more.
         </p>
       )}
 

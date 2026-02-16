@@ -60,8 +60,14 @@ export function usePlans(initialFilters?: PlanFilters) {
       if (filters.maxArea !== null && plan.area > filters.maxArea)
         return false;
       if (filters.style !== null && plan.style !== filters.style) return false;
-      if (filters.category !== null && plan.category !== filters.category)
-        return false;
+      if (filters.category !== null) {
+        if (filters.category === "ranch_living") {
+          if (plan.category !== "barndominium" && plan.category !== "ranch" && plan.category !== "cabin")
+            return false;
+        } else if (plan.category !== filters.category) {
+          return false;
+        }
+      }
       return true;
     });
   }, [plans, filters]);

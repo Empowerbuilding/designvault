@@ -101,11 +101,10 @@ function DesignVaultInner({ config }: { config: DesignVaultConfig }) {
           <Sparkles size={13} />
           AI-Powered Design
         </div>
-        <h1 className="dv-hero__title">Design Your Dream Home</h1>
-        <p className="dv-hero__subtitle">Browse. Customize. Build.</p>
+        <h1 className="dv-hero__title">Luxury Meets Customization</h1>
+        <p className="dv-hero__subtitle">Pick a Plan. Style It. Make It Yours.</p>
         <p className="dv-hero__desc">
-          Explore {plans.length > 0 ? `${plans.length}+` : ""} custom floor
-          plans and use AI to make them yours
+          Pick a floor plan and instantly see it in your style. No commitment, just inspiration.
         </p>
       </header>
 

@@ -14,7 +14,8 @@ export type FloorPlanCategory =
   | "estate"
   | "cabin"
   | "shop_house"
-  | "starter";
+  | "starter"
+  | "ranch_living";
 
 export type PriceTier = "economy" | "standard" | "luxury";
 

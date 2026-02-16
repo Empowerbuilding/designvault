@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Mountain, Crown, TreePine, Minimize2, Warehouse } from "lucide-react";
+import { Mountain, Crown, Minimize2, Warehouse } from "lucide-react";
 import type { CategoryTilesProps, FloorPlanCategory } from "../types";
 
 interface CategoryConfig {
@@ -9,10 +9,8 @@ interface CategoryConfig {
 }
 
 const CATEGORIES: CategoryConfig[] = [
-  { slug: "barndominium", label: "Modern Barndo", icon: <Home size={22} /> },
-  { slug: "ranch", label: "Rustic Ranch", icon: <Mountain size={22} /> },
+  { slug: "ranch_living", label: "Ranch Living", icon: <Mountain size={22} /> },
   { slug: "estate", label: "Luxury Estate", icon: <Crown size={22} /> },
-  { slug: "cabin", label: "Hill Country", icon: <TreePine size={22} /> },
   { slug: "starter", label: "Compact / Starter", icon: <Minimize2 size={22} /> },
   { slug: "shop_house", label: "Shop + Living", icon: <Warehouse size={22} /> },
 ];
