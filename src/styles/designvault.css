@@ -857,7 +857,7 @@ html, body {
 
 .dv-detail-hero__compare-btn--active {
   background: var(--dv-brand);
-  color: #000;
+  color: #fff;
   box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4);
 }
 
@@ -1444,13 +1444,13 @@ html, body {
 
 .dv-wishlist__compare-btn--active {
   background: var(--dv-brand);
-  color: #000;
+  color: #fff;
   box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4);
 }
 
 .dv-wishlist__compare-btn--active:hover {
   background: var(--dv-brand-light);
-  color: #000;
+  color: #fff;
 }
 
 /* Input area */
