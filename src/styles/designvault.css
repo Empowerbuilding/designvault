@@ -151,6 +151,8 @@ html, body {
   gap: 12px;
   margin-bottom: 28px;
   overflow-x: auto;
+  overflow-y: visible;
+  padding-top: 4px;
   padding-bottom: 8px;
   scrollbar-width: thin;
   scrollbar-color: var(--dv-border) transparent;

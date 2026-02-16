@@ -99,7 +99,7 @@ function DesignVaultInner({ config }: { config: DesignVaultConfig }) {
       <header className="dv-hero">
         <div className="dv-hero__badge">
           <Sparkles size={13} />
-          AI-Powered Design
+          Interactive Floor Plans
         </div>
         <h1 className="dv-hero__title">Luxury Meets Customization</h1>
         <p className="dv-hero__subtitle">Pick a Plan. Style It. Make It Yours.</p>
