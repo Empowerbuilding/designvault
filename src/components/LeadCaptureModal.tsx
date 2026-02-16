@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Send, CheckCircle, Loader2, Sparkles } from "lucide-react";
+import { X, Unlock, CheckCircle, Loader2, Sparkles } from "lucide-react";
 import { useLeadCapture } from "../hooks/useLeadCapture";
 import type { LeadCaptureModalProps, Modification } from "../types";
 
@@ -190,6 +190,8 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
+  const postCaptureExtra = 3; // hardLimit - maxFree is always 3
+
   // ── Inline error helper ───────────────────────────────────
   const fieldError = (field: keyof FieldErrors) =>
     touched.has(field) && errors[field] ? errors[field] : null;
@@ -227,9 +229,9 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
               /* ── Success confirmation ── */
               <div className="dv-lead-modal__success">
                 <CheckCircle size={48} className="dv-lead-modal__success-icon" />
-                <h2 className="dv-lead-modal__title">Saved!</h2>
+                <h2 className="dv-lead-modal__title">{postCaptureExtra} Credits Unlocked!</h2>
                 <p className="dv-lead-modal__subtitle">
-                  Check your email for the full details.
+                  You now have {postCaptureExtra} more AI designs to try. Check your email for the full details.
                 </p>
               </div>
             ) : (
@@ -239,10 +241,10 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                 <div className="dv-lead-modal__header">
                   <Sparkles size={24} className="dv-lead-modal__header-icon" />
                   <h2 className="dv-lead-modal__title">
-                    Save Your Custom Design
+                    Unlock {postCaptureExtra} More AI Designs
                   </h2>
                   <p className="dv-lead-modal__subtitle">
-                    Enter your contact info to unlock more AI customizations
+                    Share your info to get {postCaptureExtra} more AI credits
                     and receive the full details for{" "}
                     <strong>{plan.title}</strong>
                   </p>
@@ -385,12 +387,12 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                           size={18}
                           className="dv-lead-modal__spinner"
                         />
-                        Saving...
+                        Unlocking...
                       </>
                     ) : (
                       <>
-                        <Send size={16} />
-                        {config.ctaText || "Save My Design"}
+                        <Unlock size={16} />
+                        {config.ctaText || `Unlock ${postCaptureExtra} More AI Designs`}
                       </>
                     )}
                   </button>

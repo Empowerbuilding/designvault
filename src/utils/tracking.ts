@@ -12,6 +12,10 @@ declare global {
   interface Window {
     fbq?: Fbq;
     dataLayer?: Record<string, unknown>[];
+    CRMTracking?: {
+      trackEvent(type: string, title: string, metadata?: Record<string, unknown>): void;
+      getVisitorId(): string | null;
+    };
   }
 }
 

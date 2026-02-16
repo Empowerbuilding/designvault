@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, Sparkles, Check, X, Loader2, Search } from "lucide-react";
+import { Plus, Wand2, Check, X, Loader2, Search } from "lucide-react";
 import { ImageLightbox } from "./ImageLightbox";
 import type { FloorPlanEditorProps } from "../types";
 
@@ -127,16 +127,16 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
       {wishlistItems.length > 0 && (
         <div className="dv-wishlist__ai-section">
           <button
-            className="dv-wishlist__ai-btn"
+            className="dv-wishlist__ai-btn dv-wishlist__ai-btn--primary"
             onClick={onPreviewAI}
             disabled={isProcessing}
           >
             {isProcessing ? (
-              <Loader2 size={14} className="dv-wishlist__spinner" />
+              <Loader2 size={18} className="dv-wishlist__spinner" />
             ) : (
-              <Sparkles size={14} />
+              <Wand2 size={18} />
             )}
-            {isProcessing ? "Generating..." : "Preview AI Suggestion"}
+            {isProcessing ? "Generating Your Floor Plan..." : "Generate AI Floor Plan"}
           </button>
           <p className="dv-wishlist__ai-disclaimer">
             Results are AI-generated and may not be exact

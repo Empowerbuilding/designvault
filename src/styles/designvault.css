@@ -1073,6 +1073,41 @@ html, body {
   font-weight: 700;
 }
 
+/* Credit counter */
+.dv-ai-tools__credits {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--dv-radius-sm);
+  background: var(--dv-brand-dim);
+  border: 1px solid rgba(184, 134, 11, 0.2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dv-brand-light, #DAA520);
+}
+
+.dv-ai-tools__credits-icon {
+  flex-shrink: 0;
+}
+
+/* Unlock hint — subtle nudge before gate */
+.dv-ai-tools__unlock-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--dv-text-dim);
+  border-radius: var(--dv-radius-sm);
+  background: rgba(184, 134, 11, 0.06);
+}
+
+.dv-ai-tools__unlock-hint svg {
+  flex-shrink: 0;
+  color: var(--dv-brand-light, #DAA520);
+}
+
 .dv-ai-tools__divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(184, 134, 11, 0.3), transparent);
@@ -1562,18 +1597,34 @@ html, body {
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: filter 0.2s ease, box-shadow 0.2s ease;
+  transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.dv-wishlist__ai-btn--primary {
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: var(--dv-radius-sm);
+  box-shadow: 0 4px 16px rgba(184, 134, 11, 0.3);
+  margin-top: 4px;
 }
 
 .dv-wishlist__ai-btn:hover:not(:disabled) {
   filter: brightness(1.15);
-  box-shadow: 0 4px 16px rgba(184, 134, 11, 0.35);
+  box-shadow: 0 6px 24px rgba(184, 134, 11, 0.45);
+  transform: translateY(-1px);
+}
+
+.dv-wishlist__ai-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .dv-wishlist__ai-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   filter: none;
+  transform: none;
 }
 
 .dv-wishlist__ai-disclaimer {

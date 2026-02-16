@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { useDesignVaultContext } from "./useDesignVault";
 import { CaptureRequiredError } from "../api/client";
+import { trackCRMEvent, getCRMVisitorId } from "../utils/crmTracking";
 import type { AIInteractionResult } from "../types";
 
 export function useAIInteractions() {
@@ -47,6 +48,18 @@ export function useAIInteractions() {
       setIsStyleSwapProcessing(true);
       setError(null);
 
+      const crmMeta = {
+        plan_id: planId,
+        plan_title: currentPlan?.title ?? "",
+        preset,
+        interaction_number: interactionCount + 1,
+        site: config.builderSlug,
+        session_id: effectiveSessionId,
+        anonymous_id: getCRMVisitorId() ?? anonymousId,
+      };
+
+      trackCRMEvent("style_swap_started", `Style swap: ${preset}`, crmMeta);
+
       try {
         const result = await api.styleSwap(
           planId,
@@ -67,6 +80,12 @@ export function useAIInteractions() {
             resultUrl: result.resultUrl,
             originalUrl: currentPlan?.image_url ?? "",
             timestamp: new Date().toISOString(),
+          });
+
+          trackCRMEvent("style_swap_completed", `Style swap: ${preset}`, {
+            ...crmMeta,
+            result_url: result.resultUrl,
+            cached: result.cached,
           });
         }
 
@@ -89,12 +108,15 @@ export function useAIInteractions() {
     },
     [
       api,
+      config.builderSlug,
+      anonymousId,
       effectiveSessionId,
       isCaptured,
       interactionCount,
       hardLimit,
       addModification,
       currentPlan?.image_url,
+      currentPlan?.title,
     ]
   );
 
@@ -111,6 +133,18 @@ export function useAIInteractions() {
 
       setIsFloorPlanProcessing(true);
       setError(null);
+
+      const crmMeta = {
+        plan_id: planId,
+        plan_title: currentPlan?.title ?? "",
+        prompt,
+        interaction_number: interactionCount + 1,
+        site: config.builderSlug,
+        session_id: effectiveSessionId,
+        anonymous_id: getCRMVisitorId() ?? anonymousId,
+      };
+
+      trackCRMEvent("floor_plan_edit_started", `Floor plan edit: ${prompt.slice(0, 80)}`, crmMeta);
 
       try {
         const result = await api.floorPlanEdit(
@@ -131,6 +165,12 @@ export function useAIInteractions() {
             resultUrl: result.resultUrl,
             originalUrl: currentUrl ?? currentPlan?.floor_plan_url ?? "",
             timestamp: new Date().toISOString(),
+          });
+
+          trackCRMEvent("floor_plan_edit_completed", `Floor plan edit: ${prompt.slice(0, 80)}`, {
+            ...crmMeta,
+            result_url: result.resultUrl,
+            cached: result.cached,
           });
         }
 
@@ -153,12 +193,15 @@ export function useAIInteractions() {
     },
     [
       api,
+      config.builderSlug,
+      anonymousId,
       effectiveSessionId,
       isCaptured,
       interactionCount,
       hardLimit,
       addModification,
       currentPlan?.floor_plan_url,
+      currentPlan?.title,
     ]
   );
 
@@ -191,6 +234,8 @@ export function useAIInteractions() {
     needsCapture,
     hitHardLimit,
     interactionCount,
+    maxFree,
+    hardLimit,
     error,
   };
 }

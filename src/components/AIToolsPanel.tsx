@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Sparkles, Save, Lock, CalendarCheck } from "lucide-react";
+import { Sparkles, Save, Lock, CalendarCheck, Unlock } from "lucide-react";
 import { StyleSwapButtons } from "./StyleSwapButtons";
 import { FloorPlanEditor } from "./FloorPlanEditor";
 import { LeadCaptureModal } from "./LeadCaptureModal";
@@ -29,6 +29,9 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
     isFloorPlanProcessing,
     needsCapture,
     hitHardLimit,
+    interactionCount,
+    maxFree,
+    hardLimit,
     error: aiError,
   } = useAIInteractions();
 
@@ -137,6 +140,10 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
 
+  const totalCredits = isCaptured ? hardLimit : maxFree;
+  const creditsRemaining = Math.max(0, totalCredits - interactionCount);
+  const postCaptureExtra = hardLimit - maxFree;
+
   return (
     <div className="dv-ai-tools">
       {/* Header */}
@@ -144,6 +151,24 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
         <Sparkles size={20} />
         <h3 className="dv-ai-tools__title">AI Design Tools</h3>
       </div>
+
+      {/* Credit counter */}
+      {!hitHardLimit && (
+        <div className="dv-ai-tools__credits">
+          <Sparkles size={14} className="dv-ai-tools__credits-icon" />
+          <span>
+            {creditsRemaining} of {totalCredits} credit{totalCredits !== 1 ? "s" : ""} remaining
+          </span>
+        </div>
+      )}
+
+      {/* Unlock prompt — shown pre-capture when user still has credits */}
+      {!isCaptured && !needsCapture && !hitHardLimit && (
+        <div className="dv-ai-tools__unlock-hint">
+          <Unlock size={14} />
+          <span>Share your info to unlock {postCaptureExtra} more AI designs</span>
+        </div>
+      )}
 
       {/* Gate banner — shown when user needs to save to continue */}
       {(needsCapture || (aiError && !isCaptured)) && !hitHardLimit && (
@@ -153,14 +178,14 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
             You've used your free design preview
           </p>
           <p className="dv-ai-tools__gate-sub">
-            Save your design to unlock more AI tools
+            Unlock {postCaptureExtra} more AI designs by sharing your info
           </p>
           <button
             className="dv-ai-tools__gate-btn"
             onClick={openModal}
           >
-            <Save size={16} />
-            {config.ctaText || "Save My Design"}
+            <Unlock size={16} />
+            Unlock {postCaptureExtra} More AI Designs
           </button>
         </div>
       )}
@@ -253,14 +278,23 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
         onClick={openModal}
         disabled={isCaptured}
       >
-        <Save size={16} />
-        {isCaptured ? "Design Saved" : "Save This Design"}
+        {isCaptured ? (
+          <>
+            <Save size={16} />
+            Design Saved
+          </>
+        ) : (
+          <>
+            <Unlock size={16} />
+            Unlock {postCaptureExtra} More AI Designs
+          </>
+        )}
       </button>
 
       {/* Callout */}
-      {!hitHardLimit && (
+      {!hitHardLimit && !isCaptured && (
         <p className="dv-ai-tools__callout">
-          First customization is free. Save your design to unlock more.
+          {maxFree} free credit{maxFree !== 1 ? "s" : ""}. Share your info to unlock {postCaptureExtra} more.
         </p>
       )}
 

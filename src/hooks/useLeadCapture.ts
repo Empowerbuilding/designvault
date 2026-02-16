@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { useDesignVaultContext } from "./useDesignVault";
 import { fireMetaPixelEvent } from "../utils/tracking";
+import { trackCRMEvent, getCRMVisitorId } from "../utils/crmTracking";
 import type { LeadCaptureData } from "../types";
 
 function getCookie(name: string): string | null {
@@ -103,6 +104,18 @@ export function useLeadCapture() {
         setSubmitted(true);
         setCaptured(true);
         setIsOpen(false);
+
+        trackCRMEvent("lead_form_submitted", `Lead: ${formData.email}`, {
+          plan_id: currentPlan?.id ?? "",
+          plan_title: currentPlan?.title ?? "",
+          email: formData.email,
+          modifications_count: modifications.length,
+          plans_viewed: plansViewed.length,
+          session_duration: sessionDuration,
+          site: config.builderSlug,
+          session_id: sessionId ?? anonymousId,
+          anonymous_id: getCRMVisitorId() ?? anonymousId,
+        });
 
         // Fire Meta pixel Lead event if configured
         if (config.metaPixelId) {

@@ -5,7 +5,9 @@ import { AIToolsPanel } from "./AIToolsPanel";
 import { ImageLightbox } from "./ImageLightbox";
 import { SimilarPlans } from "./SimilarPlans";
 import { useSession } from "../hooks/useSession";
+import { useDesignVaultContext } from "../hooks/useDesignVault";
 import { getSchedulerUrl } from "../utils/tracking";
+import { trackCRMEvent, getCRMVisitorId } from "../utils/crmTracking";
 import type { PlanDetailProps } from "../types";
 
 const heroSlideVariants = {
@@ -23,6 +25,7 @@ export const PlanDetail: React.FC<PlanDetailProps> = ({
   onPlanSwitch,
 }) => {
   const { setCurrentPlan } = useSession();
+  const { config: dvConfig, anonymousId, sessionId } = useDesignVaultContext();
   const panelRef = useRef<HTMLDivElement>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -72,8 +75,19 @@ if (plan.interior_urls) {
       setHasFloorPlanResult(false);
       setShowOriginalFloorPlan(false);
       panelRef.current?.scrollTo(0, 0);
+
+      trackCRMEvent("plan_viewed", plan.title, {
+        plan_id: plan.id,
+        plan_title: plan.title,
+        beds: plan.beds,
+        baths: plan.baths,
+        sqft: plan.area,
+        site: dvConfig.builderSlug,
+        session_id: sessionId ?? anonymousId,
+        anonymous_id: getCRMVisitorId() ?? anonymousId,
+      });
     }
-  }, [isOpen, plan, setCurrentPlan]);
+  }, [isOpen, plan, setCurrentPlan, dvConfig.builderSlug, anonymousId, sessionId]);
 
   // Lock body scroll
   useEffect(() => {
