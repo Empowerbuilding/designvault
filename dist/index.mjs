@@ -1112,48 +1112,46 @@ var FloorPlanEditor = ({
   };
   const displayUrl = showOriginalFloorPlan ? originalFloorPlanUrl : floorPlanUrl;
   return /* @__PURE__ */ jsxs("div", { className: "dv-wishlist", children: [
-    displayUrl && /* @__PURE__ */ jsxs("div", { className: "dv-wishlist__preview", children: [
-      /* @__PURE__ */ jsxs(
-        "div",
+    displayUrl && /* @__PURE__ */ jsx("div", { className: "dv-wishlist__preview", children: /* @__PURE__ */ jsxs(
+      "div",
+      {
+        className: "dv-wishlist__preview-clickable",
+        onClick: () => setLightboxOpen(true),
+        role: "button",
+        tabIndex: 0,
+        onKeyDown: (e) => {
+          if (e.key === "Enter") setLightboxOpen(true);
+        },
+        children: [
+          /* @__PURE__ */ jsx(
+            "img",
+            {
+              src: displayUrl,
+              alt: hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan",
+              className: "dv-wishlist__preview-img"
+            }
+          ),
+          /* @__PURE__ */ jsx("div", { className: "dv-wishlist__preview-zoom", children: /* @__PURE__ */ jsx(Search, { size: 16 }) })
+        ]
+      }
+    ) }),
+    hasFloorPlanResult && /* @__PURE__ */ jsxs("div", { className: "dv-wishlist__compare", children: [
+      /* @__PURE__ */ jsx(
+        "button",
         {
-          className: "dv-wishlist__preview-clickable",
-          onClick: () => setLightboxOpen(true),
-          role: "button",
-          tabIndex: 0,
-          onKeyDown: (e) => {
-            if (e.key === "Enter") setLightboxOpen(true);
-          },
-          children: [
-            /* @__PURE__ */ jsx(
-              "img",
-              {
-                src: displayUrl,
-                alt: hasFloorPlanResult && !showOriginalFloorPlan ? "AI-modified floor plan" : "Current floor plan",
-                className: "dv-wishlist__preview-img"
-              }
-            ),
-            /* @__PURE__ */ jsx("div", { className: "dv-wishlist__preview-zoom", children: /* @__PURE__ */ jsx(Search, { size: 16 }) })
-          ]
+          className: `dv-wishlist__compare-btn ${!showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
+          onClick: () => onToggleFloorPlanOriginal(false),
+          children: "AI Generated"
         }
       ),
-      hasFloorPlanResult && /* @__PURE__ */ jsxs("div", { className: "dv-wishlist__compare", children: [
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            className: `dv-wishlist__compare-btn ${!showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
-            onClick: () => onToggleFloorPlanOriginal(false),
-            children: "AI Generated"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          "button",
-          {
-            className: `dv-wishlist__compare-btn ${showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
-            onClick: () => onToggleFloorPlanOriginal(true),
-            children: "Original"
-          }
-        )
-      ] })
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          className: `dv-wishlist__compare-btn ${showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""}`,
+          onClick: () => onToggleFloorPlanOriginal(true),
+          children: "Original"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsx("h4", { className: "dv-wishlist__label", children: "Floor Plan Wishlist" }),
     /* @__PURE__ */ jsxs("div", { className: "dv-wishlist__input-wrap", children: [
@@ -2552,24 +2550,6 @@ var PlanDetail = ({
                   " sqft"
                 ] })
               ] }) }),
-              hasAiResult && /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero__compare", children: [
-                /* @__PURE__ */ jsx(
-                  "button",
-                  {
-                    className: `dv-detail-hero__compare-btn ${!showOriginal ? "dv-detail-hero__compare-btn--active" : ""}`,
-                    onClick: () => setShowOriginal(false),
-                    children: "AI Generated"
-                  }
-                ),
-                /* @__PURE__ */ jsx(
-                  "button",
-                  {
-                    className: `dv-detail-hero__compare-btn ${showOriginal ? "dv-detail-hero__compare-btn--active" : ""}`,
-                    onClick: () => setShowOriginal(true),
-                    children: "Original"
-                  }
-                )
-              ] }),
               thumbnails.length > 1 && /* @__PURE__ */ jsx("div", { className: "dv-detail-hero__dots", children: thumbnails.map((_, i) => /* @__PURE__ */ jsx(
                 "button",
                 {
@@ -2583,6 +2563,24 @@ var PlanDetail = ({
                 },
                 i
               )) })
+            ] }),
+            hasAiResult && /* @__PURE__ */ jsxs("div", { className: "dv-detail-hero__compare", children: [
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  className: `dv-detail-hero__compare-btn ${!showOriginal ? "dv-detail-hero__compare-btn--active" : ""}`,
+                  onClick: () => setShowOriginal(false),
+                  children: "AI Generated"
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  className: `dv-detail-hero__compare-btn ${showOriginal ? "dv-detail-hero__compare-btn--active" : ""}`,
+                  onClick: () => setShowOriginal(true),
+                  children: "Original"
+                }
+              )
             ] }),
             /* @__PURE__ */ jsxs("div", { className: "dv-detail-body", children: [
               thumbnails.length > 1 && /* @__PURE__ */ jsx("div", { className: "dv-detail-body__thumbs", children: /* @__PURE__ */ jsx("div", { className: "dv-detail-thumbs", children: thumbnails.map((thumb, index) => /* @__PURE__ */ jsxs(

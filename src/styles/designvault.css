@@ -823,18 +823,17 @@ html, body {
   font-weight: 600;
 }
 
-/* Detail — before/after compare */
+/* Detail — before/after compare (below hero) */
 .dv-detail-hero__compare {
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
-  z-index: 2;
   display: flex;
+  justify-content: center;
   gap: 2px;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(10px);
   border-radius: 9999px;
   padding: 4px;
+  margin: 8px auto 0;
+  width: fit-content;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
@@ -1375,22 +1374,19 @@ html, body {
   pointer-events: none;
 }
 
-/* Floor plan before/after toggle */
+/* Floor plan before/after toggle (below image) */
 .dv-wishlist__compare {
   display: flex;
+  justify-content: center;
   gap: 2px;
   padding: 4px;
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  right: auto;
+  margin: 8px auto 0;
+  width: fit-content;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(10px);
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  justify-content: center;
 }
 
 .dv-wishlist__compare-btn {

@@ -55,26 +55,28 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
               <Search size={16} />
             </div>
           </div>
-          {hasFloorPlanResult && (
-            <div className="dv-wishlist__compare">
-              <button
-                className={`dv-wishlist__compare-btn ${
-                  !showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""
-                }`}
-                onClick={() => onToggleFloorPlanOriginal(false)}
-              >
-                AI Generated
-              </button>
-              <button
-                className={`dv-wishlist__compare-btn ${
-                  showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""
-                }`}
-                onClick={() => onToggleFloorPlanOriginal(true)}
-              >
-                Original
-              </button>
-            </div>
-          )}
+        </div>
+      )}
+
+      {/* Before/After toggle — below floor plan image */}
+      {hasFloorPlanResult && (
+        <div className="dv-wishlist__compare">
+          <button
+            className={`dv-wishlist__compare-btn ${
+              !showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""
+            }`}
+            onClick={() => onToggleFloorPlanOriginal(false)}
+          >
+            AI Generated
+          </button>
+          <button
+            className={`dv-wishlist__compare-btn ${
+              showOriginalFloorPlan ? "dv-wishlist__compare-btn--active" : ""
+            }`}
+            onClick={() => onToggleFloorPlanOriginal(true)}
+          >
+            Original
+          </button>
         </div>
       )}
 

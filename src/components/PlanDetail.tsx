@@ -274,32 +274,6 @@ if (plan.interior_urls) {
                 </div>
               </div>
 
-              {/* Before/After toggle */}
-              {hasAiResult && (
-                <div className="dv-detail-hero__compare">
-                  <button
-                    className={`dv-detail-hero__compare-btn ${
-                      !showOriginal
-                        ? "dv-detail-hero__compare-btn--active"
-                        : ""
-                    }`}
-                    onClick={() => setShowOriginal(false)}
-                  >
-                    AI Generated
-                  </button>
-                  <button
-                    className={`dv-detail-hero__compare-btn ${
-                      showOriginal
-                        ? "dv-detail-hero__compare-btn--active"
-                        : ""
-                    }`}
-                    onClick={() => setShowOriginal(true)}
-                  >
-                    Original
-                  </button>
-                </div>
-              )}
-
               {/* Dot indicators */}
               {thumbnails.length > 1 && (
                 <div className="dv-detail-hero__dots">
@@ -320,6 +294,32 @@ if (plan.interior_urls) {
                 </div>
               )}
             </div>
+
+            {/* Before/After toggle — below hero image */}
+            {hasAiResult && (
+              <div className="dv-detail-hero__compare">
+                <button
+                  className={`dv-detail-hero__compare-btn ${
+                    !showOriginal
+                      ? "dv-detail-hero__compare-btn--active"
+                      : ""
+                  }`}
+                  onClick={() => setShowOriginal(false)}
+                >
+                  AI Generated
+                </button>
+                <button
+                  className={`dv-detail-hero__compare-btn ${
+                    showOriginal
+                      ? "dv-detail-hero__compare-btn--active"
+                      : ""
+                  }`}
+                  onClick={() => setShowOriginal(true)}
+                >
+                  Original
+                </button>
+              </div>
+            )}
 
             {/* Body: grid layout */}
             <div className="dv-detail-body">
