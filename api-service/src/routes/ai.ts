@@ -205,7 +205,7 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
     log("STYLE_SWAP_START", { planId, preset, imageType: imageType ?? "exterior", planTitle: plan.title });
 
     const n8nResult = await callN8nWebhook<Record<string, unknown>>(
-      "78eb9ad8-765f-4a20-8823-96a2e49d5f73",
+      "designvaultkey",
       {
         imageUrl: effectiveImageUrl,
         prompt,
@@ -340,7 +340,7 @@ router.post(
       log("FLOOR_PLAN_EDIT_START", { planId, prompt, floorPlanUrl });
 
       const n8nResult = await callN8nWebhook<Record<string, unknown>>(
-        "floor-plan-edit",
+        "designvaultkey",
         {
           currentFloorPlanUrl: floorPlanUrl,
           editPrompt: prompt,
