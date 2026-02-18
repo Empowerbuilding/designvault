@@ -70,7 +70,10 @@ export function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-        setInteractionCount((c) => c + 1);
+
+        // Sync count from server's remainingFree (accounts for all sessions)
+        const limit = isCaptured ? hardLimit : maxFree;
+        setInteractionCount(limit - result.remainingFree);
 
         if (result.success && result.resultUrl) {
           addModification({
@@ -92,6 +95,7 @@ export function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
+          setInteractionCount(maxFree);
           if (isCaptured) {
             setError("Something went wrong syncing your saved design. Please try again.");
           } else {
@@ -155,7 +159,10 @@ export function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-        setInteractionCount((c) => c + 1);
+
+        // Sync count from server's remainingFree (accounts for all sessions)
+        const limit = isCaptured ? hardLimit : maxFree;
+        setInteractionCount(limit - result.remainingFree);
 
         if (result.success && result.resultUrl) {
           addModification({
@@ -177,6 +184,7 @@ export function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
+          setInteractionCount(maxFree);
           if (isCaptured) {
             setError("Something went wrong syncing your saved design. Please try again.");
           } else {
