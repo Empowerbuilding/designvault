@@ -39,7 +39,7 @@ router.post("/", async (req: Request, res: Response) => {
     // Get plan details for metadata
     const { data: plan } = await getSupabase()
       .from("website_floor_plans")
-      .select("id, title, beds, baths, area, style")
+      .select("id, title, beds, baths, area, style, image_url")
       .eq("id", session.plan_id)
       .single();
 
@@ -110,6 +110,35 @@ router.post("/", async (req: Request, res: Response) => {
           builderSlug,
           error: String(err),
         });
+      }
+    }
+
+    // Fire n8n "design saved" email automation webhook
+    const n8nDesignWebhook = process.env.N8N_DESIGN_SAVED_WEBHOOK;
+    if (n8nDesignWebhook) {
+      try {
+        await fetch(n8nDesignWebhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            phone,
+            plan_id: session.plan_id,
+            plan_title: plan?.title ?? "",
+            plan_specs: planSpecs,
+            plan_image: plan?.image_url ?? "",
+            modifications: session.modifications ?? [],
+            session_id: sessionId,
+            builder_slug: builderSlug,
+            scheduler_url:
+              "https://crm.empowerbuilding.ai/book/30-minute-consultation",
+          }),
+        });
+        log("N8N_DESIGN_SAVED_WEBHOOK_OK", { email, sessionId });
+      } catch (err) {
+        log("N8N_DESIGN_SAVED_WEBHOOK_ERROR", { error: String(err) });
       }
     }
 
