@@ -36,16 +36,38 @@ router.post("/", async (req: Request, res: Response) => {
       return;
     }
 
-    // Get plan details for metadata
-    const { data: plan } = await getSupabase()
+    // Get ALL sessions for this user to capture full browsing history
+    const { data: allSessions } = await getSupabase()
+      .from("design_sessions")
+      .select("plan_id, modifications, interaction_count, created_at")
+      .eq("anonymous_id", session.anonymous_id)
+      .eq("builder_slug", builderSlug)
+      .order("created_at", { ascending: true });
+
+    // Get plan details for ALL viewed plans
+    const allPlanIds = [...new Set((allSessions || []).map(s => s.plan_id))];
+    const { data: allPlans } = await getSupabase()
       .from("website_floor_plans")
       .select("id, title, beds, baths, area, style, image_url")
-      .eq("id", session.plan_id)
-      .single();
+      .in("id", allPlanIds);
+
+    // Current plan details (from allPlans to avoid extra query)
+    const plan = (allPlans || []).find(p => p.id === session.plan_id) ?? null;
 
     const planSpecs = plan
       ? `${plan.beds ?? "?"}bd/${plan.baths ?? "?"}ba/${plan.area ?? "?"}sqft`
       : "";
+
+    // Build full browsing summary
+    const plansViewedDetails = (allPlans || []).map(p => ({
+      id: p.id,
+      title: p.title,
+      specs: `${p.beds ?? "?"}bd/${p.baths ?? "?"}ba/${p.area ?? "?"}sqft`,
+    }));
+
+    // Collect ALL modifications across all sessions
+    const allModifications = (allSessions || [])
+      .flatMap(s => s.modifications || []);
 
     // Facebook tracking data (forwarded from client)
     const clientIp =
@@ -70,11 +92,11 @@ router.post("/", async (req: Request, res: Response) => {
         planId: session.plan_id,
         planTitle: plan?.title ?? "",
         planSpecs,
-        modifications: session.modifications ?? [],
+        modifications: allModifications,
         favorites: leadData.favorites ?? [],
         stylePref: leadData.stylePref ?? null,
         sessionDuration: leadData.sessionDuration ?? 0,
-        plansViewed: leadData.plansViewed ?? [],
+        plansViewed: plansViewedDetails,
       },
     };
 
@@ -129,7 +151,8 @@ router.post("/", async (req: Request, res: Response) => {
             plan_title: plan?.title ?? "",
             plan_specs: planSpecs,
             plan_image: plan?.image_url ?? "",
-            modifications: session.modifications ?? [],
+            modifications: allModifications,
+            plans_viewed: plansViewedDetails,
             session_id: sessionId,
             builder_slug: builderSlug,
             scheduler_url:
