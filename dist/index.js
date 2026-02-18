@@ -298,8 +298,14 @@ function usePlans(initialFilters) {
       if (filters.maxArea !== null && plan.area > filters.maxArea)
         return false;
       if (filters.style !== null && plan.style !== filters.style) return false;
-      if (filters.category !== null && plan.category !== filters.category)
-        return false;
+      if (filters.category !== null) {
+        if (filters.category === "ranch_living") {
+          if (plan.category !== "barndominium" && plan.category !== "ranch" && plan.category !== "cabin")
+            return false;
+        } else if (plan.category !== filters.category) {
+          return false;
+        }
+      }
       return true;
     });
   }, [plans, filters]);
@@ -355,10 +361,8 @@ function usePlans(initialFilters) {
   };
 }
 var CATEGORIES = [
-  { slug: "barndominium", label: "Modern Barndo", icon: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Home, { size: 22 }) },
-  { slug: "ranch", label: "Rustic Ranch", icon: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Mountain, { size: 22 }) },
+  { slug: "ranch_living", label: "Ranch Living", icon: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Mountain, { size: 22 }) },
   { slug: "estate", label: "Luxury Estate", icon: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Crown, { size: 22 }) },
-  { slug: "cabin", label: "Hill Country", icon: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.TreePine, { size: 22 }) },
   { slug: "starter", label: "Compact / Starter", icon: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Minimize2, { size: 22 }) },
   { slug: "shop_house", label: "Shop + Living", icon: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Warehouse, { size: 22 }) }
 ];
@@ -1206,12 +1210,12 @@ var FloorPlanEditor = ({
       /* @__PURE__ */ jsxRuntime.jsxs(
         "button",
         {
-          className: "dv-wishlist__ai-btn",
+          className: "dv-wishlist__ai-btn dv-wishlist__ai-btn--primary",
           onClick: onPreviewAI,
           disabled: isProcessing,
           children: [
-            isProcessing ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Loader2, { size: 14, className: "dv-wishlist__spinner" }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 14 }),
-            isProcessing ? "Generating..." : "Preview AI Suggestion"
+            isProcessing ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Loader2, { size: 18, className: "dv-wishlist__spinner" }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Wand2, { size: 18 }),
+            isProcessing ? "Generating Your Floor Plan..." : "Generate AI Floor Plan"
           ]
         }
       ),
@@ -1381,6 +1385,24 @@ function getLatencyLog() {
   return latencyLog;
 }
 
+// src/utils/crmTracking.ts
+var CRM_VISITOR_KEY2 = "_crm_visitor_id";
+function getCRMVisitorId() {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.CRMTracking?.getVisitorId?.() ?? localStorage.getItem(CRM_VISITOR_KEY2);
+  } catch {
+    return null;
+  }
+}
+function trackCRMEvent(type, title, metadata) {
+  if (typeof window === "undefined") return;
+  try {
+    window.CRMTracking?.trackEvent(type, title, metadata);
+  } catch {
+  }
+}
+
 // src/hooks/useLeadCapture.ts
 function getCookie2(name) {
   if (typeof document === "undefined") return null;
@@ -1470,6 +1492,17 @@ function useLeadCapture() {
         setSubmitted(true);
         setCaptured(true);
         setIsOpen(false);
+        trackCRMEvent("lead_form_submitted", `Lead: ${formData.email}`, {
+          plan_id: currentPlan?.id ?? "",
+          plan_title: currentPlan?.title ?? "",
+          email: formData.email,
+          modifications_count: modifications.length,
+          plans_viewed: plansViewed.length,
+          session_duration: sessionDuration,
+          site: config.builderSlug,
+          session_id: sessionId ?? anonymousId,
+          anonymous_id: getCRMVisitorId() ?? anonymousId
+        });
         if (config.metaPixelId) {
           fireMetaPixelEvent(config.metaPixelId, "Lead", {
             content_name: currentPlan?.title,
@@ -1632,6 +1665,7 @@ var LeadCaptureModal = ({
   }, [isSubmitting, onClose]);
   const canSkip = skipCount < 2;
   const builderName = config.builderSlug.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const postCaptureExtra = 3;
   const fieldError = (field) => touched.has(field) && errors[field] ? errors[field] : null;
   return /* @__PURE__ */ jsxRuntime.jsx(framerMotion.AnimatePresence, { children: isOpen && /* @__PURE__ */ jsxRuntime.jsx(
     framerMotion.motion.div,
@@ -1666,19 +1700,35 @@ var LeadCaptureModal = ({
               /* ── Success confirmation ── */
               /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lead-modal__success", children: [
                 /* @__PURE__ */ jsxRuntime.jsx(lucideReact.CheckCircle, { size: 48, className: "dv-lead-modal__success-icon" }),
-                /* @__PURE__ */ jsxRuntime.jsx("h2", { className: "dv-lead-modal__title", children: "Saved!" }),
-                /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-lead-modal__subtitle", children: "Check your email for the full details." })
+                /* @__PURE__ */ jsxRuntime.jsxs("h2", { className: "dv-lead-modal__title", children: [
+                  "Design Saved \u2014 ",
+                  postCaptureExtra,
+                  " Credits Unlocked!"
+                ] }),
+                /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-lead-modal__subtitle", children: [
+                  "Your custom design is on its way to your inbox. Plus you've got ",
+                  postCaptureExtra,
+                  " more AI customizations to try."
+                ] })
               ] })
             ) : (
               /* ── Form ── */
               /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lead-modal__header", children: [
                   /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 24, className: "dv-lead-modal__header-icon" }),
-                  /* @__PURE__ */ jsxRuntime.jsx("h2", { className: "dv-lead-modal__title", children: "Save Your Custom Design" }),
+                  /* @__PURE__ */ jsxRuntime.jsxs("h2", { className: "dv-lead-modal__title", children: [
+                    "Save Your Design & Unlock ",
+                    postCaptureExtra,
+                    " More"
+                  ] }),
                   /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-lead-modal__subtitle", children: [
-                    "Enter your contact info to unlock more AI customizations and receive the full details for",
+                    "We'll email your custom design for",
                     " ",
-                    /* @__PURE__ */ jsxRuntime.jsx("strong", { children: plan.title })
+                    /* @__PURE__ */ jsxRuntime.jsx("strong", { children: plan.title }),
+                    " \u2014 plus you'll get",
+                    " ",
+                    postCaptureExtra,
+                    " more AI credits to keep customizing."
                   ] })
                 ] }),
                 modifications.length > 0 && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lead-modal__mods", children: [
@@ -1781,7 +1831,7 @@ var LeadCaptureModal = ({
                             ),
                             "Saving..."
                           ] }) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-                            /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Send, { size: 16 }),
+                            /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Save, { size: 16 }),
                             config.ctaText || "Save My Design"
                           ] })
                         }
@@ -1838,6 +1888,16 @@ function useAIInteractions() {
       }
       setIsStyleSwapProcessing(true);
       setError(null);
+      const crmMeta = {
+        plan_id: planId,
+        plan_title: currentPlan?.title ?? "",
+        preset,
+        interaction_number: interactionCount + 1,
+        site: config.builderSlug,
+        session_id: effectiveSessionId,
+        anonymous_id: getCRMVisitorId() ?? anonymousId
+      };
+      trackCRMEvent("style_swap_started", `Style swap: ${preset}`, crmMeta);
       try {
         const result = await api.styleSwap(
           planId,
@@ -1857,6 +1917,11 @@ function useAIInteractions() {
             resultUrl: result.resultUrl,
             originalUrl: currentPlan?.image_url ?? "",
             timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          trackCRMEvent("style_swap_completed", `Style swap: ${preset}`, {
+            ...crmMeta,
+            result_url: result.resultUrl,
+            cached: result.cached
           });
         }
         return result;
@@ -1878,12 +1943,15 @@ function useAIInteractions() {
     },
     [
       api,
+      config.builderSlug,
+      anonymousId,
       effectiveSessionId,
       isCaptured,
       interactionCount,
       hardLimit,
       addModification,
-      currentPlan?.image_url
+      currentPlan?.image_url,
+      currentPlan?.title
     ]
   );
   const handleFloorPlanEdit = React.useCallback(
@@ -1894,6 +1962,16 @@ function useAIInteractions() {
       }
       setIsFloorPlanProcessing(true);
       setError(null);
+      const crmMeta = {
+        plan_id: planId,
+        plan_title: currentPlan?.title ?? "",
+        prompt,
+        interaction_number: interactionCount + 1,
+        site: config.builderSlug,
+        session_id: effectiveSessionId,
+        anonymous_id: getCRMVisitorId() ?? anonymousId
+      };
+      trackCRMEvent("floor_plan_edit_started", `Floor plan edit: ${prompt.slice(0, 80)}`, crmMeta);
       try {
         const result = await api.floorPlanEdit(
           planId,
@@ -1912,6 +1990,11 @@ function useAIInteractions() {
             resultUrl: result.resultUrl,
             originalUrl: currentUrl ?? currentPlan?.floor_plan_url ?? "",
             timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          trackCRMEvent("floor_plan_edit_completed", `Floor plan edit: ${prompt.slice(0, 80)}`, {
+            ...crmMeta,
+            result_url: result.resultUrl,
+            cached: result.cached
           });
         }
         return result;
@@ -1933,12 +2016,15 @@ function useAIInteractions() {
     },
     [
       api,
+      config.builderSlug,
+      anonymousId,
       effectiveSessionId,
       isCaptured,
       interactionCount,
       hardLimit,
       addModification,
-      currentPlan?.floor_plan_url
+      currentPlan?.floor_plan_url,
+      currentPlan?.title
     ]
   );
   const handleEnhancePrompt = React.useCallback(
@@ -1965,6 +2051,8 @@ function useAIInteractions() {
     needsCapture,
     hitHardLimit,
     interactionCount,
+    maxFree,
+    hardLimit,
     error
   };
 }
@@ -1989,6 +2077,9 @@ var AIToolsPanel = ({
     isFloorPlanProcessing,
     needsCapture,
     hitHardLimit,
+    interactionCount,
+    maxFree,
+    hardLimit,
     error: aiError
   } = useAIInteractions();
   const { modifications, isCaptured, addModification } = useDesignVaultContext();
@@ -2067,15 +2158,41 @@ var AIToolsPanel = ({
   ]);
   const openModal = React.useCallback(() => setModalOpen(true), []);
   const closeModal = React.useCallback(() => setModalOpen(false), []);
+  const totalCredits = isCaptured ? hardLimit : maxFree;
+  const creditsRemaining = Math.max(0, totalCredits - interactionCount);
+  const postCaptureExtra = hardLimit - maxFree;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools", children: [
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__header", children: [
       /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 20 }),
       /* @__PURE__ */ jsxRuntime.jsx("h3", { className: "dv-ai-tools__title", children: "AI Design Tools" })
     ] }),
+    !hitHardLimit && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__credits", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 14, className: "dv-ai-tools__credits-icon" }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+        creditsRemaining,
+        " of ",
+        totalCredits,
+        " credit",
+        totalCredits !== 1 ? "s" : "",
+        " remaining"
+      ] })
+    ] }),
+    !isCaptured && !needsCapture && !hitHardLimit && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__unlock-hint", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Unlock, { size: 14 }),
+      /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+        "Save your design to unlock ",
+        postCaptureExtra,
+        " more AI credits"
+      ] })
+    ] }),
     (needsCapture || aiError && !isCaptured) && !hitHardLimit && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-ai-tools__gate", children: [
       /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Lock, { size: 18, className: "dv-ai-tools__gate-icon" }),
       /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-title", children: "You've used your free design preview" }),
-      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__gate-sub", children: "Save your design to unlock more AI tools" }),
+      /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-ai-tools__gate-sub", children: [
+        "Save your design and unlock ",
+        postCaptureExtra,
+        " more AI customizations"
+      ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(
         "button",
         {
@@ -2083,7 +2200,9 @@ var AIToolsPanel = ({
           onClick: openModal,
           children: [
             /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Save, { size: 16 }),
-            config.ctaText || "Save My Design"
+            "Save Design & Unlock ",
+            postCaptureExtra,
+            " More"
           ]
         }
       )
@@ -2156,19 +2275,28 @@ var AIToolsPanel = ({
       )
     ] }),
     /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-ai-tools__divider" }),
-    /* @__PURE__ */ jsxRuntime.jsxs(
+    /* @__PURE__ */ jsxRuntime.jsx(
       "button",
       {
         className: "dv-ai-tools__save-btn",
         onClick: openModal,
         disabled: isCaptured,
-        children: [
+        children: isCaptured ? /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
           /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Save, { size: 16 }),
-          isCaptured ? "Design Saved" : "Save This Design"
-        ]
+          "Design Saved"
+        ] }) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Save, { size: 16 }),
+          "Save Design & Unlock ",
+          postCaptureExtra,
+          " More"
+        ] })
       }
     ),
-    !hitHardLimit && /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-ai-tools__callout", children: "First customization is free. Save your design to unlock more." }),
+    !hitHardLimit && !isCaptured && /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-ai-tools__callout", children: [
+      "First customization is free. Save your design to unlock ",
+      postCaptureExtra,
+      " more."
+    ] }),
     /* @__PURE__ */ jsxRuntime.jsx(
       LeadCaptureModal,
       {
@@ -2333,6 +2461,7 @@ var PlanDetail = ({
   onPlanSwitch
 }) => {
   const { setCurrentPlan } = useSession();
+  const { config: dvConfig, anonymousId, sessionId } = useDesignVaultContext();
   const panelRef = React.useRef(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [aiResults, setAiResults] = React.useState({});
@@ -2372,8 +2501,18 @@ var PlanDetail = ({
       setHasFloorPlanResult(false);
       setShowOriginalFloorPlan(false);
       panelRef.current?.scrollTo(0, 0);
+      trackCRMEvent("plan_viewed", plan.title, {
+        plan_id: plan.id,
+        plan_title: plan.title,
+        beds: plan.beds,
+        baths: plan.baths,
+        sqft: plan.area,
+        site: dvConfig.builderSlug,
+        session_id: sessionId ?? anonymousId,
+        anonymous_id: getCRMVisitorId() ?? anonymousId
+      });
     }
-  }, [isOpen, plan, setCurrentPlan]);
+  }, [isOpen, plan, setCurrentPlan, dvConfig.builderSlug, anonymousId, sessionId]);
   React.useEffect(() => {
     if (isOpen) {
       const prev = document.body.style.overflow;
@@ -2732,15 +2871,11 @@ function DesignVaultInner({ config }) {
     /* @__PURE__ */ jsxRuntime.jsxs("header", { className: "dv-hero", children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-hero__badge", children: [
         /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 13 }),
-        "AI-Powered Design"
+        "Interactive Floor Plans"
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("h1", { className: "dv-hero__title", children: "Design Your Dream Home" }),
-      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__subtitle", children: "Browse. Customize. Build." }),
-      /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-hero__desc", children: [
-        "Explore ",
-        plans.length > 0 ? `${plans.length}+` : "",
-        " custom floor plans and use AI to make them yours"
-      ] })
+      /* @__PURE__ */ jsxRuntime.jsx("h1", { className: "dv-hero__title", children: "Luxury Meets Customization" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__subtitle", children: "Pick a Plan. Style It. Make It Yours." }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__desc", children: "Pick a floor plan and instantly see it in your style. No commitment, just inspiration." })
     ] }),
     /* @__PURE__ */ jsxRuntime.jsx("main", { className: "dv-container", children: /* @__PURE__ */ jsxRuntime.jsx(ArchiveGrid, { onPlanSelect: handlePlanSelect }) }),
     detailPlan && /* @__PURE__ */ jsxRuntime.jsx(

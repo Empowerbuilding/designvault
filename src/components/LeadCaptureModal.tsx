@@ -229,9 +229,9 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
               /* ── Success confirmation ── */
               <div className="dv-lead-modal__success">
                 <CheckCircle size={48} className="dv-lead-modal__success-icon" />
-                <h2 className="dv-lead-modal__title">{postCaptureExtra} Credits Unlocked!</h2>
+                <h2 className="dv-lead-modal__title">Design Saved — {postCaptureExtra} Credits Unlocked!</h2>
                 <p className="dv-lead-modal__subtitle">
-                  You now have {postCaptureExtra} more AI designs to try. Check your email for the full details.
+                  Your custom design is on its way to your inbox. Plus you've got {postCaptureExtra} more AI customizations to try.
                 </p>
               </div>
             ) : (
@@ -241,12 +241,12 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                 <div className="dv-lead-modal__header">
                   <Sparkles size={24} className="dv-lead-modal__header-icon" />
                   <h2 className="dv-lead-modal__title">
-                    Save Your Custom Design
+                    Save Your Design & Unlock {postCaptureExtra} More
                   </h2>
                   <p className="dv-lead-modal__subtitle">
-                    Save your design to receive the full details for{" "}
-                    <strong>{plan.title}</strong> and unlock{" "}
-                    {postCaptureExtra} more AI credits
+                    We'll email your custom design for{" "}
+                    <strong>{plan.title}</strong> — plus you'll get{" "}
+                    {postCaptureExtra} more AI credits to keep customizing.
                   </p>
                 </div>
 

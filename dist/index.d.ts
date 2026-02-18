@@ -2,7 +2,7 @@ import * as React from 'react';
 import React__default from 'react';
 
 type FloorPlanStyle = "modern" | "traditional" | "rustic" | "contemporary" | "farmhouse" | "hill_country";
-type FloorPlanCategory = "barndominium" | "ranch" | "estate" | "cabin" | "shop_house" | "starter";
+type FloorPlanCategory = "barndominium" | "ranch" | "estate" | "cabin" | "shop_house" | "starter" | "ranch_living";
 type PriceTier = "economy" | "standard" | "luxury";
 interface FloorPlan {
     id: string;
@@ -317,6 +317,8 @@ declare function useAIInteractions(): {
     needsCapture: boolean;
     hitHardLimit: boolean;
     interactionCount: number;
+    maxFree: number;
+    hardLimit: number;
     error: string | null;
 };
 
@@ -358,6 +360,10 @@ declare global {
     interface Window {
         fbq?: Fbq;
         dataLayer?: Record<string, unknown>[];
+        CRMTracking?: {
+            trackEvent(type: string, title: string, metadata?: Record<string, unknown>): void;
+            getVisitorId(): string | null;
+        };
     }
 }
 declare function trackPageView(pixelId: string, anonymousId?: string, trackingEndpoint?: string): void;

@@ -185,7 +185,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
             onClick={openModal}
           >
             <Save size={16} />
-            Save My Design & Unlock {postCaptureExtra} More
+            Save Design & Unlock {postCaptureExtra} More
           </button>
         </div>
       )}
@@ -286,7 +286,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
         ) : (
           <>
             <Save size={16} />
-            Save My Design
+            Save Design & Unlock {postCaptureExtra} More
           </>
         )}
       </button>
@@ -294,7 +294,7 @@ export const AIToolsPanel: React.FC<AIToolsPanelProps> = ({
       {/* Callout */}
       {!hitHardLimit && !isCaptured && (
         <p className="dv-ai-tools__callout">
-          {maxFree} free credit{maxFree !== 1 ? "s" : ""}. Save your design to unlock {postCaptureExtra} more.
+          First customization is free. Save your design to unlock {postCaptureExtra} more.
         </p>
       )}
 
