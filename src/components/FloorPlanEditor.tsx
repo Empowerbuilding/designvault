@@ -144,7 +144,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
         </div>
       )}
       <ImageLightbox
-        src={displayUrl}
+        src={originalFloorPlanUrl}
         alt="Floor plan"
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}

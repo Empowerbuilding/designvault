@@ -564,10 +564,6 @@ var PlanCard = ({
             ] }),
             isNew && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-plan-card__badge dv-plan-card__badge--new", children: "NEW" })
           ] }),
-          /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "dv-plan-card__ai-badge", children: [
-            /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 10 }),
-            " AI Customizable"
-          ] }),
           onFavorite && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-plan-card__favorite", children: /* @__PURE__ */ jsxRuntime.jsx(
             FavoriteButton,
             {
@@ -856,12 +852,14 @@ var ImageLightbox = ({
   onClose,
   images,
   activeIndex = 0,
-  onIndexChange
+  onIndexChange,
+  aiResults
 }) => {
   const containerRef = React.useRef(null);
   const imgRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
   const [translate, setTranslate] = React.useState({ x: 0, y: 0 });
+  const [showOriginal, setShowOriginal] = React.useState(false);
   const lastTouchRef = React.useRef(null);
   const lastPinchDistRef = React.useRef(null);
   const lastPinchCenterRef = React.useRef(null);
@@ -869,11 +867,15 @@ var ImageLightbox = ({
   const swipeDeltaRef = React.useRef(0);
   const wasPinchingRef = React.useRef(false);
   const canSwipe = !!images && images.length > 1 && !!onIndexChange;
-  const displaySrc = images?.[activeIndex]?.url ?? src;
+  const originalUrl = images?.[activeIndex]?.url ?? src;
+  const aiUrl = aiResults?.[originalUrl];
+  const hasAiResult = !!aiUrl;
+  const displaySrc = hasAiResult && !showOriginal ? aiUrl : originalUrl;
   React.useEffect(() => {
     if (isOpen) {
       setScale(1);
       setTranslate({ x: 0, y: 0 });
+      setShowOriginal(false);
     }
   }, [isOpen, activeIndex]);
   React.useEffect(() => {
@@ -1083,6 +1085,30 @@ var ImageLightbox = ({
             )
           }
         ),
+        hasAiResult && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lightbox-compare", children: [
+          /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              className: `dv-lightbox-compare__btn ${!showOriginal ? "dv-lightbox-compare__btn--active" : ""}`,
+              onClick: (e) => {
+                e.stopPropagation();
+                setShowOriginal(false);
+              },
+              children: "AI Generated"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              className: `dv-lightbox-compare__btn ${showOriginal ? "dv-lightbox-compare__btn--active" : ""}`,
+              onClick: (e) => {
+                e.stopPropagation();
+                setShowOriginal(true);
+              },
+              children: "Original"
+            }
+          )
+        ] }),
         canSwipe && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-lightbox-dots", children: images.map((_, i) => /* @__PURE__ */ jsxRuntime.jsx(
           "button",
           {
@@ -1224,10 +1250,11 @@ var FloorPlanEditor = ({
     /* @__PURE__ */ jsxRuntime.jsx(
       ImageLightbox,
       {
-        src: displayUrl,
+        src: originalFloorPlanUrl,
         alt: "Floor plan",
         isOpen: lightboxOpen,
-        onClose: () => setLightboxOpen(false)
+        onClose: () => setLightboxOpen(false),
+        aiResults: hasFloorPlanResult ? { [originalFloorPlanUrl]: floorPlanUrl } : void 0
       }
     )
   ] });
@@ -1908,7 +1935,8 @@ function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-        setInteractionCount((c) => c + 1);
+        const limit = isCaptured ? hardLimit : maxFree;
+        setInteractionCount(limit - result.remainingFree);
         if (result.success && result.resultUrl) {
           addModification({
             type: "style_swap",
@@ -1927,6 +1955,7 @@ function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
+          setInteractionCount(maxFree);
           if (isCaptured) {
             setError("Something went wrong syncing your saved design. Please try again.");
           } else {
@@ -1981,7 +2010,8 @@ function useAIInteractions() {
         );
         setLastResult(result);
         setServerNeedsCapture(false);
-        setInteractionCount((c) => c + 1);
+        const limit = isCaptured ? hardLimit : maxFree;
+        setInteractionCount(limit - result.remainingFree);
         if (result.success && result.resultUrl) {
           addModification({
             type: "floor_plan_edit",
@@ -2000,6 +2030,7 @@ function useAIInteractions() {
         return result;
       } catch (err) {
         if (err instanceof CaptureRequiredError) {
+          setInteractionCount(maxFree);
           if (isCaptured) {
             setError("Something went wrong syncing your saved design. Please try again.");
           } else {
@@ -2802,7 +2833,8 @@ var PlanDetail = ({
                   setSwipeDirection(i > activeIndex ? 1 : -1);
                   setActiveIndex(i);
                   setShowOriginal(false);
-                }
+                },
+                aiResults
               }
             )
           ]

@@ -54,10 +54,6 @@ export const PlanCard: React.FC<PlanCardProps> = ({
           </div>
         )}
 
-        {/* AI badge — top right */}
-        <span className="dv-plan-card__ai-badge">
-          <Sparkles size={10} /> AI Customizable
-        </span>
 
         {/* Favorite button — on image, below AI badge */}
         {onFavorite && (
