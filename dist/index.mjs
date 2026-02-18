@@ -193,6 +193,7 @@ function DesignVaultProvider({
     }
   }, []);
   const [sessionId, setSessionId] = useState(null);
+  const [initialInteractionCount, setInitialInteractionCount] = useState(0);
   const [modifications, setModifications] = useState([]);
   const [plansViewed, setPlansViewed] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
@@ -215,6 +216,8 @@ function DesignVaultProvider({
       setCaptured,
       sessionId,
       setSessionId,
+      initialInteractionCount,
+      setInitialInteractionCount,
       modifications,
       addModification,
       plansViewed,
@@ -230,6 +233,7 @@ function DesignVaultProvider({
       anonymousId,
       isCaptured,
       sessionId,
+      initialInteractionCount,
       modifications,
       plansViewed,
       currentPlan,
@@ -1884,7 +1888,8 @@ function useAIInteractions() {
     anonymousId,
     sessionId,
     currentPlan,
-    addModification
+    addModification,
+    initialInteractionCount
   } = useDesignVaultContext();
   const maxFree = config.maxFreeInteractions ?? 1;
   const hardLimit = maxFree + 3;
@@ -1897,6 +1902,16 @@ function useAIInteractions() {
   const [error, setError] = useState(null);
   const [hitHardLimit, setHitHardLimit] = useState(false);
   const [serverNeedsCapture, setServerNeedsCapture] = useState(false);
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (initialInteractionCount > 0 && !seededRef.current) {
+      seededRef.current = true;
+      setInteractionCount(initialInteractionCount);
+      if (initialInteractionCount >= hardLimit) {
+        setHitHardLimit(true);
+      }
+    }
+  }, [initialInteractionCount, hardLimit]);
   const needsCapture = interactionCount >= maxFree && !isCaptured || serverNeedsCapture && !isCaptured;
   const effectiveSessionId = sessionId ?? anonymousId;
   const handleStyleSwap = useCallback(
@@ -2394,8 +2409,10 @@ function useSession() {
     anonymousId,
     sessionStartTime,
     isCaptured,
+    setCaptured,
     sessionId,
     setSessionId,
+    setInitialInteractionCount,
     modifications,
     addModification: ctxAddModification,
     plansViewed,
@@ -2439,12 +2456,10 @@ function useSession() {
       });
       if (!sessionId) {
         try {
-          const { sessionId: newId } = await api.createSession(
-            plan.id,
-            config.builderSlug,
-            anonymousId
-          );
+          const { sessionId: newId, totalInteractionCount, isCaptured: serverCaptured } = await api.createSession(plan.id, config.builderSlug, anonymousId);
           setSessionId(newId);
+          setInitialInteractionCount(totalInteractionCount);
+          if (serverCaptured && !isCaptured) setCaptured(true);
         } catch {
         }
       }
@@ -2453,8 +2468,11 @@ function useSession() {
       api,
       config.builderSlug,
       anonymousId,
+      isCaptured,
       sessionId,
       setSessionId,
+      setInitialInteractionCount,
+      setCaptured,
       ctxSetCurrentPlan,
       addPlanViewed
     ]

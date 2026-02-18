@@ -60,6 +60,8 @@ export interface DesignVaultContextValue {
   // Session tracking (shared across hooks)
   sessionId: string | null;
   setSessionId: (id: string | null) => void;
+  initialInteractionCount: number;
+  setInitialInteractionCount: (count: number) => void;
   modifications: Modification[];
   addModification: (mod: Modification) => void;
   plansViewed: string[];
@@ -111,6 +113,7 @@ export function DesignVaultProvider({
     try { if (captured) localStorage.setItem(CAPTURED_KEY, "1"); } catch { /* noop */ }
   }, []);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [initialInteractionCount, setInitialInteractionCount] = useState(0);
   const [modifications, setModifications] = useState<Modification[]>([]);
   const [plansViewed, setPlansViewed] = useState<string[]>([]);
   const [currentPlan, setCurrentPlan] = useState<FloorPlan | null>(null);
@@ -136,6 +139,8 @@ export function DesignVaultProvider({
       setCaptured,
       sessionId,
       setSessionId,
+      initialInteractionCount,
+      setInitialInteractionCount,
       modifications,
       addModification,
       plansViewed,
@@ -151,6 +156,7 @@ export function DesignVaultProvider({
       anonymousId,
       isCaptured,
       sessionId,
+      initialInteractionCount,
       modifications,
       plansViewed,
       currentPlan,

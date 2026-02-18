@@ -27,6 +27,17 @@ router.post("/", async (req: Request, res: Response) => {
       .limit(1)
       .single();
 
+    // Sum interaction_count across ALL sessions for this user + builder
+    const { data: allSessions } = await getSupabase()
+      .from("design_sessions")
+      .select("interaction_count")
+      .eq("anonymous_id", anonymousId)
+      .eq("builder_slug", builderSlug);
+
+    const totalInteractionCount = allSessions
+      ? allSessions.reduce((sum, s) => sum + (s.interaction_count ?? 0), 0)
+      : 0;
+
     const sessionId = uuidv4();
 
     const { data, error } = await getSupabase()
@@ -49,8 +60,12 @@ router.post("/", async (req: Request, res: Response) => {
       return;
     }
 
-    log("SESSION_CREATED", { sessionId, planId, builderSlug });
-    res.status(201).json({ sessionId: data.id });
+    log("SESSION_CREATED", { sessionId, planId, builderSlug, totalInteractionCount });
+    res.status(201).json({
+      sessionId: data.id,
+      totalInteractionCount,
+      isCaptured: !!prevCaptured,
+    });
   } catch (err) {
     res.status(500).json({ error: "Failed to create session" });
   }

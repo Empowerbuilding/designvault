@@ -255,6 +255,8 @@ declare class DesignVaultAPI {
     }>;
     createSession(planId: string, builderSlug: string, anonymousId: string): Promise<{
         sessionId: string;
+        totalInteractionCount: number;
+        isCaptured: boolean;
     }>;
     private friendlyError;
     private get;
@@ -270,6 +272,8 @@ interface DesignVaultContextValue {
     setCaptured: (captured: boolean) => void;
     sessionId: string | null;
     setSessionId: (id: string | null) => void;
+    initialInteractionCount: number;
+    setInitialInteractionCount: (count: number) => void;
     modifications: Modification[];
     addModification: (mod: Modification) => void;
     plansViewed: string[];

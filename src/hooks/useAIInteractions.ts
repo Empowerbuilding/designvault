@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDesignVaultContext } from "./useDesignVault";
 import { CaptureRequiredError } from "../api/client";
 import { trackCRMEvent, getCRMVisitorId } from "../utils/crmTracking";
@@ -13,6 +13,7 @@ export function useAIInteractions() {
     sessionId,
     currentPlan,
     addModification,
+    initialInteractionCount,
   } = useDesignVaultContext();
 
   const maxFree = config.maxFreeInteractions ?? 1;
@@ -27,6 +28,18 @@ export function useAIInteractions() {
   const [error, setError] = useState<string | null>(null);
   const [hitHardLimit, setHitHardLimit] = useState(false);
   const [serverNeedsCapture, setServerNeedsCapture] = useState(false);
+
+  // Seed interactionCount from the session creation response
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (initialInteractionCount > 0 && !seededRef.current) {
+      seededRef.current = true;
+      setInteractionCount(initialInteractionCount);
+      if (initialInteractionCount >= hardLimit) {
+        setHitHardLimit(true);
+      }
+    }
+  }, [initialInteractionCount, hardLimit]);
 
   const needsCapture =
     (interactionCount >= maxFree && !isCaptured) || (serverNeedsCapture && !isCaptured);

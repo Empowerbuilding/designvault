@@ -117,8 +117,8 @@ export class DesignVaultAPI {
     planId: string,
     builderSlug: string,
     anonymousId: string
-  ): Promise<{ sessionId: string }> {
-    return this.post<{ sessionId: string }>(
+  ): Promise<{ sessionId: string; totalInteractionCount: number; isCaptured: boolean }> {
+    return this.post<{ sessionId: string; totalInteractionCount: number; isCaptured: boolean }>(
       `${this.baseUrl}/api/sessions`,
       { planId, builderSlug, anonymousId }
     );

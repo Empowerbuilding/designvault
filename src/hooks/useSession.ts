@@ -9,8 +9,10 @@ export function useSession() {
     anonymousId,
     sessionStartTime,
     isCaptured,
+    setCaptured,
     sessionId,
     setSessionId,
+    setInitialInteractionCount,
     modifications,
     addModification: ctxAddModification,
     plansViewed,
@@ -62,12 +64,12 @@ export function useSession() {
       // Create session on first plan selection
       if (!sessionId) {
         try {
-          const { sessionId: newId } = await api.createSession(
-            plan.id,
-            config.builderSlug,
-            anonymousId
-          );
+          const { sessionId: newId, totalInteractionCount, isCaptured: serverCaptured } =
+            await api.createSession(plan.id, config.builderSlug, anonymousId);
           setSessionId(newId);
+          setInitialInteractionCount(totalInteractionCount);
+          // Sync captured status from server (covers returning users)
+          if (serverCaptured && !isCaptured) setCaptured(true);
         } catch {
           // Non-critical — interactions will fall back to anonymousId
         }
@@ -77,8 +79,11 @@ export function useSession() {
       api,
       config.builderSlug,
       anonymousId,
+      isCaptured,
       sessionId,
       setSessionId,
+      setInitialInteractionCount,
+      setCaptured,
       ctxSetCurrentPlan,
       addPlanViewed,
     ]
