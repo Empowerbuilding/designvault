@@ -104,6 +104,21 @@ function remainingFree(
   return Math.max(0, MAX_FREE - interactionCount);
 }
 
+/** Sum interaction_count across ALL sessions for this anonymous user + builder */
+async function getTotalInteractionCount(
+  anonymousId: string,
+  builderSlug: string
+): Promise<number> {
+  const { data } = await getSupabase()
+    .from("design_sessions")
+    .select("interaction_count")
+    .eq("anonymous_id", anonymousId)
+    .eq("builder_slug", builderSlug);
+
+  if (!data) return 0;
+  return data.reduce((sum, s) => sum + (s.interaction_count ?? 0), 0);
+}
+
 // ── POST /api/style-swap ────────────────────────────────────
 
 router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
@@ -148,7 +163,7 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
       }
     }
 
-    const count = session.interaction_count ?? 0;
+    const count = await getTotalInteractionCount(session.anonymous_id, session.builder_slug);
     if (!session.is_captured && count >= MAX_FREE) {
       res.status(403).json({
         error: "Lead capture required",
@@ -230,7 +245,7 @@ router.post("/style-swap", aiLimiter, async (req: Request, res: Response) => {
       resultUrl,
       cached: false,
       remainingFree: remainingFree(
-        (updated?.interaction_count ?? count + 1),
+        count + 1,
         updated?.is_captured ?? session.is_captured
       ),
     });
@@ -283,7 +298,7 @@ router.post(
         }
       }
 
-      const count = session.interaction_count ?? 0;
+      const count = await getTotalInteractionCount(session.anonymous_id, session.builder_slug);
       if (!session.is_captured && count >= MAX_FREE) {
         res.status(403).json({
           error: "Lead capture required",
@@ -356,7 +371,7 @@ router.post(
         resultUrl,
         cached: false,
         remainingFree: remainingFree(
-          (updated?.interaction_count ?? count + 1),
+          count + 1,
           updated?.is_captured ?? session.is_captured
         ),
       });
