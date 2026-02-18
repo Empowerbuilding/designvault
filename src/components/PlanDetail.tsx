@@ -433,6 +433,7 @@ if (plan.interior_urls) {
                 setActiveIndex(i);
                 setShowOriginal(false);
               }}
+              aiResults={aiResults}
             />
           </motion.div>
         </motion.div>

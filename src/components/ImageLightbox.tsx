@@ -10,6 +10,8 @@ interface ImageLightboxProps {
   images?: { url: string; label: string }[];
   activeIndex?: number;
   onIndexChange?: (index: number) => void;
+  /** Map of originalUrl → aiUrl for before/after toggle */
+  aiResults?: Record<string, string>;
 }
 
 export const ImageLightbox: React.FC<ImageLightboxProps> = ({
@@ -20,6 +22,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   images,
   activeIndex = 0,
   onIndexChange,
+  aiResults,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -27,6 +30,9 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   // Transform state
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
+
+  // Before/after toggle
+  const [showOriginal, setShowOriginal] = useState(false);
 
   // Touch tracking refs
   const lastTouchRef = useRef<{ x: number; y: number } | null>(null);
@@ -39,13 +45,17 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   const wasPinchingRef = useRef(false);
 
   const canSwipe = !!images && images.length > 1 && !!onIndexChange;
-  const displaySrc = images?.[activeIndex]?.url ?? src;
+  const originalUrl = images?.[activeIndex]?.url ?? src;
+  const aiUrl = aiResults?.[originalUrl];
+  const hasAiResult = !!aiUrl;
+  const displaySrc = hasAiResult && !showOriginal ? aiUrl : originalUrl;
 
   // Reset on open/close or image change
   useEffect(() => {
     if (isOpen) {
       setScale(1);
       setTranslate({ x: 0, y: 0 });
+      setShowOriginal(false);
     }
   }, [isOpen, activeIndex]);
 
@@ -293,6 +303,28 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
               }}
             />
           </div>
+
+          {/* Before/After toggle */}
+          {hasAiResult && (
+            <div className="dv-lightbox-compare">
+              <button
+                className={`dv-lightbox-compare__btn ${
+                  !showOriginal ? "dv-lightbox-compare__btn--active" : ""
+                }`}
+                onClick={(e) => { e.stopPropagation(); setShowOriginal(false); }}
+              >
+                AI Generated
+              </button>
+              <button
+                className={`dv-lightbox-compare__btn ${
+                  showOriginal ? "dv-lightbox-compare__btn--active" : ""
+                }`}
+                onClick={(e) => { e.stopPropagation(); setShowOriginal(true); }}
+              >
+                Original
+              </button>
+            </div>
+          )}
 
           {/* Dot indicators */}
           {canSwipe && (

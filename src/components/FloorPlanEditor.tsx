@@ -148,6 +148,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
         alt="Floor plan"
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
+        aiResults={hasFloorPlanResult ? { [originalFloorPlanUrl]: floorPlanUrl } : undefined}
       />
     </div>
   );
