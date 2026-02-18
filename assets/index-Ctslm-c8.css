@@ -148,7 +148,6 @@ html, body {
 
 .dv-category-tiles {
   display: flex;
-  justify-content: center;
   gap: 12px;
   margin-bottom: 28px;
   overflow-x: auto;
@@ -2491,6 +2490,12 @@ html, body {
 
   .dv-lightbox-scroll__img {
     border-radius: 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .dv-category-tiles {
+    justify-content: center;
   }
 }
 
