@@ -1906,7 +1906,16 @@ function useAIInteractions() {
   const [lastResult, setLastResult] = React.useState(
     null
   );
-  const [interactionCount, setInteractionCount] = React.useState(0);
+  const INTERACTION_COUNT_KEY = `dv-interactions-${config.builderSlug}`;
+  const [interactionCount, setInteractionCount] = React.useState(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const stored = localStorage.getItem(INTERACTION_COUNT_KEY);
+      return stored ? parseInt(stored, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
   const [error, setError] = React.useState(null);
   const [hitHardLimit, setHitHardLimit] = React.useState(false);
   const [serverNeedsCapture, setServerNeedsCapture] = React.useState(false);
@@ -1920,6 +1929,12 @@ function useAIInteractions() {
       }
     }
   }, [initialInteractionCount, hardLimit]);
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(INTERACTION_COUNT_KEY, String(interactionCount));
+    } catch {
+    }
+  }, [interactionCount, INTERACTION_COUNT_KEY]);
   const needsCapture = interactionCount >= maxFree && !isCaptured || serverNeedsCapture && !isCaptured;
   const effectiveSessionId = sessionId ?? anonymousId;
   const handleStyleSwap = React.useCallback(

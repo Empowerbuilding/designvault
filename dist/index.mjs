@@ -1898,7 +1898,16 @@ function useAIInteractions() {
   const [lastResult, setLastResult] = useState(
     null
   );
-  const [interactionCount, setInteractionCount] = useState(0);
+  const INTERACTION_COUNT_KEY = `dv-interactions-${config.builderSlug}`;
+  const [interactionCount, setInteractionCount] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    try {
+      const stored = localStorage.getItem(INTERACTION_COUNT_KEY);
+      return stored ? parseInt(stored, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
   const [error, setError] = useState(null);
   const [hitHardLimit, setHitHardLimit] = useState(false);
   const [serverNeedsCapture, setServerNeedsCapture] = useState(false);
@@ -1912,6 +1921,12 @@ function useAIInteractions() {
       }
     }
   }, [initialInteractionCount, hardLimit]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(INTERACTION_COUNT_KEY, String(interactionCount));
+    } catch {
+    }
+  }, [interactionCount, INTERACTION_COUNT_KEY]);
   const needsCapture = interactionCount >= maxFree && !isCaptured || serverNeedsCapture && !isCaptured;
   const effectiveSessionId = sessionId ?? anonymousId;
   const handleStyleSwap = useCallback(

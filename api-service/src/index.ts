@@ -32,6 +32,7 @@ app.use(
       if (!origin) return callback(null, true);
       if (allowedOrigins.length === 0) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
+      log("CORS_REJECTED", { origin });
       callback(new Error("Not allowed by CORS"));
     },
     credentials: true,

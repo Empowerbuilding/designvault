@@ -179,15 +179,6 @@ router.post("/", async (req: Request, res: Response) => {
       return;
     }
 
-    // Try to set contact_id separately (non-blocking — may fail if UUID column)
-    await getSupabase()
-      .from("design_sessions")
-      .update({ contact_id: email })
-      .eq("id", sessionId)
-      .then(({ error }) => {
-        if (error) log("SESSION_CONTACT_ID_WARN", { sessionId, error: error.message });
-      });
-
     // Also mark any other sessions for this anonymous user as captured
     // so switching plans doesn't lose captured status
     await getSupabase()
