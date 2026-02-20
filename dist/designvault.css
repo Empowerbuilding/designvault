@@ -662,7 +662,7 @@ html, body {
   position: absolute;
   top: 16px;
   right: 16px;
-  z-index: 10;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -751,6 +751,7 @@ html, body {
 
 .dv-detail__scheduler-btn--mobile {
   font-size: 15px;
+  padding-right: 56px;
 }
 
 /* Detail — hero image */
