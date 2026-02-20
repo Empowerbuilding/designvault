@@ -144,6 +144,22 @@ html, body {
   margin: 0 auto;
 }
 
+.dv-hero__cta-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 14px 32px;
+  background: var(--dv-brand);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.dv-hero__cta-btn:hover {
+  opacity: 0.85;
+}
+
 /* ── 5. Category Tiles ───────────────────────────────────────── */
 
 .dv-category-tiles {
@@ -646,7 +662,7 @@ html, body {
   position: absolute;
   top: 16px;
   right: 16px;
-  z-index: 10;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -735,6 +751,7 @@ html, body {
 
 .dv-detail__scheduler-btn--mobile {
   font-size: 15px;
+  padding-right: 56px;
 }
 
 /* Detail — hero image */
