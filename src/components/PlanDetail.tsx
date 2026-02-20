@@ -215,7 +215,7 @@ if (plan.interior_urls) {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.3, ease: "easeOut" }}
                 >
-                  Make This Plan Yours
+                  Get a Quote on This Plan
                   <ArrowRight size={18} />
                 </motion.button>
               </div>
@@ -230,7 +230,7 @@ if (plan.interior_urls) {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.35, ease: "easeOut" }}
               >
-                Make This Plan Yours
+                Get a Quote on This Plan
                 <ArrowRight size={18} />
               </motion.button>
             )}

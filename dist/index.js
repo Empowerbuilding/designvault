@@ -2688,7 +2688,7 @@ var PlanDetail = ({
                 animate: { y: 0, opacity: 1 },
                 transition: { delay: 0.3, duration: 0.3, ease: "easeOut" },
                 children: [
-                  "Make This Plan Yours",
+                  "Get a Quote on This Plan",
                   /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
                 ]
               }
@@ -2702,7 +2702,7 @@ var PlanDetail = ({
                 animate: { x: 0, opacity: 1 },
                 transition: { delay: 0.5, duration: 0.35, ease: "easeOut" },
                 children: [
-                  "Make This Plan Yours",
+                  "Get a Quote on This Plan",
                   /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ArrowRight, { size: 18 })
                 ]
               }
