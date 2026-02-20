@@ -701,7 +701,7 @@ html, body {
   display: flex;
   justify-content: center;
   padding: 10px 64px 10px 16px;
-  margin-left: 10px;
+  margin-left: 16px;
 }
 
 /* Scheduler — compact gold pill button */
