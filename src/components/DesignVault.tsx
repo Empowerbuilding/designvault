@@ -101,11 +101,19 @@ function DesignVaultInner({ config }: { config: DesignVaultConfig }) {
           <Sparkles size={13} />
           Interactive Floor Plans
         </div>
-        <h1 className="dv-hero__title">Luxury Meets Customization</h1>
-        <p className="dv-hero__subtitle">Pick a Plan. Style It. Make It Yours.</p>
+        <h1 className="dv-hero__title">Find Your Perfect Floor Plan</h1>
+        <p className="dv-hero__subtitle">Browse. Customize. Build With Confidence.</p>
         <p className="dv-hero__desc">
-          Pick a floor plan and instantly see it in your style. No commitment, just inspiration.
+          Explore 67+ steel building floor plans and see your vision come to life. Ready to build? Our team is here to help.
         </p>
+        <a
+          href="https://crm.empowerbuilding.ai/book/30-minute-consultation"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="dv-hero__cta-btn"
+        >
+          Schedule a Free Consultation →
+        </a>
       </header>
 
       {/* Archive grid */}

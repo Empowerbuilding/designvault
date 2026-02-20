@@ -2938,9 +2938,19 @@ function DesignVaultInner({ config }) {
         /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Sparkles, { size: 13 }),
         "Interactive Floor Plans"
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("h1", { className: "dv-hero__title", children: "Luxury Meets Customization" }),
-      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__subtitle", children: "Pick a Plan. Style It. Make It Yours." }),
-      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__desc", children: "Pick a floor plan and instantly see it in your style. No commitment, just inspiration." })
+      /* @__PURE__ */ jsxRuntime.jsx("h1", { className: "dv-hero__title", children: "Find Your Perfect Floor Plan" }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__subtitle", children: "Browse. Customize. Build With Confidence." }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__desc", children: "Explore 67+ steel building floor plans and see your vision come to life. Ready to build? Our team is here to help." }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "a",
+        {
+          href: "https://crm.empowerbuilding.ai/book/30-minute-consultation",
+          target: "_blank",
+          rel: "noopener noreferrer",
+          className: "dv-hero__cta-btn",
+          children: "Schedule a Free Consultation \u2192"
+        }
+      )
     ] }),
     /* @__PURE__ */ jsxRuntime.jsx("main", { className: "dv-container", children: /* @__PURE__ */ jsxRuntime.jsx(ArchiveGrid, { onPlanSelect: handlePlanSelect }) }),
     detailPlan && /* @__PURE__ */ jsxRuntime.jsx(

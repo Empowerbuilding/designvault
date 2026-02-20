@@ -2541,6 +2541,51 @@ html, body {
   transform: scale(1.4);
 }
 
+/* Lightbox before/after compare toggle */
+.dv-lightbox-compare {
+  position: fixed;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 9999px;
+  padding: 4px;
+  z-index: 10002;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.dv-lightbox-compare__btn {
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dv-lightbox-compare__btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dv-lightbox-compare__btn--active {
+  background: var(--dv-brand);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(184, 134, 11, 0.4);
+}
+
+.dv-lightbox-compare__btn--active:hover {
+  background: var(--dv-brand-light);
+  color: #fff;
+}
+
 /* ── 24. Utility ─────────────────────────────────────────────── */
 
 .dv-sr-only {
