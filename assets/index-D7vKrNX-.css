@@ -700,8 +700,8 @@ html, body {
 .dv-detail__scheduler-row {
   display: flex;
   justify-content: center;
-  padding: 10px 64px 10px 16px;
-  margin-left: 16px;
+  padding: 10px 64px 10px 48px;
+  margin-left: 0;
 }
 
 /* Scheduler — compact gold pill button */
