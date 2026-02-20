@@ -340,7 +340,7 @@ router.post(
       log("FLOOR_PLAN_EDIT_START", { planId, prompt, floorPlanUrl });
 
       const n8nResult = await callN8nWebhook<Record<string, unknown>>(
-        "designvaultkey",
+        "floor-plan-edit",
         {
           currentFloorPlanUrl: floorPlanUrl,
           editPrompt: prompt,
