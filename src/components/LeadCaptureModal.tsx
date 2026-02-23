@@ -368,7 +368,9 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                       </span>
                     )}
                     <p className="dv-lead-modal__sms-consent">
-                      We may send SMS updates. Reply STOP to opt out.
+                      We may send SMS updates. Reply STOP to opt out. Your
+                      mobile information will not be sold or shared with third
+                      parties for promotional or marketing purposes.
                     </p>
                   </div>
 

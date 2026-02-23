@@ -1831,7 +1831,7 @@ var LeadCaptureModal = ({
                           }
                         ),
                         fieldError("phone") && /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("phone") }),
-                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__sms-consent", children: "We may send SMS updates. Reply STOP to opt out." })
+                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__sms-consent", children: "We may send SMS updates. Reply STOP to opt out. Your mobile information will not be sold or shared with third parties for promotional or marketing purposes." })
                       ] }),
                       /* @__PURE__ */ jsxs("p", { className: "dv-lead-modal__privacy", children: [
                         "Your info will be shared with",
