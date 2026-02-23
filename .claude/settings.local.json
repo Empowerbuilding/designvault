@@ -16,7 +16,8 @@
       "Bash(git push:*)",
       "Bash(git status:*)",
       "WebFetch(domain:designvault.barnhaussteelbuilders.com)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm publish:*)"
     ]
   }
 }

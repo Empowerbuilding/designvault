@@ -1970,6 +1970,13 @@ html, body {
   padding-left: 2px;
 }
 
+.dv-lead-modal__sms-consent {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
 .dv-lead-modal__privacy {
   font-size: 12px;
   color: var(--dv-text-muted);

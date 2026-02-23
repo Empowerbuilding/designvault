@@ -1971,11 +1971,10 @@ html, body {
 }
 
 .dv-lead-modal__sms-consent {
-  font-size: 11px;
-  color: var(--dv-text-muted);
-  line-height: 1.5;
-  margin-top: 6px;
-  padding-left: 2px;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 4px;
+  line-height: 1.4;
 }
 
 .dv-lead-modal__privacy {

@@ -1838,7 +1838,8 @@ var LeadCaptureModal = ({
                             autoComplete: "tel"
                           }
                         ),
-                        fieldError("phone") && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("phone") })
+                        fieldError("phone") && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("phone") }),
+                        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-lead-modal__sms-consent", children: "We may send SMS updates. Reply STOP to opt out." })
                       ] }),
                       /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-lead-modal__privacy", children: [
                         "Your info will be shared with",
