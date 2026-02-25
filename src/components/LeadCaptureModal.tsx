@@ -378,8 +378,8 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                         disabled={isSubmitting}
                       />
                       <span>
-                        By providing your phone number, you agree to receive SMS
-                        messages from Barnhaus Steel Builders. Message frequency
+                        You are opting into marketing texts from Barnhaus Steel
+                        Builders. Message frequency
                         may vary. Standard message and data rates may apply.
                         Reply STOP to opt out. Reply HELP for help. We will not
                         share your mobile information with third parties for

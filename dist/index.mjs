@@ -1844,7 +1844,7 @@ var LeadCaptureModal = ({
                               disabled: isSubmitting
                             }
                           ),
-                          /* @__PURE__ */ jsx("span", { children: "By providing your phone number, you agree to receive SMS messages from Barnhaus Steel Builders. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. We will not share your mobile information with third parties for promotional or marketing purposes." })
+                          /* @__PURE__ */ jsx("span", { children: "You are opting into marketing texts from Barnhaus Steel Builders. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. We will not share your mobile information with third parties for promotional or marketing purposes." })
                         ] })
                       ] }),
                       /* @__PURE__ */ jsxs("p", { className: "dv-lead-modal__privacy", children: [
