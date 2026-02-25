@@ -1641,6 +1641,7 @@ var LeadCaptureModal = ({
   const [phone, setPhone] = React.useState("");
   const [errors, setErrors] = React.useState({});
   const [touched, setTouched] = React.useState(/* @__PURE__ */ new Set());
+  const [smsOptIn, setSmsOptIn] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [skipCount, setSkipCount] = React.useState(getSkipCount);
   React.useEffect(() => {
@@ -1649,6 +1650,7 @@ var LeadCaptureModal = ({
       setLastName("");
       setEmail("");
       setPhone("");
+      setSmsOptIn(false);
       setErrors({});
       setTouched(/* @__PURE__ */ new Set());
       setShowSuccess(false);
@@ -1839,7 +1841,19 @@ var LeadCaptureModal = ({
                           }
                         ),
                         fieldError("phone") && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("phone") }),
-                        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-lead-modal__sms-consent", children: "We may send SMS updates. Reply STOP to opt out. Your mobile information will not be sold or shared with third parties for promotional or marketing purposes." })
+                        /* @__PURE__ */ jsxRuntime.jsxs("label", { className: "dv-lead-modal__sms-consent", children: [
+                          /* @__PURE__ */ jsxRuntime.jsx(
+                            "input",
+                            {
+                              type: "checkbox",
+                              className: "dv-lead-modal__sms-checkbox",
+                              checked: smsOptIn,
+                              onChange: (e) => setSmsOptIn(e.target.checked),
+                              disabled: isSubmitting
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntime.jsx("span", { children: "By providing your phone number, you agree to receive SMS messages from Barnhaus Steel Builders. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. We will not share your mobile information with third parties for promotional or marketing purposes." })
+                        ] })
                       ] }),
                       /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-lead-modal__privacy", children: [
                         "Your info will be shared with",

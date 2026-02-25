@@ -1633,6 +1633,7 @@ var LeadCaptureModal = ({
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState(/* @__PURE__ */ new Set());
+  const [smsOptIn, setSmsOptIn] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [skipCount, setSkipCount] = useState(getSkipCount);
   useEffect(() => {
@@ -1641,6 +1642,7 @@ var LeadCaptureModal = ({
       setLastName("");
       setEmail("");
       setPhone("");
+      setSmsOptIn(false);
       setErrors({});
       setTouched(/* @__PURE__ */ new Set());
       setShowSuccess(false);
@@ -1831,7 +1833,19 @@ var LeadCaptureModal = ({
                           }
                         ),
                         fieldError("phone") && /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__field-error", children: fieldError("phone") }),
-                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__sms-consent", children: "We may send SMS updates. Reply STOP to opt out. Your mobile information will not be sold or shared with third parties for promotional or marketing purposes." })
+                        /* @__PURE__ */ jsxs("label", { className: "dv-lead-modal__sms-consent", children: [
+                          /* @__PURE__ */ jsx(
+                            "input",
+                            {
+                              type: "checkbox",
+                              className: "dv-lead-modal__sms-checkbox",
+                              checked: smsOptIn,
+                              onChange: (e) => setSmsOptIn(e.target.checked),
+                              disabled: isSubmitting
+                            }
+                          ),
+                          /* @__PURE__ */ jsx("span", { children: "By providing your phone number, you agree to receive SMS messages from Barnhaus Steel Builders. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. We will not share your mobile information with third parties for promotional or marketing purposes." })
+                        ] })
                       ] }),
                       /* @__PURE__ */ jsxs("p", { className: "dv-lead-modal__privacy", children: [
                         "Your info will be shared with",

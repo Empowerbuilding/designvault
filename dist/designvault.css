@@ -1971,10 +1971,21 @@ html, body {
 }
 
 .dv-lead-modal__sms-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   font-size: 0.7rem;
   color: #9ca3af;
   margin-top: 4px;
   line-height: 1.4;
+  cursor: pointer;
+}
+
+.dv-lead-modal__sms-checkbox {
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--dv-primary, #3b82f6);
 }
 
 .dv-lead-modal__privacy {

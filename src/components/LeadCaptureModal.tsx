@@ -111,6 +111,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<Set<string>>(new Set());
+  const [smsOptIn, setSmsOptIn] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [skipCount, setSkipCount] = useState(getSkipCount);
 
@@ -121,6 +122,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       setLastName("");
       setEmail("");
       setPhone("");
+      setSmsOptIn(false);
       setErrors({});
       setTouched(new Set());
       setShowSuccess(false);
@@ -367,11 +369,23 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                         {fieldError("phone")}
                       </span>
                     )}
-                    <p className="dv-lead-modal__sms-consent">
-                      We may send SMS updates. Reply STOP to opt out. Your
-                      mobile information will not be sold or shared with third
-                      parties for promotional or marketing purposes.
-                    </p>
+                    <label className="dv-lead-modal__sms-consent">
+                      <input
+                        type="checkbox"
+                        className="dv-lead-modal__sms-checkbox"
+                        checked={smsOptIn}
+                        onChange={(e) => setSmsOptIn(e.target.checked)}
+                        disabled={isSubmitting}
+                      />
+                      <span>
+                        By providing your phone number, you agree to receive SMS
+                        messages from Barnhaus Steel Builders. Message frequency
+                        may vary. Standard message and data rates may apply.
+                        Reply STOP to opt out. Reply HELP for help. We will not
+                        share your mobile information with third parties for
+                        promotional or marketing purposes.
+                      </span>
+                    </label>
                   </div>
 
                   {/* Privacy text */}
