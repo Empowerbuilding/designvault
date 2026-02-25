@@ -1075,6 +1075,7 @@ html, body {
   border: 1px solid var(--dv-border);
   position: sticky;
   top: 24px;
+  max-width: 480px;
   max-height: calc(92vh - 5rem);
   overflow-y: auto;
 }
