@@ -7,7 +7,7 @@ import "designvault/styles.css";
 const config: DesignVaultConfig = {
   builderSlug: "barnhaus",
   brandColor: "#B8860B",
-  apiBaseUrl: "https://3d.barnhaussteelbuilders.com",
+  apiBaseUrl: "http://localhost:3001",
   metaPixelId: "",
   ctaText: "Save My Design",
   enableStyleSwap: true,

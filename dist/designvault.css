@@ -979,6 +979,76 @@ html, body {
   }
 }
 
+/* Desktop-only: AI tools + stats layout when sidebar is full-width */
+@media (min-width: 1100px) {
+  .dv-detail-hero__info {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0 0;
+  }
+
+  .dv-detail-hero__title {
+    text-align: center;
+    text-shadow: none;
+  }
+
+  .dv-detail-hero__specs {
+    justify-content: center;
+  }
+
+  .dv-ai-tools {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .dv-ai-tools__gate {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .dv-ai-tools__gate-btn {
+    max-width: 320px;
+    padding: 10px 20px;
+  }
+
+  .dv-ai-tools__save-btn {
+    max-width: 320px;
+    padding: 10px 16px;
+    margin: 0 auto;
+  }
+
+  .dv-style-swap__grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .dv-style-swap__btn {
+    padding: 8px 16px;
+  }
+
+  .dv-detail-thumbs {
+    justify-content: center;
+  }
+
+  .dv-similar-plans {
+    padding-top: 8px;
+  }
+
+  .dv-similar-plans__title {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .dv-similar-plans__grid {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
 /* Detail — thumbnails */
 .dv-detail-thumbs {
   display: flex;
@@ -1073,11 +1143,6 @@ html, body {
   background: var(--dv-card);
   border-radius: 16px;
   border: 1px solid var(--dv-border);
-  position: sticky;
-  top: 24px;
-  max-width: 480px;
-  max-height: calc(92vh - 5rem);
-  overflow-y: auto;
 }
 
 .dv-ai-tools__header {

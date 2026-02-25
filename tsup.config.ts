@@ -16,5 +16,5 @@ export default defineConfig({
       js: '"use client";',
     };
   },
-  onSuccess: "cp src/styles/designvault.css dist/designvault.css",
+  onSuccess: "node -e \"require('fs').copyFileSync('src/styles/designvault.css','dist/designvault.css')\"",
 });
