@@ -69,6 +69,7 @@ interface LeadCaptureData {
     stylePref: string | null;
     sessionDuration: number;
     plansViewed: number;
+    projectStage?: string;
     fbclid?: string;
     fbp?: string;
     fbc?: string;
@@ -343,6 +344,7 @@ declare function useLeadCapture(): {
         lastName: string;
         email: string;
         phone: string;
+        projectStage?: string;
     }) => Promise<void>;
     isSubmitting: boolean;
     submitted: boolean;

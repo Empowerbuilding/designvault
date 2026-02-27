@@ -1512,6 +1512,7 @@ function useLeadCapture() {
         stylePref,
         sessionDuration,
         plansViewed: plansViewed.length,
+        projectStage: formData.projectStage ?? "",
         ...getFbTracking()
       };
       try {
@@ -1642,6 +1643,7 @@ var LeadCaptureModal = ({
   const [errors, setErrors] = React.useState({});
   const [touched, setTouched] = React.useState(/* @__PURE__ */ new Set());
   const [smsOptIn, setSmsOptIn] = React.useState(false);
+  const [projectStage, setProjectStage] = React.useState("");
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [skipCount, setSkipCount] = React.useState(getSkipCount);
   React.useEffect(() => {
@@ -1651,6 +1653,7 @@ var LeadCaptureModal = ({
       setEmail("");
       setPhone("");
       setSmsOptIn(false);
+      setProjectStage("");
       setErrors({});
       setTouched(/* @__PURE__ */ new Set());
       setShowSuccess(false);
@@ -1685,7 +1688,8 @@ var LeadCaptureModal = ({
     if (Object.keys(fieldErrors).length > 0) return;
     await submitCapture({
       ...data,
-      phone: phone.replace(/\D/g, "")
+      phone: phone.replace(/\D/g, ""),
+      projectStage
     });
   };
   const handleSkip = React.useCallback(() => {
@@ -1860,6 +1864,28 @@ var LeadCaptureModal = ({
                         " ",
                         /* @__PURE__ */ jsxRuntime.jsx("strong", { children: builderName }),
                         " to help you build this home."
+                      ] }),
+                      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lead-modal__field", children: [
+                        /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "Where are you in your project?" }),
+                        /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "0.625rem" }, children: [
+                          { value: "gathering_ideas", label: "I'm just starting to gather ideas." },
+                          { value: "concept_budget", label: "I have a rough idea and need a 3D Concept & Budget Study to get started." },
+                          { value: "ready_for_bid", label: "I have full architectural plans and am ready for a construction bid." }
+                        ].map((option) => /* @__PURE__ */ jsxRuntime.jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer" }, children: [
+                          /* @__PURE__ */ jsxRuntime.jsx(
+                            "input",
+                            {
+                              type: "radio",
+                              name: "projectStage",
+                              value: option.value,
+                              checked: projectStage === option.value,
+                              onChange: (e) => setProjectStage(e.target.value),
+                              disabled: isSubmitting,
+                              style: { marginTop: "0.2rem", flexShrink: 0, accentColor: "var(--dv-accent, #B8860B)" }
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "dv-lead-modal__privacy", style: { margin: 0 }, children: option.label })
+                        ] }, option.value)) })
                       ] }),
                       /* @__PURE__ */ jsxRuntime.jsx(
                         "button",
