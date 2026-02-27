@@ -96,6 +96,7 @@ export interface LeadCaptureData {
   stylePref: string | null;
   sessionDuration: number;
   plansViewed: number;
+  projectStage?: string;
   fbclid?: string;
   fbp?: string;
   fbc?: string;

@@ -112,6 +112,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<Set<string>>(new Set());
   const [smsOptIn, setSmsOptIn] = useState(false);
+  const [projectStage, setProjectStage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [skipCount, setSkipCount] = useState(getSkipCount);
 
@@ -123,6 +124,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       setEmail("");
       setPhone("");
       setSmsOptIn(false);
+      setProjectStage("");
       setErrors({});
       setTouched(new Set());
       setShowSuccess(false);
@@ -169,6 +171,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
     await submitCapture({
       ...data,
       phone: phone.replace(/\D/g, ""),
+      projectStage,
     });
   };
 
@@ -393,6 +396,34 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                     Your info will be shared with{" "}
                     <strong>{builderName}</strong> to help you build this home.
                   </p>
+
+
+                  {/* Project Stage */}
+                  <div className="dv-lead-modal__field">
+                    <p className="dv-lead-modal__privacy" style={{ marginBottom: '0.5rem', fontWeight: 600, color: 'inherit' }}>
+                      Where are you in your project?
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                      {[
+                        { value: 'gathering_ideas', label: "I'm just starting to gather ideas." },
+                        { value: 'concept_budget', label: "I have a rough idea and need a 3D Concept & Budget Study to get started." },
+                        { value: 'ready_for_bid', label: "I have full architectural plans and am ready for a construction bid." }
+                      ].map((option) => (
+                        <label key={option.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+                          <input
+                            type="radio"
+                            name="projectStage"
+                            value={option.value}
+                            checked={projectStage === option.value}
+                            onChange={(e) => setProjectStage(e.target.value)}
+                            disabled={isSubmitting}
+                            style={{ marginTop: '0.2rem', flexShrink: 0, accentColor: 'var(--dv-accent, #B8860B)' }}
+                          />
+                          <span className="dv-lead-modal__privacy" style={{ margin: 0 }}>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Submit button */}
                   <button

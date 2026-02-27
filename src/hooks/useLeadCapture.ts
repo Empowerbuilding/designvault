@@ -66,6 +66,7 @@ export function useLeadCapture() {
       lastName: string;
       email: string;
       phone: string;
+      projectStage?: string;
     }) => {
       setIsSubmitting(true);
       setError(null);
@@ -91,6 +92,7 @@ export function useLeadCapture() {
         stylePref,
         sessionDuration,
         plansViewed: plansViewed.length,
+        projectStage: formData.projectStage ?? "",
         ...getFbTracking(),
       };
 
