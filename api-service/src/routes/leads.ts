@@ -83,6 +83,7 @@ router.post("/", async (req: Request, res: Response) => {
       phone,
       source: "floor_plan_archive",
       anonymous_id: session.anonymous_id ?? "",
+      project_stage: leadData.projectStage ?? "",
       ...(leadData.fbclid && { fbclid: leadData.fbclid }),
       ...(leadData.fbp && { fbp: leadData.fbp }),
       ...(leadData.fbc && { fbc: leadData.fbc }),
@@ -203,3 +204,4 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 export default router;
+
