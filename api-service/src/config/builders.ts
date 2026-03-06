@@ -10,11 +10,13 @@ export const builders: Record<string, BuilderConfig> = {
   cw: {
     name: "CW Custom Builders",
     webhookUrl: "https://crm.cw-custombuilders.com/api/leads/webhook",
+    webhookApiKey: process.env.CW_WEBHOOK_API_KEY ?? "",
     brandColor: "#C8A962",
   },
   showcase: {
     name: "Showcase Builders",
     webhookUrl: "https://crm.showcasebuilders.com/api/leads/webhook",
+    webhookApiKey: process.env.SHOWCASE_WEBHOOK_API_KEY ?? "",
     brandColor: "#C5A572",
   },
 };
