@@ -107,7 +107,7 @@ function DesignVaultInner({ config }: { config: DesignVaultConfig }) {
           Explore 67+ steel building floor plans and see your vision come to life. Ready to build? Our team is here to help.
         </p>
         <a
-          href="https://crm.empowerbuilding.ai/book/30-minute-consultation"
+          href={config.ctaUrl || "https://crm.empowerbuilding.ai/book/30-minute-consultation"}
           target="_blank"
           rel="noopener noreferrer"
           className="dv-hero__cta-btn"
