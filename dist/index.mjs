@@ -2977,7 +2977,7 @@ function DesignVaultInner({ config }) {
       /* @__PURE__ */ jsx(
         "a",
         {
-          href: "https://crm.empowerbuilding.ai/book/30-minute-consultation",
+          href: config.ctaUrl || config.schedulerUrl || "https://crm.empowerbuilding.ai/book/30-minute-consultation",
           target: "_blank",
           rel: "noopener noreferrer",
           className: "dv-hero__cta-btn",

@@ -103,6 +103,7 @@ interface DesignVaultConfig {
     enableFavorites?: boolean;
     enableSimilarPlans?: boolean;
     schedulerUrl?: string;
+    ctaUrl?: string;
     attribution?: {
         show: boolean;
         text: string;
