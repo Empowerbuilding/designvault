@@ -106,39 +106,36 @@ router.post("/", async (req: Request, res: Response) => {
       },
     };
 
-    // Forward to builder CRM webhook
+    // Forward to builder CRM webhook — fire-and-forget with 10s timeout
     const builder = builders[builderSlug];
     if (builder?.webhookUrl) {
-      try {
-        log("CRM_WEBHOOK_START", {
-          builderSlug,
-          webhookUrl: builder.webhookUrl,
-        });
-
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-        if (builder.webhookApiKey) {
-          headers["x-api-key"] = builder.webhookApiKey;
-        }
-
-        const webhookRes = await fetch(builder.webhookUrl, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(payload),
-        });
-
-        log("CRM_WEBHOOK_DONE", {
-          builderSlug,
-          status: webhookRes.status,
-        });
-      } catch (err) {
-        // Don't fail the lead save if webhook fails
-        log("CRM_WEBHOOK_ERROR", {
-          builderSlug,
-          error: String(err),
-        });
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (builder.webhookApiKey) {
+        headers["x-api-key"] = builder.webhookApiKey;
       }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      log("CRM_WEBHOOK_START", { builderSlug, webhookUrl: builder.webhookUrl });
+
+      // Don't await — return success to the user immediately
+      fetch(builder.webhookUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      })
+        .then((res) => {
+          clearTimeout(timeoutId);
+          log("CRM_WEBHOOK_DONE", { builderSlug, status: res.status });
+        })
+        .catch((err) => {
+          clearTimeout(timeoutId);
+          log("CRM_WEBHOOK_ERROR", { builderSlug, error: String(err) });
+        });
     }
 
     // Fire n8n "design saved" email automation webhook
