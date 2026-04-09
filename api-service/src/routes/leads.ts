@@ -89,6 +89,11 @@ router.post("/", async (req: Request, res: Response) => {
       ...(leadData.fbc && { fbc: leadData.fbc }),
       ...(leadData.client_user_agent && { client_user_agent: leadData.client_user_agent }),
       ...(clientIp && { client_ip_address: clientIp }),
+      ...(leadData.utm_source && { utm_source: leadData.utm_source }),
+      ...(leadData.utm_medium && { utm_medium: leadData.utm_medium }),
+      ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),
+      ...(leadData.utm_content && { utm_content: leadData.utm_content }),
+      ...(leadData.utm_term && { utm_term: leadData.utm_term }),
       metadata: {
         planId: session.plan_id,
         planTitle: plan?.title ?? "",
