@@ -1452,11 +1452,36 @@ function getFbTracking() {
   })();
   const fbp = getCookie2("_fbp");
   const fbc = getCookie2("_fbc");
+  const getUtm = (key) => {
+    const val = params.get(key);
+    if (val) {
+      try {
+        sessionStorage.setItem(key, val);
+      } catch {
+      }
+      return val;
+    }
+    try {
+      return sessionStorage.getItem(key) || void 0;
+    } catch {
+      return void 0;
+    }
+  };
+  const utm_source = getUtm("utm_source");
+  const utm_medium = getUtm("utm_medium");
+  const utm_campaign = getUtm("utm_campaign");
+  const utm_content = getUtm("utm_content");
+  const utm_term = getUtm("utm_term");
   return {
     ...fbclid && { fbclid },
     ...fbp && { fbp },
     ...fbc && { fbc },
-    client_user_agent: navigator.userAgent
+    client_user_agent: navigator.userAgent,
+    ...utm_source && { utm_source },
+    ...utm_medium && { utm_medium },
+    ...utm_campaign && { utm_campaign },
+    ...utm_content && { utm_content },
+    ...utm_term && { utm_term }
   };
 }
 var FAVORITES_KEY = "dv-favorites";
