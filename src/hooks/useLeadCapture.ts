@@ -18,11 +18,29 @@ function getFbTracking() {
   })();
   const fbp = getCookie("_fbp");
   const fbc = getCookie("_fbc");
+
+  // UTM parameters — read from URL, fallback to sessionStorage
+  const getUtm = (key: string) => {
+    const val = params.get(key);
+    if (val) { try { sessionStorage.setItem(key, val); } catch {} return val; }
+    try { return sessionStorage.getItem(key) || undefined; } catch { return undefined; }
+  };
+  const utm_source = getUtm("utm_source");
+  const utm_medium = getUtm("utm_medium");
+  const utm_campaign = getUtm("utm_campaign");
+  const utm_content = getUtm("utm_content");
+  const utm_term = getUtm("utm_term");
+
   return {
     ...(fbclid && { fbclid }),
     ...(fbp && { fbp }),
     ...(fbc && { fbc }),
     client_user_agent: navigator.userAgent,
+    ...(utm_source && { utm_source }),
+    ...(utm_medium && { utm_medium }),
+    ...(utm_campaign && { utm_campaign }),
+    ...(utm_content && { utm_content }),
+    ...(utm_term && { utm_term }),
   };
 }
 
