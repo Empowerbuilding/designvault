@@ -2509,13 +2509,18 @@ html, body {
     width: 240px;
   }
 
+  .dv-lead-overlay {
+    overflow-y: auto;
+    align-items: flex-start;
+    padding: 0;
+  }
+
   .dv-lead-modal {
     max-width: none;
     padding: 24px;
-    border-radius: var(--dv-radius) var(--dv-radius) 0 0;
-    align-self: flex-end;
-    max-height: 95vh;
-    overflow-y: auto;
+    border-radius: 0;
+    align-self: auto;
+    min-height: 100%;
   }
 
   .dv-lead-modal__row {
