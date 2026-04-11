@@ -1993,6 +1993,8 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+  padding-bottom: 18px;
 }
 
 .dv-lead-modal__input {
@@ -2034,6 +2036,9 @@ html, body {
   font-size: 12px;
   color: #fca5a5;
   padding-left: 2px;
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
 }
 
 .dv-lead-modal__sms-consent {
