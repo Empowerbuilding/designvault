@@ -1748,7 +1748,7 @@ var LeadCaptureModal = ({
           transition: { duration: 0.25, ease: "easeOut" },
           onClick: (e) => e.stopPropagation(),
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx(
+            /* @__PURE__ */ jsxRuntime.jsx("div", { className: "dv-lead-modal__close-wrap", children: /* @__PURE__ */ jsxRuntime.jsx(
               "button",
               {
                 className: "dv-lead-modal__close",
@@ -1757,7 +1757,7 @@ var LeadCaptureModal = ({
                 disabled: isSubmitting,
                 children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 20 })
               }
-            ),
+            ) }),
             showSuccess ? (
               /* ── Success confirmation ── */
               /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lead-modal__success", children: [
