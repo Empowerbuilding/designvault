@@ -220,17 +220,15 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
             transition={{ duration: 0.25, ease: "easeOut" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button — sticky wrapper keeps it visible when modal scrolls on mobile */}
-            <div className="dv-lead-modal__close-wrap">
-              <button
-                className="dv-lead-modal__close"
-                onClick={onClose}
-                aria-label="Close"
-                disabled={isSubmitting}
-              >
-                <X size={20} />
-              </button>
-            </div>
+            {/* Close button */}
+            <button
+              className="dv-lead-modal__close"
+              onClick={onClose}
+              aria-label="Close"
+              disabled={isSubmitting}
+            >
+              <X size={20} />
+            </button>
 
             {showSuccess ? (
               /* ── Success confirmation ── */

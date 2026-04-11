@@ -1740,7 +1740,7 @@ var LeadCaptureModal = ({
           transition: { duration: 0.25, ease: "easeOut" },
           onClick: (e) => e.stopPropagation(),
           children: [
-            /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__close-wrap", children: /* @__PURE__ */ jsx(
+            /* @__PURE__ */ jsx(
               "button",
               {
                 className: "dv-lead-modal__close",
@@ -1749,7 +1749,7 @@ var LeadCaptureModal = ({
                 disabled: isSubmitting,
                 children: /* @__PURE__ */ jsx(X, { size: 20 })
               }
-            ) }),
+            ),
             showSuccess ? (
               /* ── Success confirmation ── */
               /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__success", children: [

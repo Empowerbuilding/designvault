@@ -1901,11 +1901,6 @@ html, body {
   pointer-events: none;
 }
 
-/* close-wrap: desktop is transparent — close button uses absolute positioning as-is */
-.dv-lead-modal__close-wrap {
-  display: contents;
-}
-
 .dv-lead-modal__header {
   display: flex;
   flex-direction: column;
@@ -2516,24 +2511,6 @@ html, body {
     align-self: flex-end;
     max-height: 95vh;
     overflow-y: auto;
-  }
-
-  /* Sticky close button — stays pinned while form scrolls on mobile */
-  .dv-lead-modal__close-wrap {
-    display: flex;
-    justify-content: flex-end;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--dv-card);
-    margin: -8px -24px 4px;
-    padding: 8px 8px 0;
-  }
-
-  .dv-lead-modal__close {
-    position: relative;
-    top: auto;
-    right: auto;
   }
 
   .dv-lead-modal__row {
