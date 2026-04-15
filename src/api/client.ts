@@ -6,6 +6,8 @@ import type {
 } from "../types";
 
 export class CaptureRequiredError extends Error {
+  private builderSlug?: string;
+
   constructor() {
     super("Lead capture required");
     this.name = "CaptureRequiredError";
@@ -15,7 +17,10 @@ export class CaptureRequiredError extends Error {
 export class DesignVaultAPI {
   private baseUrl: string;
 
+  private builderSlug?: string;
+
   constructor(apiBaseUrl: string) {
+    this.builderSlug = config?.builderSlug;
     this.baseUrl = apiBaseUrl.replace(/\/$/, "");
   }
 
@@ -46,6 +51,7 @@ export class DesignVaultAPI {
     }
 
     const query = params.toString();
+    if (this.builderSlug) params.set("builderSlug", this.builderSlug);
     const url = `${this.baseUrl}/api/plans${query ? `?${query}` : ""}`;
 
     return this.get<FloorPlan[]>(url);
