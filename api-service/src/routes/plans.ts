@@ -24,7 +24,7 @@ router.get("/", async (req: Request, res: Response) => {
     if (featured === "true") query = query.eq("is_featured", true);
     // Filter by builder slug: show plans where builder_slugs contains this slug OR builder_slugs is null (visible to all)
     if (builderSlug) {
-      query = query.or(`builder_slugs.cs.{${builderSlug}},builder_slugs.is.null`);
+      query = query.contains("builder_slugs", [builderSlug]);
     }
 
     const { data, error } = await query;
