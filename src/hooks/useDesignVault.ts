@@ -97,8 +97,8 @@ export function DesignVaultProvider({
   children,
 }: DesignVaultProviderProps) {
   const api = useMemo(
-    () => new DesignVaultAPI(config.apiBaseUrl),
-    [config.apiBaseUrl]
+    () => new DesignVaultAPI(config.apiBaseUrl, config.builderSlug),
+    [config.apiBaseUrl, config.builderSlug]
   );
 
   const [anonymousId] = useState(getOrCreateAnonymousId);
