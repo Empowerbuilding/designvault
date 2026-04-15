@@ -7,7 +7,7 @@ const router = Router();
 // ── GET /api/plans ──────────────────────────────────────────
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const { style, category, beds, baths, minArea, maxArea, featured } =
+    const { style, category, beds, baths, minArea, maxArea, featured, builderSlug } =
       req.query;
 
     let query = getSupabase()
@@ -22,6 +22,10 @@ router.get("/", async (req: Request, res: Response) => {
     if (minArea) query = query.gte("area", Number(minArea));
     if (maxArea) query = query.lte("area", Number(maxArea));
     if (featured === "true") query = query.eq("is_featured", true);
+    // Filter by builder slug: show plans where builder_slugs contains this slug OR builder_slugs is null (visible to all)
+    if (builderSlug) {
+      query = query.or(`builder_slugs.cs.{${builderSlug}},builder_slugs.is.null`);
+    }
 
     const { data, error } = await query;
 
