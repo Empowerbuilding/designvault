@@ -19,8 +19,8 @@ export class DesignVaultAPI {
 
   private builderSlug?: string;
 
-  constructor(apiBaseUrl: string) {
-    this.builderSlug = config?.builderSlug;
+  constructor(apiBaseUrl: string, builderSlug?: string) {
+    this.builderSlug = builderSlug;
     this.baseUrl = apiBaseUrl.replace(/\/$/, "");
   }
 
