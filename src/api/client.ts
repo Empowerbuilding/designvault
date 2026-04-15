@@ -29,6 +29,10 @@ export class DesignVaultAPI {
   async getPlans(filters?: PlanFilters): Promise<FloorPlan[]> {
     const params = new URLSearchParams();
 
+    if (this.builderSlug) {
+      params.set("builderSlug", this.builderSlug);
+    }
+
     if (filters) {
       if (filters.bedrooms !== null && filters.bedrooms !== undefined) {
         params.set("bedrooms", String(filters.bedrooms));
