@@ -104,7 +104,7 @@ function DesignVaultInner({ config }: { config: DesignVaultConfig }) {
         <h1 className="dv-hero__title">Find Your Perfect Floor Plan</h1>
         <p className="dv-hero__subtitle">Browse. Customize. Build With Confidence.</p>
         <p className="dv-hero__desc">
-          Explore 67+ steel building floor plans and see your vision come to life. Ready to build? Our team is here to help.
+          Explore 75+ steel building floor plans and see your vision come to life. Ready to build? Our team is here to help.
         </p>
         <a
           href={config.ctaUrl || config.schedulerUrl || "https://crm.empowerbuilding.ai/book/30-minute-consultation"}
