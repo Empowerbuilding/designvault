@@ -86,6 +86,9 @@ export function useLeadCapture() {
       phone: string;
       projectStage?: string;
       smsOptIn?: boolean;
+      projectType?: string;
+      budgetRange?: string;
+      kitConsent?: boolean;
     }) => {
       setIsSubmitting(true);
       setError(null);
@@ -114,6 +117,9 @@ export function useLeadCapture() {
         projectStage: formData.projectStage ?? "",
         // Lead monetization consent (v1) — spec: plans/lead-monetization/FORM_AND_DATA_SPEC.md
         smsOptIn: formData.smsOptIn ?? false,
+        projectType: formData.projectType ?? "",
+        budgetRange: formData.budgetRange ?? "",
+        kitConsent: formData.kitConsent ?? false,
         consent_source_url: typeof window !== "undefined" ? window.location.href : "",
         ...getFbTracking(),
       };

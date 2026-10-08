@@ -99,6 +99,9 @@ export interface LeadCaptureData {
   projectStage?: string;
   smsOptIn?: boolean;
   consent_source_url?: string;
+  projectType?: string;
+  budgetRange?: string;
+  kitConsent?: boolean;
   fbclid?: string;
   fbp?: string;
   fbc?: string;
@@ -148,6 +151,8 @@ export interface DesignVaultConfig {
   enableStyleSwap?: boolean;
   enableFavorites?: boolean;
   enableSimilarPlans?: boolean;
+  /** Lead-monetization routing questions on the capture form (build type + budget + kit offer). Barnhaus only. */
+  enableRoutingQuestions?: boolean;
   schedulerUrl?: string;
   ctaUrl?: string;
   attribution?: {

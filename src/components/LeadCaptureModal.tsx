@@ -49,6 +49,25 @@ function summarizeMod(mod: Modification): string {
   return mod.type === "style_swap" ? "Style customization" : "Floor plan edit";
 }
 
+// ── Lead routing questions (lead monetization — config-gated, Barnhaus only) ──
+
+const PROJECT_TYPE_OPTIONS = [
+  { value: "custom_home", label: "Custom home" },
+  { value: "barndominium", label: "Barndominium" },
+  { value: "shop_garage", label: "Shop / garage" },
+  { value: "unsure", label: "Not sure" },
+];
+
+const BUDGET_OPTIONS = [
+  { value: "under_150k", label: "Under $150k" },
+  { value: "150_300k", label: "$150–300k" },
+  { value: "300_600k", label: "$300–600k" },
+  { value: "600k_1m", label: "$600k–$1M" },
+  { value: "1m_3m", label: "$1M–$3M" },
+  { value: "3m_plus", label: "$3M+" },
+  { value: "unsure", label: "Not sure" },
+];
+
 // ── Validation ──────────────────────────────────────────────
 
 interface FieldErrors {
@@ -113,7 +132,17 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const [touched, setTouched] = useState<Set<string>>(new Set());
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [projectStage, setProjectStage] = useState("");
+  const [projectType, setProjectType] = useState("");
+  const [budgetRange, setBudgetRange] = useState("");
+  const [kitConsent, setKitConsent] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const showRouting = config.enableRoutingQuestions === true;
+  const showKitOffer =
+    showRouting &&
+    (budgetRange === "under_150k" ||
+      projectType === "shop_garage" ||
+      projectType === "barndominium");
   const [skipCount, setSkipCount] = useState(getSkipCount);
 
   // Reset form state when modal opens
@@ -125,6 +154,9 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       setPhone("");
       setSmsOptIn(false);
       setProjectStage("");
+      setProjectType("");
+      setBudgetRange("");
+      setKitConsent(false);
       setErrors({});
       setTouched(new Set());
       setShowSuccess(false);
@@ -173,6 +205,9 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       phone: phone.replace(/\D/g, ""),
       projectStage,
       smsOptIn,
+      projectType: showRouting ? projectType : "",
+      budgetRange: showRouting ? budgetRange : "",
+      kitConsent: showRouting && showKitOffer ? kitConsent : false,
     });
   };
 
@@ -428,6 +463,79 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                       ))}
                     </div>
                   </div>
+
+                  {/* Lead routing questions (lead monetization — config-gated) */}
+                  {showRouting && (
+                    <div className="dv-lead-modal__field">
+                      <p className="dv-lead-modal__privacy" style={{ marginBottom: '0.5rem', fontWeight: 600, color: 'inherit' }}>
+                        What are you planning to build?
+                      </p>
+                      <div className="dv-lead-modal__pill-row">
+                        {PROJECT_TYPE_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            className={`dv-lead-modal__pill ${projectType === opt.value ? "dv-lead-modal__pill--selected" : ""}`}
+                            onClick={() => setProjectType(projectType === opt.value ? "" : opt.value)}
+                            disabled={isSubmitting}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {showRouting && (
+                    <div className="dv-lead-modal__field">
+                      <p className="dv-lead-modal__privacy" style={{ marginBottom: '0.5rem', fontWeight: 600, color: 'inherit' }}>
+                        What's your budget range (roughly)?
+                      </p>
+                      <div className="dv-lead-modal__pill-row">
+                        {BUDGET_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            className={`dv-lead-modal__pill ${budgetRange === opt.value ? "dv-lead-modal__pill--selected" : ""}`}
+                            onClick={() => setBudgetRange(budgetRange === opt.value ? "" : opt.value)}
+                            disabled={isSubmitting}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {showKitOffer && (
+                    <div className="dv-lead-modal__kit-offer">
+                      <p className="dv-lead-modal__privacy" style={{ margin: 0 }}>
+                        💡 <strong>On a tighter budget?</strong> Steel building kits
+                        can stretch it a lot further — many of our customers go this route.
+                      </p>
+                      <p className="dv-lead-modal__privacy" style={{ marginTop: '0.4rem', marginBottom: '0.5rem' }}>
+                        Want us to connect you with kit suppliers?
+                      </p>
+                      <div className="dv-lead-modal__pill-row">
+                        <button
+                          type="button"
+                          className={`dv-lead-modal__pill ${kitConsent ? "dv-lead-modal__pill--selected" : ""}`}
+                          onClick={() => setKitConsent(true)}
+                          disabled={isSubmitting}
+                        >
+                          Yes, connect me
+                        </button>
+                        <button
+                          type="button"
+                          className={`dv-lead-modal__pill ${!kitConsent ? "dv-lead-modal__pill--selected" : ""}`}
+                          onClick={() => setKitConsent(false)}
+                          disabled={isSubmitting}
+                        >
+                          No thanks
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Submit button */}
                   <button

@@ -2712,3 +2712,45 @@ html, body {
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ── Lead routing pills (lead monetization — config-gated) ── */
+.dv-lead-modal__pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dv-lead-modal__pill {
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px solid #444;
+  background: #252525;
+  color: #d1d5db;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dv-lead-modal__pill:hover {
+  border-color: var(--dv-accent, #B8860B);
+}
+
+.dv-lead-modal__pill:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.dv-lead-modal__pill--selected {
+  background: var(--dv-accent, #B8860B);
+  border-color: var(--dv-accent, #B8860B);
+  color: #fff;
+}
+
+.dv-lead-modal__kit-offer {
+  border: 1px solid rgba(184, 134, 11, 0.35);
+  background: rgba(184, 134, 11, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}

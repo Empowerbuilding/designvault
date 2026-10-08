@@ -70,6 +70,9 @@ export interface LeadPayload {
   client_user_agent?: string;
   client_ip_address?: string;
   consent_sms?: boolean;
+  consent_kit?: boolean;
+  project_type?: string;
+  budget_range?: string;
   consent_captured_at?: string;
   consent_source_url?: string;
   consent_text_version?: string;

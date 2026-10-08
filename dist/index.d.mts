@@ -72,6 +72,9 @@ interface LeadCaptureData {
     projectStage?: string;
     smsOptIn?: boolean;
     consent_source_url?: string;
+    projectType?: string;
+    budgetRange?: string;
+    kitConsent?: boolean;
     fbclid?: string;
     fbp?: string;
     fbc?: string;
@@ -104,6 +107,8 @@ interface DesignVaultConfig {
     enableStyleSwap?: boolean;
     enableFavorites?: boolean;
     enableSimilarPlans?: boolean;
+    /** Lead-monetization routing questions on the capture form (build type + budget + kit offer). Barnhaus only. */
+    enableRoutingQuestions?: boolean;
     schedulerUrl?: string;
     ctaUrl?: string;
     attribution?: {
@@ -350,6 +355,9 @@ declare function useLeadCapture(): {
         phone: string;
         projectStage?: string;
         smsOptIn?: boolean;
+        projectType?: string;
+        budgetRange?: string;
+        kitConsent?: boolean;
     }) => Promise<void>;
     isSubmitting: boolean;
     submitted: boolean;

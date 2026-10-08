@@ -1537,6 +1537,9 @@ function useLeadCapture() {
         projectStage: formData.projectStage ?? "",
         // Lead monetization consent (v1) — spec: plans/lead-monetization/FORM_AND_DATA_SPEC.md
         smsOptIn: formData.smsOptIn ?? false,
+        projectType: formData.projectType ?? "",
+        budgetRange: formData.budgetRange ?? "",
+        kitConsent: formData.kitConsent ?? false,
         consent_source_url: typeof window !== "undefined" ? window.location.href : "",
         ...getFbTracking()
       };
@@ -1629,6 +1632,21 @@ function summarizeMod(mod) {
   }
   return mod.type === "style_swap" ? "Style customization" : "Floor plan edit";
 }
+var PROJECT_TYPE_OPTIONS = [
+  { value: "custom_home", label: "Custom home" },
+  { value: "barndominium", label: "Barndominium" },
+  { value: "shop_garage", label: "Shop / garage" },
+  { value: "unsure", label: "Not sure" }
+];
+var BUDGET_OPTIONS = [
+  { value: "under_150k", label: "Under $150k" },
+  { value: "150_300k", label: "$150\u2013300k" },
+  { value: "300_600k", label: "$300\u2013600k" },
+  { value: "600k_1m", label: "$600k\u2013$1M" },
+  { value: "1m_3m", label: "$1M\u2013$3M" },
+  { value: "3m_plus", label: "$3M+" },
+  { value: "unsure", label: "Not sure" }
+];
 var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validateFields(data) {
   const errors = {};
@@ -1669,7 +1687,12 @@ var LeadCaptureModal = ({
   const [touched, setTouched] = useState(/* @__PURE__ */ new Set());
   const [smsOptIn, setSmsOptIn] = useState(false);
   const [projectStage, setProjectStage] = useState("");
+  const [projectType, setProjectType] = useState("");
+  const [budgetRange, setBudgetRange] = useState("");
+  const [kitConsent, setKitConsent] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const showRouting = config.enableRoutingQuestions === true;
+  const showKitOffer = showRouting && (budgetRange === "under_150k" || projectType === "shop_garage" || projectType === "barndominium");
   const [skipCount, setSkipCount] = useState(getSkipCount);
   useEffect(() => {
     if (isOpen) {
@@ -1679,6 +1702,9 @@ var LeadCaptureModal = ({
       setPhone("");
       setSmsOptIn(false);
       setProjectStage("");
+      setProjectType("");
+      setBudgetRange("");
+      setKitConsent(false);
       setErrors({});
       setTouched(/* @__PURE__ */ new Set());
       setShowSuccess(false);
@@ -1715,7 +1741,10 @@ var LeadCaptureModal = ({
       ...data,
       phone: phone.replace(/\D/g, ""),
       projectStage,
-      smsOptIn
+      smsOptIn,
+      projectType: showRouting ? projectType : "",
+      budgetRange: showRouting ? budgetRange : "",
+      kitConsent: showRouting && showKitOffer ? kitConsent : false
     });
   };
   const handleSkip = useCallback(() => {
@@ -1913,6 +1942,64 @@ var LeadCaptureModal = ({
                           ),
                           /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__privacy", style: { margin: 0 }, children: option.label })
                         ] }, option.value)) })
+                      ] }),
+                      showRouting && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "What are you planning to build?" }),
+                        /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: PROJECT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ jsx(
+                          "button",
+                          {
+                            type: "button",
+                            className: `dv-lead-modal__pill ${projectType === opt.value ? "dv-lead-modal__pill--selected" : ""}`,
+                            onClick: () => setProjectType(projectType === opt.value ? "" : opt.value),
+                            disabled: isSubmitting,
+                            children: opt.label
+                          },
+                          opt.value
+                        )) })
+                      ] }),
+                      showRouting && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "What's your budget range (roughly)?" }),
+                        /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: BUDGET_OPTIONS.map((opt) => /* @__PURE__ */ jsx(
+                          "button",
+                          {
+                            type: "button",
+                            className: `dv-lead-modal__pill ${budgetRange === opt.value ? "dv-lead-modal__pill--selected" : ""}`,
+                            onClick: () => setBudgetRange(budgetRange === opt.value ? "" : opt.value),
+                            disabled: isSubmitting,
+                            children: opt.label
+                          },
+                          opt.value
+                        )) })
+                      ] }),
+                      showKitOffer && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__kit-offer", children: [
+                        /* @__PURE__ */ jsxs("p", { className: "dv-lead-modal__privacy", style: { margin: 0 }, children: [
+                          "\u{1F4A1} ",
+                          /* @__PURE__ */ jsx("strong", { children: "On a tighter budget?" }),
+                          " Steel building kits can stretch it a lot further \u2014 many of our customers go this route."
+                        ] }),
+                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginTop: "0.4rem", marginBottom: "0.5rem" }, children: "Want us to connect you with kit suppliers?" }),
+                        /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__pill-row", children: [
+                          /* @__PURE__ */ jsx(
+                            "button",
+                            {
+                              type: "button",
+                              className: `dv-lead-modal__pill ${kitConsent ? "dv-lead-modal__pill--selected" : ""}`,
+                              onClick: () => setKitConsent(true),
+                              disabled: isSubmitting,
+                              children: "Yes, connect me"
+                            }
+                          ),
+                          /* @__PURE__ */ jsx(
+                            "button",
+                            {
+                              type: "button",
+                              className: `dv-lead-modal__pill ${!kitConsent ? "dv-lead-modal__pill--selected" : ""}`,
+                              onClick: () => setKitConsent(false),
+                              disabled: isSubmitting,
+                              children: "No thanks"
+                            }
+                          )
+                        ] })
                       ] }),
                       /* @__PURE__ */ jsx(
                         "button",
