@@ -135,6 +135,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const [projectType, setProjectType] = useState("");
   const [budgetRange, setBudgetRange] = useState("");
   const [kitConsent, setKitConsent] = useState(false);
+  const [kitAnswered, setKitAnswered] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const showRouting = config.enableRoutingQuestions === true;
@@ -157,6 +158,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       setProjectType("");
       setBudgetRange("");
       setKitConsent(false);
+      setKitAnswered(false);
       setErrors({});
       setTouched(new Set());
       setShowSuccess(false);
@@ -479,7 +481,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                             onClick={() => setProjectType(projectType === opt.value ? "" : opt.value)}
                             disabled={isSubmitting}
                           >
-                            {opt.label}
+                            {projectType === opt.value ? "\u2713 " : ""}{opt.label}
                           </button>
                         ))}
                       </div>
@@ -500,7 +502,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                             onClick={() => setBudgetRange(budgetRange === opt.value ? "" : opt.value)}
                             disabled={isSubmitting}
                           >
-                            {opt.label}
+                            {budgetRange === opt.value ? "\u2713 " : ""}{opt.label}
                           </button>
                         ))}
                       </div>
@@ -519,19 +521,19 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                       <div className="dv-lead-modal__pill-row">
                         <button
                           type="button"
-                          className={`dv-lead-modal__pill ${kitConsent ? "dv-lead-modal__pill--selected" : ""}`}
-                          onClick={() => setKitConsent(true)}
+                          className={`dv-lead-modal__pill ${kitAnswered && kitConsent ? "dv-lead-modal__pill--selected" : ""}`}
+                          onClick={() => { setKitConsent(true); setKitAnswered(true); }}
                           disabled={isSubmitting}
                         >
-                          Yes, connect me
+                          {kitAnswered && kitConsent ? "\u2713 " : ""}Yes, connect me
                         </button>
                         <button
                           type="button"
-                          className={`dv-lead-modal__pill ${!kitConsent ? "dv-lead-modal__pill--selected" : ""}`}
-                          onClick={() => setKitConsent(false)}
+                          className={`dv-lead-modal__pill ${kitAnswered && !kitConsent ? "dv-lead-modal__pill--selected" : ""}`}
+                          onClick={() => { setKitConsent(false); setKitAnswered(true); }}
                           disabled={isSubmitting}
                         >
-                          No thanks
+                          {kitAnswered && !kitConsent ? "\u2713 " : ""}No thanks
                         </button>
                       </div>
                     </div>

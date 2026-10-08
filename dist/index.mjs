@@ -1690,6 +1690,7 @@ var LeadCaptureModal = ({
   const [projectType, setProjectType] = useState("");
   const [budgetRange, setBudgetRange] = useState("");
   const [kitConsent, setKitConsent] = useState(false);
+  const [kitAnswered, setKitAnswered] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const showRouting = config.enableRoutingQuestions === true;
   const showKitOffer = showRouting && (budgetRange === "under_150k" || projectType === "shop_garage" || projectType === "barndominium");
@@ -1705,6 +1706,7 @@ var LeadCaptureModal = ({
       setProjectType("");
       setBudgetRange("");
       setKitConsent(false);
+      setKitAnswered(false);
       setErrors({});
       setTouched(/* @__PURE__ */ new Set());
       setShowSuccess(false);
@@ -1945,28 +1947,34 @@ var LeadCaptureModal = ({
                       ] }),
                       showRouting && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
                         /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "What are you planning to build?" }),
-                        /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: PROJECT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ jsx(
+                        /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: PROJECT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ jsxs(
                           "button",
                           {
                             type: "button",
                             className: `dv-lead-modal__pill ${projectType === opt.value ? "dv-lead-modal__pill--selected" : ""}`,
                             onClick: () => setProjectType(projectType === opt.value ? "" : opt.value),
                             disabled: isSubmitting,
-                            children: opt.label
+                            children: [
+                              projectType === opt.value ? "\u2713 " : "",
+                              opt.label
+                            ]
                           },
                           opt.value
                         )) })
                       ] }),
                       showRouting && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
                         /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "What's your budget range (roughly)?" }),
-                        /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: BUDGET_OPTIONS.map((opt) => /* @__PURE__ */ jsx(
+                        /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: BUDGET_OPTIONS.map((opt) => /* @__PURE__ */ jsxs(
                           "button",
                           {
                             type: "button",
                             className: `dv-lead-modal__pill ${budgetRange === opt.value ? "dv-lead-modal__pill--selected" : ""}`,
                             onClick: () => setBudgetRange(budgetRange === opt.value ? "" : opt.value),
                             disabled: isSubmitting,
-                            children: opt.label
+                            children: [
+                              budgetRange === opt.value ? "\u2713 " : "",
+                              opt.label
+                            ]
                           },
                           opt.value
                         )) })
@@ -1979,24 +1987,36 @@ var LeadCaptureModal = ({
                         ] }),
                         /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginTop: "0.4rem", marginBottom: "0.5rem" }, children: "Want us to connect you with kit suppliers?" }),
                         /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__pill-row", children: [
-                          /* @__PURE__ */ jsx(
+                          /* @__PURE__ */ jsxs(
                             "button",
                             {
                               type: "button",
-                              className: `dv-lead-modal__pill ${kitConsent ? "dv-lead-modal__pill--selected" : ""}`,
-                              onClick: () => setKitConsent(true),
+                              className: `dv-lead-modal__pill ${kitAnswered && kitConsent ? "dv-lead-modal__pill--selected" : ""}`,
+                              onClick: () => {
+                                setKitConsent(true);
+                                setKitAnswered(true);
+                              },
                               disabled: isSubmitting,
-                              children: "Yes, connect me"
+                              children: [
+                                kitAnswered && kitConsent ? "\u2713 " : "",
+                                "Yes, connect me"
+                              ]
                             }
                           ),
-                          /* @__PURE__ */ jsx(
+                          /* @__PURE__ */ jsxs(
                             "button",
                             {
                               type: "button",
-                              className: `dv-lead-modal__pill ${!kitConsent ? "dv-lead-modal__pill--selected" : ""}`,
-                              onClick: () => setKitConsent(false),
+                              className: `dv-lead-modal__pill ${kitAnswered && !kitConsent ? "dv-lead-modal__pill--selected" : ""}`,
+                              onClick: () => {
+                                setKitConsent(false);
+                                setKitAnswered(true);
+                              },
                               disabled: isSubmitting,
-                              children: "No thanks"
+                              children: [
+                                kitAnswered && !kitConsent ? "\u2713 " : "",
+                                "No thanks"
+                              ]
                             }
                           )
                         ] })

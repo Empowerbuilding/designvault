@@ -2723,7 +2723,7 @@ html, body {
 .dv-lead-modal__pill {
   padding: 0.45rem 0.8rem;
   border-radius: 0.5rem;
-  border: 1px solid #444;
+  border: 1px solid #4a4a4a;
   background: #252525;
   color: #d1d5db;
   font-size: 0.8rem;
@@ -2743,9 +2743,11 @@ html, body {
 }
 
 .dv-lead-modal__pill--selected {
-  background: var(--dv-accent, #B8860B);
-  border-color: var(--dv-accent, #B8860B);
+  background: linear-gradient(135deg, #DAA520, var(--dv-accent, #B8860B));
+  border-color: #DAA520;
   color: #fff;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.4);
 }
 
 .dv-lead-modal__kit-offer {
