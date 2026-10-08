@@ -70,6 +70,8 @@ interface LeadCaptureData {
     sessionDuration: number;
     plansViewed: number;
     projectStage?: string;
+    smsOptIn?: boolean;
+    consent_source_url?: string;
     fbclid?: string;
     fbp?: string;
     fbc?: string;
@@ -243,7 +245,8 @@ declare const FavoriteButton: React__default.FC<FavoriteButtonProps>;
 
 declare class DesignVaultAPI {
     private baseUrl;
-    constructor(apiBaseUrl: string);
+    private builderSlug?;
+    constructor(apiBaseUrl: string, builderSlug?: string);
     getPlans(filters?: PlanFilters): Promise<FloorPlan[]>;
     getPlan(id: string): Promise<FloorPlan>;
     trackClick(planId: string): Promise<void>;
@@ -346,6 +349,7 @@ declare function useLeadCapture(): {
         email: string;
         phone: string;
         projectStage?: string;
+        smsOptIn?: boolean;
     }) => Promise<void>;
     isSubmitting: boolean;
     submitted: boolean;

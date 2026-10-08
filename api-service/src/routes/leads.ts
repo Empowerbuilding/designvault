@@ -89,6 +89,11 @@ router.post("/", async (req: Request, res: Response) => {
       ...(leadData.fbc && { fbc: leadData.fbc }),
       ...(leadData.client_user_agent && { client_user_agent: leadData.client_user_agent }),
       ...(clientIp && { client_ip_address: clientIp }),
+      // Lead monetization consent (v1) — only sent when captured, never inferred
+      ...(leadData.smsOptIn !== undefined && { consent_sms: leadData.smsOptIn === true }),
+      ...(leadData.smsOptIn === true && { consent_captured_at: new Date().toISOString() }),
+      ...(leadData.consent_source_url && { consent_source_url: leadData.consent_source_url }),
+      ...(leadData.smsOptIn !== undefined && { consent_text_version: "v1" }),
       ...(leadData.utm_source && { utm_source: leadData.utm_source }),
       ...(leadData.utm_medium && { utm_medium: leadData.utm_medium }),
       ...(leadData.utm_campaign && { utm_campaign: leadData.utm_campaign }),

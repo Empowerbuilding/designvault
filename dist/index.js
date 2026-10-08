@@ -19,12 +19,16 @@ var CaptureRequiredError = class extends Error {
   }
 };
 var DesignVaultAPI = class {
-  constructor(apiBaseUrl) {
+  constructor(apiBaseUrl, builderSlug) {
+    this.builderSlug = builderSlug;
     this.baseUrl = apiBaseUrl.replace(/\/$/, "");
   }
   // ── Plans ────────────────────────────────────────────────────
   async getPlans(filters) {
     const params = new URLSearchParams();
+    if (this.builderSlug) {
+      params.set("builderSlug", this.builderSlug);
+    }
     if (filters) {
       if (filters.bedrooms !== null && filters.bedrooms !== void 0) {
         params.set("bedrooms", String(filters.bedrooms));
@@ -46,6 +50,7 @@ var DesignVaultAPI = class {
       }
     }
     const query = params.toString();
+    if (this.builderSlug) params.set("builderSlug", this.builderSlug);
     const url = `${this.baseUrl}/api/plans${query ? `?${query}` : ""}`;
     return this.get(url);
   }
@@ -180,8 +185,8 @@ function DesignVaultProvider({
   children
 }) {
   const api = React.useMemo(
-    () => new DesignVaultAPI(config.apiBaseUrl),
-    [config.apiBaseUrl]
+    () => new DesignVaultAPI(config.apiBaseUrl, config.builderSlug),
+    [config.apiBaseUrl, config.builderSlug]
   );
   const [anonymousId] = React.useState(getOrCreateAnonymousId);
   const sessionStartRef = React.useRef(Date.now());
@@ -1538,6 +1543,9 @@ function useLeadCapture() {
         sessionDuration,
         plansViewed: plansViewed.length,
         projectStage: formData.projectStage ?? "",
+        // Lead monetization consent (v1) — spec: plans/lead-monetization/FORM_AND_DATA_SPEC.md
+        smsOptIn: formData.smsOptIn ?? false,
+        consent_source_url: typeof window !== "undefined" ? window.location.href : "",
         ...getFbTracking()
       };
       try {
@@ -1714,7 +1722,8 @@ var LeadCaptureModal = ({
     await submitCapture({
       ...data,
       phone: phone.replace(/\D/g, ""),
-      projectStage
+      projectStage,
+      smsOptIn
     });
   };
   const handleSkip = React.useCallback(() => {
@@ -1881,7 +1890,7 @@ var LeadCaptureModal = ({
                               disabled: isSubmitting
                             }
                           ),
-                          /* @__PURE__ */ jsxRuntime.jsx("span", { children: "You are opting into marketing texts from Barnhaus Steel Builders. Message frequency may vary. Standard message and data rates may apply. Reply STOP to opt out. Reply HELP for help. We will not share your mobile information with third parties for promotional or marketing purposes." })
+                          /* @__PURE__ */ jsxRuntime.jsx("span", { children: "I agree to receive texts and calls from Barnhaus Steel Builders about my project, using automated technology. Msg frequency varies. Reply STOP to opt out, HELP for help." })
                         ] })
                       ] }),
                       /* @__PURE__ */ jsxRuntime.jsxs("p", { className: "dv-lead-modal__privacy", children: [
@@ -1890,6 +1899,7 @@ var LeadCaptureModal = ({
                         /* @__PURE__ */ jsxRuntime.jsx("strong", { children: builderName }),
                         " to help you build this home."
                       ] }),
+                      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-lead-modal__privacy", children: "By submitting, you agree to our Terms of Service and Privacy Policy. If we connect you with a provider, we may be compensated." }),
                       /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "dv-lead-modal__field", children: [
                         /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "Where are you in your project?" }),
                         /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "0.625rem" }, children: [
@@ -3006,7 +3016,7 @@ function DesignVaultInner({ config }) {
       ] }),
       /* @__PURE__ */ jsxRuntime.jsx("h1", { className: "dv-hero__title", children: "Find Your Perfect Floor Plan" }),
       /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__subtitle", children: "Browse. Customize. Build With Confidence." }),
-      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__desc", children: "Explore 67+ steel building floor plans and see your vision come to life. Ready to build? Our team is here to help." }),
+      /* @__PURE__ */ jsxRuntime.jsx("p", { className: "dv-hero__desc", children: "Explore 75+ steel building floor plans and see your vision come to life. Ready to build? Our team is here to help." }),
       /* @__PURE__ */ jsxRuntime.jsx(
         "a",
         {

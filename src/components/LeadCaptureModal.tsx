@@ -172,6 +172,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       ...data,
       phone: phone.replace(/\D/g, ""),
       projectStage,
+      smsOptIn,
     });
   };
 
@@ -381,12 +382,10 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                         disabled={isSubmitting}
                       />
                       <span>
-                        You are opting into marketing texts from Barnhaus Steel
-                        Builders. Message frequency
-                        may vary. Standard message and data rates may apply.
-                        Reply STOP to opt out. Reply HELP for help. We will not
-                        share your mobile information with third parties for
-                        promotional or marketing purposes.
+                        I agree to receive texts and calls from Barnhaus Steel
+                        Builders about my project, using automated technology.
+                        Msg frequency varies. Reply STOP to opt out, HELP for
+                        help.
                       </span>
                     </label>
                   </div>
@@ -395,6 +394,11 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                   <p className="dv-lead-modal__privacy">
                     Your info will be shared with{" "}
                     <strong>{builderName}</strong> to help you build this home.
+                  </p>
+                  <p className="dv-lead-modal__privacy">
+                    By submitting, you agree to our Terms of Service and Privacy
+                    Policy. If we connect you with a provider, we may be
+                    compensated.
                   </p>
 
 

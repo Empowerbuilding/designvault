@@ -69,6 +69,10 @@ export interface LeadPayload {
   fbc?: string;
   client_user_agent?: string;
   client_ip_address?: string;
+  consent_sms?: boolean;
+  consent_captured_at?: string;
+  consent_source_url?: string;
+  consent_text_version?: string;
   metadata: {
     planId: string;
     planTitle: string;

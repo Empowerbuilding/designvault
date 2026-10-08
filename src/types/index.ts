@@ -97,6 +97,8 @@ export interface LeadCaptureData {
   sessionDuration: number;
   plansViewed: number;
   projectStage?: string;
+  smsOptIn?: boolean;
+  consent_source_url?: string;
   fbclid?: string;
   fbp?: string;
   fbc?: string;
