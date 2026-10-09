@@ -1647,6 +1647,11 @@ var BUDGET_OPTIONS = [
   { value: "3m_plus", label: "$3M+" },
   { value: "unsure", label: "Not sure" }
 ];
+var STAGE_OPTIONS = [
+  { value: "gathering_ideas", label: "Just gathering ideas" },
+  { value: "concept_budget", label: "Need a concept & budget study" },
+  { value: "ready_for_bid", label: "Have plans \u2014 ready to bid" }
+];
 var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validateFields(data) {
   const errors = {};
@@ -1742,7 +1747,7 @@ var LeadCaptureModal = ({
     await submitCapture({
       ...data,
       phone: phone.replace(/\D/g, ""),
-      projectStage,
+      projectStage: showRouting ? projectStage : "",
       smsOptIn,
       projectType: showRouting ? projectType : "",
       budgetRange: showRouting ? budgetRange : "",
@@ -1922,30 +1927,23 @@ var LeadCaptureModal = ({
                         /* @__PURE__ */ jsx("strong", { children: builderName }),
                         " to help you build this home."
                       ] }),
-                      /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", children: "By submitting, you agree to our Terms of Service and Privacy Policy. If we connect you with a provider, we may be compensated." }),
-                      /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
-                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "Where are you in your project?" }),
-                        /* @__PURE__ */ jsx("div", { style: { display: "flex", flexDirection: "column", gap: "0.625rem" }, children: [
-                          { value: "gathering_ideas", label: "I'm just starting to gather ideas." },
-                          { value: "concept_budget", label: "I have a rough idea and need a 3D Concept & Budget Study to get started." },
-                          { value: "ready_for_bid", label: "I have full architectural plans and am ready for a construction bid." }
-                        ].map((option) => /* @__PURE__ */ jsxs("label", { style: { display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer" }, children: [
-                          /* @__PURE__ */ jsx(
-                            "input",
-                            {
-                              type: "radio",
-                              name: "projectStage",
-                              value: option.value,
-                              checked: projectStage === option.value,
-                              onChange: (e) => setProjectStage(e.target.value),
-                              disabled: isSubmitting,
-                              style: { marginTop: "0.2rem", flexShrink: 0, accentColor: "var(--dv-accent, #B8860B)" }
-                            }
-                          ),
-                          /* @__PURE__ */ jsx("span", { className: "dv-lead-modal__privacy", style: { margin: 0 }, children: option.label })
-                        ] }, option.value)) })
-                      ] }),
                       showRouting && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                        /* @__PURE__ */ jsx(
+                          "p",
+                          {
+                            className: "dv-lead-modal__privacy",
+                            style: {
+                              margin: 0,
+                              marginBottom: "0.75rem",
+                              fontWeight: 700,
+                              fontSize: "0.95rem",
+                              color: "var(--dv-text, #fff)",
+                              borderLeft: "2px solid var(--dv-accent, #B8860B)",
+                              paddingLeft: "0.6rem"
+                            },
+                            children: "Tell us about your project"
+                          }
+                        ),
                         /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "What are you planning to build?" }),
                         /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: PROJECT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ jsxs(
                           "button",
@@ -1956,6 +1954,23 @@ var LeadCaptureModal = ({
                             disabled: isSubmitting,
                             children: [
                               projectType === opt.value ? "\u2713 " : "",
+                              opt.label
+                            ]
+                          },
+                          opt.value
+                        )) })
+                      ] }),
+                      showRouting && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__field", children: [
+                        /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginBottom: "0.5rem", fontWeight: 600, color: "inherit" }, children: "Where are you in your project?" }),
+                        /* @__PURE__ */ jsx("div", { className: "dv-lead-modal__pill-row", children: STAGE_OPTIONS.map((opt) => /* @__PURE__ */ jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            className: `dv-lead-modal__pill ${projectStage === opt.value ? "dv-lead-modal__pill--selected" : ""}`,
+                            onClick: () => setProjectStage(projectStage === opt.value ? "" : opt.value),
+                            disabled: isSubmitting,
+                            children: [
+                              projectStage === opt.value ? "\u2713 " : "",
                               opt.label
                             ]
                           },
@@ -1982,8 +1997,8 @@ var LeadCaptureModal = ({
                       showKitOffer && /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__kit-offer", children: [
                         /* @__PURE__ */ jsxs("p", { className: "dv-lead-modal__privacy", style: { margin: 0 }, children: [
                           "\u{1F4A1} ",
-                          /* @__PURE__ */ jsx("strong", { children: "On a tighter budget?" }),
-                          " Steel building kits can stretch it a lot further \u2014 many of our customers go this route."
+                          /* @__PURE__ */ jsx("strong", { children: "Steel building kits can stretch your budget a lot further" }),
+                          " \u2014 many of our barndominium and shop customers go this route."
                         ] }),
                         /* @__PURE__ */ jsx("p", { className: "dv-lead-modal__privacy", style: { marginTop: "0.4rem", marginBottom: "0.5rem" }, children: "Want us to connect you with kit suppliers?" }),
                         /* @__PURE__ */ jsxs("div", { className: "dv-lead-modal__pill-row", children: [
@@ -2040,6 +2055,14 @@ var LeadCaptureModal = ({
                             /* @__PURE__ */ jsx(Save, { size: 16 }),
                             config.ctaText || "Save My Design"
                           ] })
+                        }
+                      ),
+                      showRouting && /* @__PURE__ */ jsx(
+                        "p",
+                        {
+                          className: "dv-lead-modal__privacy",
+                          style: { textAlign: "center", marginBottom: 0 },
+                          children: "By submitting, you agree to our Terms of Service and Privacy Policy. If we connect you with a provider, we may be compensated."
                         }
                       )
                     ]

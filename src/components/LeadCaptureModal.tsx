@@ -68,6 +68,12 @@ const BUDGET_OPTIONS = [
   { value: "unsure", label: "Not sure" },
 ];
 
+const STAGE_OPTIONS = [
+  { value: "gathering_ideas", label: "Just gathering ideas" },
+  { value: "concept_budget", label: "Need a concept & budget study" },
+  { value: "ready_for_bid", label: "Have plans — ready to bid" },
+];
+
 // ── Validation ──────────────────────────────────────────────
 
 interface FieldErrors {
@@ -205,7 +211,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
     await submitCapture({
       ...data,
       phone: phone.replace(/\D/g, ""),
-      projectStage,
+      projectStage: showRouting ? projectStage : "",
       smsOptIn,
       projectType: showRouting ? projectType : "",
       budgetRange: showRouting ? budgetRange : "",
@@ -432,43 +438,25 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                     Your info will be shared with{" "}
                     <strong>{builderName}</strong> to help you build this home.
                   </p>
-                  <p className="dv-lead-modal__privacy">
-                    By submitting, you agree to our Terms of Service and Privacy
-                    Policy. If we connect you with a provider, we may be
-                    compensated.
-                  </p>
 
-
-                  {/* Project Stage */}
-                  <div className="dv-lead-modal__field">
-                    <p className="dv-lead-modal__privacy" style={{ marginBottom: '0.5rem', fontWeight: 600, color: 'inherit' }}>
-                      Where are you in your project?
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                      {[
-                        { value: 'gathering_ideas', label: "I'm just starting to gather ideas." },
-                        { value: 'concept_budget', label: "I have a rough idea and need a 3D Concept & Budget Study to get started." },
-                        { value: 'ready_for_bid', label: "I have full architectural plans and am ready for a construction bid." }
-                      ].map((option) => (
-                        <label key={option.value} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-                          <input
-                            type="radio"
-                            name="projectStage"
-                            value={option.value}
-                            checked={projectStage === option.value}
-                            onChange={(e) => setProjectStage(e.target.value)}
-                            disabled={isSubmitting}
-                            style={{ marginTop: '0.2rem', flexShrink: 0, accentColor: 'var(--dv-accent, #B8860B)' }}
-                          />
-                          <span className="dv-lead-modal__privacy" style={{ margin: 0 }}>{option.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Lead routing questions (lead monetization — config-gated) */}
+                  {/* Project qualification — one cohesive block (config-gated) */}
                   {showRouting && (
                     <div className="dv-lead-modal__field">
+                      <p
+                        className="dv-lead-modal__privacy"
+                        style={{
+                          margin: 0,
+                          marginBottom: "0.75rem",
+                          fontWeight: 700,
+                          fontSize: "0.95rem",
+                          color: "var(--dv-text, #fff)",
+                          borderLeft: "2px solid var(--dv-accent, #B8860B)",
+                          paddingLeft: "0.6rem",
+                        }}
+                      >
+                        Tell us about your project
+                      </p>
+
                       <p className="dv-lead-modal__privacy" style={{ marginBottom: '0.5rem', fontWeight: 600, color: 'inherit' }}>
                         What are you planning to build?
                       </p>
@@ -482,6 +470,27 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                             disabled={isSubmitting}
                           >
                             {projectType === opt.value ? "\u2713 " : ""}{opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {showRouting && (
+                    <div className="dv-lead-modal__field">
+                      <p className="dv-lead-modal__privacy" style={{ marginBottom: '0.5rem', fontWeight: 600, color: 'inherit' }}>
+                        Where are you in your project?
+                      </p>
+                      <div className="dv-lead-modal__pill-row">
+                        {STAGE_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            className={`dv-lead-modal__pill ${projectStage === opt.value ? "dv-lead-modal__pill--selected" : ""}`}
+                            onClick={() => setProjectStage(projectStage === opt.value ? "" : opt.value)}
+                            disabled={isSubmitting}
+                          >
+                            {projectStage === opt.value ? "\u2713 " : ""}{opt.label}
                           </button>
                         ))}
                       </div>
@@ -512,8 +521,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                   {showKitOffer && (
                     <div className="dv-lead-modal__kit-offer">
                       <p className="dv-lead-modal__privacy" style={{ margin: 0 }}>
-                        💡 <strong>On a tighter budget?</strong> Steel building kits
-                        can stretch it a lot further — many of our customers go this route.
+                        💡 <strong>Steel building kits can stretch your budget a lot further</strong> — many of our barndominium and shop customers go this route.
                       </p>
                       <p className="dv-lead-modal__privacy" style={{ marginTop: '0.4rem', marginBottom: '0.5rem' }}>
                         Want us to connect you with kit suppliers?
@@ -560,6 +568,17 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
                       </>
                     )}
                   </button>
+
+                  {showRouting && (
+                    <p
+                      className="dv-lead-modal__privacy"
+                      style={{ textAlign: "center", marginBottom: 0 }}
+                    >
+                      By submitting, you agree to our Terms of Service and Privacy
+                      Policy. If we connect you with a provider, we may be
+                      compensated.
+                    </p>
+                  )}
                 </form>
 
                 {/* Skip link */}
