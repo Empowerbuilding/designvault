@@ -148,6 +148,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const showKitOffer =
     showRouting &&
     (budgetRange === "under_150k" ||
+      budgetRange === "150_300k" ||
       projectType === "shop_garage" ||
       projectType === "barndominium");
   const [skipCount, setSkipCount] = useState(getSkipCount);

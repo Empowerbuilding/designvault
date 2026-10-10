@@ -1,6 +1,6 @@
 {
   "name": "designvault",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "AI-powered floor plan archive components for builder websites",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
