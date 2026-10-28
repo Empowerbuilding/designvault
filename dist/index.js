@@ -546,7 +546,7 @@ var PlanCard = ({
   const [imageIndex, setImageIndex] = React.useState(0);
   const isPopular = (plan.vote_count ?? 0) > 3;
   const isNew = plan.is_new === true;
-  const allImages = [plan.image_url, ...plan.interior_urls ?? []];
+  const allImages = [plan.card_image_url || plan.image_url, ...plan.interior_urls ?? []];
   const hasMultipleImages = allImages.length > 1;
   return /* @__PURE__ */ jsxRuntime.jsxs(
     framerMotion.motion.div,
@@ -2605,7 +2605,7 @@ var SimilarPlans = ({
           /* @__PURE__ */ jsxRuntime.jsx(
             "img",
             {
-              src: plan.image_url,
+              src: plan.card_image_url || plan.image_url,
               alt: plan.title,
               className: "dv-similar-plans__img",
               loading: "lazy"

@@ -6,6 +6,8 @@ export interface FloorPlan {
   baths: number;
   area: number;
   image_url: string;
+  /** Derived at serve time: right-sized R2 variant for card grid slots (B2 archive). */
+  card_image_url?: string | null;
   features: string[];
   display_order: number;
   vote_count: number;

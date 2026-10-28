@@ -19,7 +19,8 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   const isPopular = (plan.vote_count ?? 0) > 3;
   const isNew = plan.is_new === true;
 
-  const allImages = [plan.image_url, ...(plan.interior_urls ?? [])];
+  // Card grid slot gets the right-sized variant when the API provides one; detail view keeps originals.
+  const allImages = [plan.card_image_url || plan.image_url, ...(plan.interior_urls ?? [])];
   const hasMultipleImages = allImages.length > 1;
 
   return (

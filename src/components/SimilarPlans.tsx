@@ -40,7 +40,7 @@ export const SimilarPlans: React.FC<SimilarPlansProps> = ({
             onClick={() => onPlanSelect(plan)}
           >
             <img
-              src={plan.image_url}
+              src={plan.card_image_url || plan.image_url}
               alt={plan.title}
               className="dv-similar-plans__img"
               loading="lazy"

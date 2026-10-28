@@ -27,6 +27,8 @@ export interface FloorPlan {
   baths: number;
   area: number;
   image_url: string;
+  /** Right-sized card variant served by the API (falls back to image_url when absent). */
+  card_image_url?: string | null;
   floor_plan_url: string | null;
   interior_urls: string[] | null;
   features: string[];

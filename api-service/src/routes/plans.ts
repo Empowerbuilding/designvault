@@ -4,6 +4,50 @@ import { log } from "../lib/logger.js";
 
 const router = Router();
 
+// ── Image delivery (B2 archive, 10/28): serve R2 mirrors + right-sized card variants ──
+// Supabase SFO originals stay canonical in the DB; only response URLs are rewritten.
+// Scoped to buckets mirrored on R2 (media.barnhaussteelbuilders.com) — other builders unaffected.
+const SB_PUBLIC_PREFIX =
+  "https://hbfjdfxephlczkfgpceg.supabase.co/storage/v1/object/public/";
+const R2_PUBLIC_BASE = "https://media.barnhaussteelbuilders.com/";
+const MIRRORED_BUCKETS = new Set(["Barnhaus Updated Pics", "design-studio"]);
+
+function splitBucketPath(url: string): { bucket: string; rest: string } | null {
+  if (!url.startsWith(SB_PUBLIC_PREFIX)) return null;
+  const decoded = decodeURIComponent(url.slice(SB_PUBLIC_PREFIX.length));
+  const slash = decoded.indexOf("/");
+  if (slash < 0) return null;
+  return { bucket: decoded.slice(0, slash), rest: decoded.slice(slash + 1) };
+}
+
+/** Supabase public URL -> R2 mirror URL (same bytes, edge-cached). Passes through non-mirrored URLs. */
+function toR2(url: string | null | undefined): string | null {
+  if (!url) return url ?? null;
+  const parts = splitBucketPath(url);
+  if (!parts || !MIRRORED_BUCKETS.has(parts.bucket)) return url;
+  return R2_PUBLIC_BASE + encodeURI(parts.bucket + "/" + parts.rest);
+}
+
+/** Original plan image -> 800px webp card variant on R2 (opt/archive/). Null when no variant exists. */
+function cardVariant(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const parts = splitBucketPath(url);
+  if (!parts || !MIRRORED_BUCKETS.has(parts.bucket)) return null;
+  const file = parts.rest.slice(parts.rest.lastIndexOf("/") + 1);
+  const stem = file.replace(/\.[^.]+$/, "");
+  return `${R2_PUBLIC_BASE}opt/archive/${encodeURI(stem)}-800.webp`;
+}
+
+function transformPlan<T extends { image_url: string; interior_urls?: string[] | null; floor_plan_url?: string | null }>(p: T): T & { card_image_url: string | null } {
+  return {
+    ...p,
+    image_url: toR2(p.image_url) ?? p.image_url,
+    card_image_url: cardVariant(p.image_url),
+    interior_urls: (p.interior_urls ?? []).map((u) => toR2(u) ?? u),
+    floor_plan_url: toR2(p.floor_plan_url),
+  };
+}
+
 // ── GET /api/plans ──────────────────────────────────────────
 router.get("/", async (req: Request, res: Response) => {
   try {
@@ -36,7 +80,7 @@ router.get("/", async (req: Request, res: Response) => {
     }
 
     res.set("Cache-Control", "public, max-age=300");
-    res.json(data);
+    res.json(data.map(transformPlan));
   } catch (err) {
     log("PLANS_FETCH_ERROR", { error: String(err), stack: (err as Error).stack });
     res.status(500).json({ error: "Failed to fetch plans" });
@@ -58,7 +102,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     }
 
     res.set("Cache-Control", "public, max-age=300");
-    res.json(data);
+    res.json(transformPlan(data));
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch plan" });
   }
